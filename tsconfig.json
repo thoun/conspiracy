@@ -1,0 +1,18 @@
+{
+    "rootDir": ".", 
+    "compilerOptions": {
+      "target": "es5",
+      "module": "none",
+      "lib": ["dom", "esnext"],  
+      "sourceMap": false,
+      "outFile": "conspiracy.js",
+    },
+    "files": [
+        "src/framework.d.ts",
+        "src/counter.d.ts",
+        "src/stock.d.ts",
+        "src/conspiracy.d.ts",
+        "src/conspiracy.ts",
+        "src/define.ts"
+    ]
+}
