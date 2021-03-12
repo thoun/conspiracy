@@ -13,25 +13,25 @@
 $gameinfos = array( 
 
 // Name of the game in English (will serve as the basis for translation) 
-'game_name' => "My Great Game",
+'game_name' => "Conspiracy",
 
 // Game designer (or game designers, separated by commas)
-'designer' => 'John Doe',       
+'designer' => 'Bruno Cathala, Charles Chevallier',       
 
 // Game artist (or game artists, separated by commas)
-'artist' => 'Jane Doe',         
+'artist' => 'Pascal Quidault',         
 
 // Year of FIRST publication of this game. Can be negative.
-'year' => 2000,                 
+'year' => 2019,                 
 
 // Game publisher (use empty string if there is no publisher)
-'publisher' => 'My Publishing Company',                     
+'publisher' => 'Bombyx',                     
 
 // Url of game publisher website
 'publisher_website' => 'http://www.mypublishingcompany.com/',   
 
 // Board Game Geek ID of the publisher
-'publisher_bgg_id' => 1234,
+'publisher_bgg_id' => 19260,
 
 // Board game geek ID of the game
 'bgg_id' => 276042,
@@ -96,7 +96,7 @@ $gameinfos = array(
 'strategy' => 3,    
 
 // Diplomacy of the game, from 0 (no interaction in this game) to 5 (totally based on interaction and discussion between players)
-'diplomacy' => 3,    
+'diplomacy' => 1,    
 
 // Colors attributed to players
 'player_colors' => array( "ff0000", "008000", "0000ff", "ffa500", "773300" ),
