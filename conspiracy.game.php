@@ -18,6 +18,9 @@
 
 
 require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
+require_once( 'module/constants.inc.php' );
+require_once( 'module/lord.php' );
+require_once( 'module/place.php' );
 
 
 class Conspiracy extends Table

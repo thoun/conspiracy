@@ -53,51 +53,158 @@
 $machinestates = array(
 
     // The initial state. Please do not modify.
-    1 => array(
+    ST_BGA_GAME_SETUP => array(
         "name" => "gameSetup",
-        "description" => "",
+        "description" => clienttranslate("Game setup"),
         "type" => "manager",
         "action" => "stGameSetup",
-        "transitions" => array( "" => 2 )
+        "transitions" => array( "" => ST_PLAYER_LORD_STACK_SELECTION )
     ),
-    
-    // Note: ID=2 => your first state
+        
+    ST_PLAYER_LORD_STACK_SELECTION => array(
+        "name" => "lordStackSelection",
+        "description" => clienttranslate('${actplayer} must choose lords'),
+        "descriptionmyturn" => clienttranslate('${you} must choose lords'),
+        "type" => "activeplayer",
+        "action" => "stLordStackSelection",
+        "possibleactions" => array( "chooseDeckStack", "chooseVisibleStack", "chooseVisibleStackMultiple" ),
+        "transitions" => array( 
+            "chooseDeckStack" => ST_PLAYER_LORD_SELECTION,
+            "chooseOneOnStack" => ST_PLAY_LORD,
+            "chooseVisibleStack" => ST_PLAY_LORD,
+            "chooseVisibleStackMultiple" => ST_PLAYER_LORD_PICK
+        )
+    ),  
 
-    2 => array(
-    		"name" => "playerTurn",
-    		"description" => clienttranslate('${actplayer} must play a card or pass'),
-    		"descriptionmyturn" => clienttranslate('${you} must play a card or pass'),
-    		"type" => "activeplayer",
-    		"possibleactions" => array( "playCard", "pass" ),
-    		"transitions" => array( "playCard" => 2, "pass" => 2 )
+    ST_PLAYER_LORD_SELECTION => array(
+        "name" => "lordSelection",
+        "description" => clienttranslate('${actplayer} must choose a lord'),
+        "descriptionmyturn" => clienttranslate('${you} must choose a lord'),
+        "type" => "activeplayer",
+        "action" => "stLordSelection",
+        "possibleactions" => array( "placeLord" ),
+        "transitions" => array( 
+            "placeLord" => ST_PLAY_LORD
+        )
     ),
-    
-/*
-    Examples:
-    
-    2 => array(
+
+    ST_PLAYER_LORD_PICK => array(
+        "name" => "lordPick",
+        "description" => clienttranslate('${actplayer} must choose first lord to place'),
+        "descriptionmyturn" => clienttranslate('${you} must choose first lord to place'),
+        "type" => "activeplayer",
+        "action" => "stLordPlacement",
+        "possibleactions" => array( "placeLord" ),
+        "transitions" => array( 
+            "placeLord" => ST_PLAY_LORD
+        )
+    ),
+
+    ST_PLAY_LORD => array(
+        "name" => "lordPlacement",
+        "description" => "",
+        "type" => "game",
+        "action" => "stPlayLord",
+        "transitions" => array( 
+            "switch" => ST_PLAYER_LORDS_SWITCH,
+            "addPlace" => ST_PLACE_STACK_SELECTION,
+            "nextPlayer" => ST_NEXT_PLAYER,
+        )
+    ),
+
+    ST_PLAYER_LORDS_SWITCH => array(
+        "name" => "lordSwitch",
+        "description" => clienttranslate('${actplayer} must select lords to switch'),
+        "descriptionmyturn" => clienttranslate('${you} must select lords to switch'),
+        "type" => "activeplayer",
+        "action" => "stLordSwitch",
+        "possibleactions" => array( "nextPlayer" ),
+        "transitions" => array( 
+            "nextPlayer" => ST_NEXT_PLAYER
+        )
+    ),
+
+    ST_PLAYER_PLACE_STACK_SELECTION => array(
+        "name" => "placeStackSelection",
+        "description" => clienttranslate('${actplayer} must choose place'),
+        "descriptionmyturn" => clienttranslate('${you} must choose place'),
+        "type" => "activeplayer",
+        "action" => "stPlaceStackSelection",
+        "possibleactions" => array( "chooseDeckStack", "chooseVisiblePlace" ),
+        "transitions" => array( 
+            "chooseDeckStack" => ST_PLACE_PLACE_SELECTION,
+            "chooseOneOnStack" => ST_PLAY_PLACE,
+            "chooseVisiblePlace" => ST_PLAY_PLACE
+        )
+    ),  
+
+    ST_PLACE_PLACE_SELECTION => array(
+        "name" => "placeSelection",
+        "description" => clienttranslate('${actplayer} must choose a place'),
+        "descriptionmyturn" => clienttranslate('${you} must choose a place'),
+        "type" => "activeplayer",
+        "action" => "stPlaceSelection",
+        "possibleactions" => array( "placeSelection" ),
+        "transitions" => array( 
+            "placeSelection" => ST_PLAY_PLACE
+        )
+    ),
+
+    ST_PLAY_PLACE => array(
+        "name" => "placePlacement",
+        "description" => "",
+        "type" => "game",
+        "action" => "stPlayPlace",
+        "transitions" => array( 
+            "discardLords" => ST_DISCARD_LORDS,
+            "discardPlaces" => ST_DISCARD_PLACES,
+            "nextPlayer" => ST_NEXT_PLAYER,
+        )
+    ),
+
+    ST_DISCARD_LORDS => array(
+        "name" => "discardLords",
+        "description" => "",
+        "type" => "game",
+        "action" => "stDiscardLords",
+        "transitions" => array( 
+            "nextPlayer" => ST_NEXT_PLAYER,
+        )
+    ),
+
+    ST_DISCARD_PLACES => array(
+        "name" => "discardPlaces",
+        "description" => "",
+        "type" => "game",
+        "action" => "stDiscardPlaces",
+        "transitions" => array( 
+            "nextPlayer" => ST_NEXT_PLAYER,
+        )
+    ),
+
+    ST_NEXT_PLAYER => array(
         "name" => "nextPlayer",
-        "description" => '',
+        "description" => "",
         "type" => "game",
         "action" => "stNextPlayer",
-        "updateGameProgression" => true,   
-        "transitions" => array( "endGame" => 99, "nextPlayer" => 10 )
+        "updateGameProgression" => true,
+        "transitions" => array( 
+            "nextPlayer" => ST_PLAYER_LORD_STACK_SELECTION, 
+            "showScore" => ST_SHOW_SCORE
+        )
     ),
-    
-    10 => array(
-        "name" => "playerTurn",
-        "description" => clienttranslate('${actplayer} must play a card or pass'),
-        "descriptionmyturn" => clienttranslate('${you} must play a card or pass'),
-        "type" => "activeplayer",
-        "possibleactions" => array( "playCard", "pass" ),
-        "transitions" => array( "playCard" => 2, "pass" => 2 )
-    ), 
 
-*/    
+    ST_SHOW_SCORE => array(
+      "name" => "showScore",
+      "description" => "",
+      "type" => "game",
+      "action" => "stShowScore",
+      "transitions" => array( "endGame" => ST_END_GAME )
+    ),
    
     // Final state.
-    // Please do not modify (and do not overload action/args methods).
-    99 => array(
+    // Please do not modify.
+    ST_END_GAME => array(
         "name" => "gameEnd",
         "description" => clienttranslate("End of game"),
         "type" => "manager",
