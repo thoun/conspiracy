@@ -1,7 +1,7 @@
 <?php
-require_once( 'constants.inc.php' );
+require_once( __DIR__.'/constants.inc.php' );
 
-class Place {
+class Location {
     public /*int*/ $id;
     public /*string*/ $location; // deck, place_selection, table
     public /*int*/ $location_arg; //  1 if deck & visible, else player_id
@@ -12,10 +12,10 @@ class Place {
         $this->location = $dbPlace['location'];
         $this->location_arg = intval($dbPlace['location_arg']);
 
-        $placeCard = PLACES[$this->id];
-        $this->points = $placeCard->points;
-        $this->pearls = $placeCard->pearls;
-        $this->power = $placeCard->power;     
+        $locationCard = $LOCATIONS[$this->id];
+        $this->points = $locationCard->points;
+        $this->pearls = $locationCard->pearls;
+        $this->power = $locationCard->power;     
     } 
 }
 ?>

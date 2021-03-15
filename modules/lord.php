@@ -1,5 +1,5 @@
 <?php
-require_once( 'constants.inc.php' );
+require_once( __DIR__.'/constants.inc.php' );
 
 class Lord extends LordCard {
     public /*int*/ $id;
@@ -11,7 +11,7 @@ class Lord extends LordCard {
         $this->location = $dbLord['location'];
         $this->location_arg = intval($dbLord['location_arg']);
 
-        $lordCard = LORDS[$this->id];
+        $lordCard = $LORDS[$this->id];
         $this->points = $lordCard->points;
         $this->guild = $lordCard->guild;
         $this->switch = $lordCard->switch;

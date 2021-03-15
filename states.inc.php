@@ -66,12 +66,12 @@ $machinestates = array(
         "description" => clienttranslate('${actplayer} must choose lords'),
         "descriptionmyturn" => clienttranslate('${you} must choose lords'),
         "type" => "activeplayer",
-        "action" => "stLordStackSelection",
+        "action" => "stPlayerLordStackSelection",
         "possibleactions" => array( "chooseDeckStack", "chooseVisibleStack", "chooseVisibleStackMultiple" ),
         "transitions" => array( 
             "chooseDeckStack" => ST_PLAYER_LORD_SELECTION,
-            "chooseOneOnStack" => ST_PLAY_LORD,
-            "chooseVisibleStack" => ST_PLAY_LORD,
+            "chooseOneOnStack" => ST_ADD_LORD,
+            "chooseVisibleStack" => ST_ADD_LORD,
             "chooseVisibleStackMultiple" => ST_PLAYER_LORD_PICK
         )
     ),  
@@ -81,10 +81,10 @@ $machinestates = array(
         "description" => clienttranslate('${actplayer} must choose a lord'),
         "descriptionmyturn" => clienttranslate('${you} must choose a lord'),
         "type" => "activeplayer",
-        "action" => "stLordSelection",
-        "possibleactions" => array( "placeLord" ),
+        "action" => "stPlayerLordSelection",
+        "possibleactions" => array( "addLord" ),
         "transitions" => array( 
-            "placeLord" => ST_PLAY_LORD
+            "addLord" => ST_ADD_LORD
         )
     ),
 
@@ -93,21 +93,22 @@ $machinestates = array(
         "description" => clienttranslate('${actplayer} must choose first lord to place'),
         "descriptionmyturn" => clienttranslate('${you} must choose first lord to place'),
         "type" => "activeplayer",
-        "action" => "stLordPlacement",
-        "possibleactions" => array( "placeLord" ),
+        "action" => "stPlayerLordPick",
+        "possibleactions" => array( "addLord" ),
         "transitions" => array( 
-            "placeLord" => ST_PLAY_LORD
+            "addLord" => ST_ADD_LORD
         )
     ),
 
-    ST_PLAY_LORD => array(
+    ST_ADD_LORD => array(
         "name" => "lordPlacement",
         "description" => "",
         "type" => "game",
         "action" => "stPlayLord",
+        "updateGameProgression" => true,
         "transitions" => array( 
             "switch" => ST_PLAYER_LORDS_SWITCH,
-            "addPlace" => ST_PLACE_STACK_SELECTION,
+            "addLocation" => ST_PLAYER_LOCATION_STACK_SELECTION,
             "nextPlayer" => ST_NEXT_PLAYER,
         )
     ),
@@ -117,47 +118,47 @@ $machinestates = array(
         "description" => clienttranslate('${actplayer} must select lords to switch'),
         "descriptionmyturn" => clienttranslate('${you} must select lords to switch'),
         "type" => "activeplayer",
-        "action" => "stLordSwitch",
+        "action" => "stPlayerLordSwitch",
         "possibleactions" => array( "nextPlayer" ),
         "transitions" => array( 
             "nextPlayer" => ST_NEXT_PLAYER
         )
     ),
 
-    ST_PLAYER_PLACE_STACK_SELECTION => array(
-        "name" => "placeStackSelection",
-        "description" => clienttranslate('${actplayer} must choose place'),
-        "descriptionmyturn" => clienttranslate('${you} must choose place'),
+    ST_PLAYER_LOCATION_STACK_SELECTION => array(
+        "name" => "locationStackSelection",
+        "description" => clienttranslate('${actplayer} must choose location'),
+        "descriptionmyturn" => clienttranslate('${you} must choose location'),
         "type" => "activeplayer",
-        "action" => "stPlaceStackSelection",
-        "possibleactions" => array( "chooseDeckStack", "chooseVisiblePlace" ),
+        "action" => "stPlayerLocationStackSelection",
+        "possibleactions" => array( "chooseDeckStack", "chooseVisibleLocation" ),
         "transitions" => array( 
-            "chooseDeckStack" => ST_PLACE_PLACE_SELECTION,
-            "chooseOneOnStack" => ST_PLAY_PLACE,
-            "chooseVisiblePlace" => ST_PLAY_PLACE
+            "chooseDeckStack" => ST_PLAYER_LOCATION_SELECTION,
+            "chooseOneOnStack" => ST_ADD_LOCATION,
+            "chooseVisibleLocation" => ST_ADD_LOCATION
         )
     ),  
 
-    ST_PLACE_PLACE_SELECTION => array(
+    ST_PLAYER_LOCATION_SELECTION => array(
         "name" => "placeSelection",
         "description" => clienttranslate('${actplayer} must choose a place'),
         "descriptionmyturn" => clienttranslate('${you} must choose a place'),
         "type" => "activeplayer",
-        "action" => "stPlaceSelection",
-        "possibleactions" => array( "placeSelection" ),
+        "action" => "stPlayerLocationSelection",
+        "possibleactions" => array( "addLocation" ),
         "transitions" => array( 
-            "placeSelection" => ST_PLAY_PLACE
+            "addLocation" => ST_ADD_LOCATION
         )
     ),
 
-    ST_PLAY_PLACE => array(
-        "name" => "placePlacement",
+    ST_ADD_LOCATION => array(
+        "name" => "addLocation",
         "description" => "",
         "type" => "game",
-        "action" => "stPlayPlace",
+        "action" => "stAddLocation",
         "transitions" => array( 
             "discardLords" => ST_DISCARD_LORDS,
-            "discardPlaces" => ST_DISCARD_PLACES,
+            "discardPlaces" => ST_DISCARD_LOCATIONS,
             "nextPlayer" => ST_NEXT_PLAYER,
         )
     ),
@@ -172,7 +173,7 @@ $machinestates = array(
         )
     ),
 
-    ST_DISCARD_PLACES => array(
+    ST_DISCARD_LOCATIONS => array(
         "name" => "discardPlaces",
         "description" => "",
         "type" => "game",

@@ -10,14 +10,14 @@ define('ST_BGA_GAME_SETUP', 1);
 define('ST_PLAYER_LORD_STACK_SELECTION', 20);
 define('ST_PLAYER_LORD_SELECTION', 21);
 define('ST_PLAYER_LORD_PICK', 22);
-define('ST_PLAY_LORD', 23);
+define('ST_ADD_LORD', 23);
 define('ST_PLAYER_LORDS_SWITCH', 24);
 
-define('ST_PLAYER_PLACE_STACK_SELECTION', 40);
-define('ST_PLACE_PLACE_SELECTION', 41);
-define('ST_PLAY_PLACE', 42);
+define('ST_PLAYER_LOCATION_STACK_SELECTION', 40);
+define('ST_PLAYER_LOCATION_SELECTION', 41);
+define('ST_ADD_LOCATION', 42);
 define('ST_DISCARD_LORDS', 43);
-define('ST_DISCARD_PLACES', 44);
+define('ST_DISCARD_LOCATIONS', 44);
 
 define('ST_NEXT_PLAYER', 60);
 
@@ -54,13 +54,12 @@ class LordCard {
 $LORDS = array(
     1 => new LordCard(6, 1, false, null, 0, true)
 );
-define('LORDS', $LORDS);
 
 /*
- * Places
+ * Locations
  */
 
-class PlaceCard {
+class LocationCard {
     //public /*int*/ $id;
     public /*int*/ $points;
     public /*int*/ $pearls;
@@ -75,9 +74,8 @@ class PlaceCard {
     } 
 }
   
-$PLACES = array(
-    1 => new PlaceCard(7, 0, null)
+$LOCATIONS = array(
+    1 => new LocationCard(7, 0, null)
 );
 
-define('PLACES', $PLACES);
 ?>
