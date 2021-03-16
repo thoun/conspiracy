@@ -27,55 +27,20 @@ define('ST_END_GAME', 99);
 define('END_SCORE', 100);
 
 /*
- * Lords
+ * Powers
  */
-
-class LordCard {
-    //public /*int*/ $id;
-    public /*int*/ $points;
-    public /*int*/ $guild; // 1 blue, 2 green, 3 yellow, 4 red, 5 purple
-    public /*bool*/ $switch;
-    public /*int*/ $key; // 1 for silver, 2 for gold
-    public /*int*/ $pearls;
-    public /*bool*/ $showExtraLord;
-  
-  
-    public function __construct(/*$id,*/ $points, $guild, $switch, $key, $pearls, $showExtraLord) {
-        //$this->id = $id;
-        $this->points = $points;
-        $this->guild = $guild;
-        $this->switch = $switch;
-        $this->key = $key;
-        $this->pearls = $pearls;
-        $this->showExtraLord = $showExtraLord;
-    } 
-}
-  
-$LORDS = array(
-    1 => new LordCard(6, 1, false, null, 0, true)
-);
-
-/*
- * Locations
- */
-
-class LocationCard {
-    //public /*int*/ $id;
-    public /*int*/ $points;
-    public /*int*/ $pearls;
-    public /*bool*/ $showExtraLord;
-  
-  
-    public function __construct(/*$id,*/ $points, $pearls, $power) {
-        //$this->id = $id;
-        $this->points = $points;
-        $this->pearls = $pearls;
-        $this->power = $power;
-    } 
-}
-  
-$LOCATIONS = array(
-    1 => new LocationCard(7, 0, null)
-);
-
+// actives
+define('AP_FIRST_LORD', 1);
+define('AP_FIRST_LORDS', 2);
+define('AP_DISCARD_LORDS', 3);
+define('AP_DISCARD_LOCATIONS', 4);
+define('AP_KEYS', 5);
+define('AP_DECK_LOCATION', 6);
+// passives
+define('PP_SILVER_KEYS', 1);
+define('PP_GOLD_KEYS', 2);
+define('PP_PEARLS', 3);
+define('PP_LOCATIONS', 4);
+define('PP_LORD_MAX', 5);
+define('PP_LORD_COUNT', 6);
 ?>

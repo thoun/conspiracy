@@ -1,4 +1,7 @@
 <?php
+// https://studio.boardgamearena.com/1/conspiracy/conspiracy/logaccess.html?table=251944#bottom
+// https://studio.boardgamearena.com/1/conspiracy/conspiracy/logaccess.html?table=251944&err=1#bottom
+// http://db.1.studio.boardgamearena.com/index.php?db=ebd_conspiracy_251944
  /**
   *------
   * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
@@ -45,8 +48,10 @@ class Conspiracy extends Table
 
         $this->lords = self::getNew( "module.common.deck" );
         $this->lords->init( "lord" );
+        $this->lords->autoreshuffle = true;
         $this->locations = self::getNew( "module.common.deck" );
         $this->locations->init( "location" );
+        $this->locations->autoreshuffle = true;
 	}
 	
     protected function getGameName() {
@@ -91,14 +96,40 @@ class Conspiracy extends Table
         //self::initStat( 'table', 'table_teststat1', 0 );    // Init a table statistics
         //self::initStat( 'player', 'player_teststat1', 0 );  // Init a player statistics (for all players)
 
-        // TODO: setup the initial game situation here
-
-       
+        // setup the initial game situation here
+        //die('test');
+        $this->setupLordsCards();
+        $this->setupLocationsCards();       
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
 
         /************ End of the game initialization *****/
+    }
+
+    function setupLordsCards() {
+        $cards = [];
+        foreach( $this->LORDS as $lord_id => $lord ) {
+            for ($guild=1; $guild<=5; $guild++) {
+                $cards[] = [ 'type' => $lord_id, 'type_arg' => $guild, 'nbr' => $lord->nbr ];
+            }
+        }
+        $this->lords->createCards($cards, 'deck');
+        $this->lords->shuffle('deck'); 
+    }
+
+    function setupLocationsCards() {
+        $cards = [];
+        foreach(array_keys($this->LOCATIONS_UNIQUE) as $locationId) {
+            $cards[] = [ 'type' => $locationId, 'type_arg' => null, 'nbr' => 1 ];
+        }
+        foreach(array_keys($this->LOCATIONS_GUILD) as $locationId) {
+            for ($guild=1; $guild<=5; $guild++) {
+                $cards[] = [ 'type' => $locationId, 'type_arg' => $guild, 'nbr' => 1 ];
+            }
+        }
+        $this->locations->createCards($cards, 'deck');
+        $this->locations->shuffle('deck'); 
     }
 
     /*
@@ -136,9 +167,8 @@ class Conspiracy extends Table
         (see states.inc.php)
     */
     function getGameProgression() {
-        // TODO: compute and return the game progression
-
-        return 0;
+        $maxPlayedLords = intval(self::getUniqueValueFromDB( "SELECT count(*) FROM lord WHERE `card_location` = 'table' GROUP BY `card_location_arg` ORDER BY count(*) DESC LIMIT 1"));
+        return $maxPlayedLords * 100 / 15;
     }
 
 
@@ -225,12 +255,12 @@ class Conspiracy extends Table
     */
     
 
-    function stPlayerLordStackSelection() {
+    /*function stPlayerLordStackSelection() {
         // Do some stuff ...
         
         // (very often) go to another gamestate
         //$this->gamestate->nextState( 'some_gamestate_transition' );
-    }
+    }*/
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Zombie

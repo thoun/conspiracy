@@ -25,20 +25,22 @@
     Please REMOVE this comment before publishing your game on BGA
 -->
 
+<div id="lord-stacks" class="whiteblock">
+    <div id="lord-hidden-pile"></div>
+    <div id="lord-visible-stocks"></div>
+</div>
 
-This is your game interface. You can edit this HTML in your ".tpl" file.
+<div id="location-stacks" class="whiteblock">
+    <div id="location-hidden-pile"></div>
+    <div id="location-visible-stock"></div>
+</div>
 
+<div id="players-tables">
+    <div id="player-table">
 
-<script type="text/javascript">
+    </div>
 
-// Javascript HTML templates
-
-/*
-// Example:
-var jstpl_some_game_item='<div class="my_game_item" id="my_game_item_${MY_ITEM_ID}"></div>';
-
-*/
-
-</script>  
+    <!-- TODO other players -->
+</div>
 
 {OVERALL_GAME_FOOTER}

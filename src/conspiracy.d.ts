@@ -20,10 +20,10 @@ interface ConspiracyGamedatas {
 interface ConspiracyGame extends Game {
 }
 
-/*interface EnteringPlayerTurnArgs {
-    dices: Dices;
+interface EnteringPlayerTurnArgs {
+    /*dices: Dices;*/
 }
-
+/*
 interface NotifNewTurnArgs {
     casinos: any;
     playerId: number;

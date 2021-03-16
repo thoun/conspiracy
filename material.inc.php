@@ -18,3 +18,44 @@
  * are available everywhere in your game logic code.
  *
  */
+
+require_once( 'modules/constants.inc.php' );
+require_once( 'modules/lord.php' );
+require_once( 'modules/location.php' );
+
+/*
+ * Lords
+ */
+$this->LORDS = [
+    1 => new LordCard(1, 0, null, 0, true),
+    2 => new LordCard(4, 1, 1),
+    3 => new LordCard(2, 2, 2),
+    4 => new LordCard(2, 3, null, 2),
+    5 => new LordCard(2, 4, null, 1),
+    6 => new LordCard(1, 6, null, 0, false, true)
+];
+
+/*
+ * Locations
+ */
+  
+$this->LOCATIONS_UNIQUE = [
+    1 => new LocationCard(7, 0),
+    2 => new LocationCard(5, 1),
+    3 => new LocationCard(4, 2),
+    4 => new LocationCard(3, 3),
+    5 => new LocationCard(0, 0, null, PP_SILVER_KEYS),
+    6 => new LocationCard(0, 0, null, PP_GOLD_KEYS),
+    7 => new LocationCard(0, 0, null, PP_PEARLS),
+    8 => new LocationCard(0, 0, null, PP_LOCATIONS),
+    9 => new LocationCard(0, 0, AP_FIRST_LORD),
+    10 => new LocationCard(0, 0, AP_FIRST_LORDS),
+    11 => new LocationCard(0, 0, AP_DISCARD_LORDS),
+    12 => new LocationCard(0, 0, AP_DISCARD_LOCATIONS),
+    13 => new LocationCard(0, 0, AP_KEYS),
+    14 => new LocationCard(0, 0, AP_DECK_LOCATION),
+];
+$this->LOCATIONS_GUILD = [
+    100 => new LocationCard(0, 0, PP_LORD_MAX),
+    101 => new LocationCard(1, 0, PP_LORD_COUNT),
+];
