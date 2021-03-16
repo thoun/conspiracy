@@ -9,7 +9,6 @@ declare const board: HTMLDivElement;
 
 class Conspiracy implements ConspiracyGame {
     private gamedatas: ConspiracyGamedatas;
-    private visibleLocationsStock: Stock = null;
     private lordsStacks: LordsStacks;
     private locationsStacks: LocationsStacks;
 
@@ -31,19 +30,18 @@ class Conspiracy implements ConspiracyGame {
 
     public setup(gamedatas: ConspiracyGamedatas) {
         
-        //console.log( "Starting game setup" );
+        console.log( "Starting game setup" );
         
         this.gamedatas = gamedatas;
 
         console.log(gamedatas);
-
         
         this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords);
         this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations);
 
         this.setupNotifications();
 
-        //console.log( "Ending game setup" );
+        console.log( "Ending game setup" );
     }
 
     ///////////////////////////////////////////////////
@@ -53,33 +51,52 @@ class Conspiracy implements ConspiracyGame {
     //                  You can use this method to perform some user interface changes at this moment.
     //
     public onEnteringState(stateName: string, args: any) {
-        //console.log( 'Entering state: '+stateName );
+        console.log( 'Entering state: '+stateName );
 
-        switch( stateName ) {
-            case 'playerTurn':
-                this.onEnteringPlayerTurn(args.args);
+        switch (stateName) {
+            case 'lordStackSelection':
+                this.onEnteringLordStackSelection(args.args);
+                break;
+            case 'locationStackSelection':
+                this.onEnteringLocationStackSelection(args.args);
                 break;
         }
     }
 
-    onEnteringPlayerTurn(args: EnteringPlayerTurnArgs) {
-        
+    onEnteringLordStackSelection(args: EnteringLordStackSelectionArgs) {
+        if ((this as any).isCurrentPlayerActive()) {
+            this.lordsStacks.setSelectable(true);
+        }
     }
-    
+
+    onEnteringLocationStackSelection(args: EnteringLocationStackSelectionArgs) {
+        if ((this as any).isCurrentPlayerActive()) {
+            this.locationsStacks.setSelectable(true);
+        }
+    }    
 
     // onLeavingState: this method is called each time we are leaving a game state.
     //                 You can use this method to perform some user interface changes at this moment.
     //
     public onLeavingState(stateName: string) {
-        switch( stateName ) {
-            case 'playerTurn':
-                this.onLeavingPlayerTurn();
+        console.log( 'Leaving state: '+stateName );
+
+        switch (stateName) {
+            case 'lordStackSelection':
+                this.onLeavingLordStackSelection();
+                break;
+            case 'locationStackSelection':
+                this.onLeavingLocationStackSelection();
                 break;
         }
     }
 
-    onLeavingPlayerTurn() {
-        
+    onLeavingLordStackSelection() {
+        this.lordsStacks.setSelectable(false);
+    }
+
+    onLeavingLocationStackSelection() {
+        this.locationsStacks.setSelectable(false);
     }
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -90,91 +107,91 @@ class Conspiracy implements ConspiracyGame {
     } 
     
 
-        ///////////////////////////////////////////////////
-        //// Utility methods
+    ///////////////////////////////////////////////////
+    //// Utility methods
 
 
-       ///////////////////////////////////////////////////
+    ///////////////////////////////////////////////////
 
-        public takeAction(action: string, data?: any) {
-            data = data || {};
-            data.lock = true;
-            (this as any).ajaxcall(`/conspiracy/conspiracy/${action}.html`, data, this, () => {});
+    public takeAction(action: string, data?: any) {
+        data = data || {};
+        data.lock = true;
+        (this as any).ajaxcall(`/conspiracy/conspiracy/${action}.html`, data, this, () => {});
+    }
+
+    ///////////////////////////////////////////////////
+    //// Reaction to cometD notifications
+
+    /*
+        setupNotifications:
+
+        In this method, you associate each of your game notifications with your local method to handle it.
+
+        Note: game notification names correspond to "notifyAllPlayers" and "notifyPlayer" calls in
+                your pylos.game.php file.
+
+    */
+    setupNotifications() {
+        //console.log( 'notifications subscriptions setup' );
+
+        const notifs = [
+            /*['newTurn', 1],
+            ['dicesPlayed', 1],
+            ['removeDuplicates', END_TURN_ANIMATIONS_DURATION],
+            ['collectBanknote', END_TURN_ANIMATIONS_DURATION],
+            ['removeBanknote', END_TURN_ANIMATIONS_DURATION],
+            ['removeDices', END_TURN_ANIMATIONS_DURATION],*/
+        ];
+    
+        notifs.forEach((notif) => {
+            dojo.subscribe(notif[0], this, `notif_${notif[0]}`);
+            (this as any).notifqueue.setSynchronous(notif[0], notif[1]);
+        });
+    }
+
+    /*notif_newTurn(notif: Notif<NotifNewTurnArgs>) {
+        this.placeFirstPlayerToken(notif.args.playerId);
+        this.casinos.forEach(casino => casino.setNewBanknotes(notif.args.casinos[casino.casino]));
+
+        notif.args.neutralDices.forEach(neutralDice => {
+            this.casinos[neutralDice].addSpaceForPlayer(0);
+            dojo.place(this.createDiceHtml(neutralDice, 0, this.neutralColor), this.casinos[neutralDice].getPlayerSpaceId(0));
+            this.casinos[neutralDice].reorderDices();
+        });
+    }
+
+    notif_dicesPlayed(notif: Notif<NotifDicesPlayedArgs>) {
+        this.moveDicesToCasino(notif.args.casino, notif.args.playerId);
+        this.dicesCounters[notif.args.playerId].toValue(notif.args.remainingDices.player);
+        if (this.isVariant()) {                
+            this.dicesCountersNeutral[notif.args.playerId].toValue(notif.args.remainingDices.neutral);
         }
+    }
 
-       ///////////////////////////////////////////////////
-       //// Reaction to cometD notifications
+    notif_removeDuplicates(notif: Notif<NotifRemoveDuplicatesArgs>) {
+        notif.args.playersId.forEach(playerId => this.casinos[notif.args.casino].removeDices(playerId));
+    }
 
-       /*
-           setupNotifications:
+    notif_collectBanknote(notif: Notif<NotifCollectBanknoteArgs>) {
+        this.casinos[notif.args.casino].slideBanknoteTo(notif.args.id, notif.args.playerId);
+        const points = notif.args.value;
+        (this as any).scoreCtrl[notif.args.playerId].incValue(points);
+        this.setScoreSuffix(notif.args.playerId);
 
-           In this method, you associate each of your game notifications with your local method to handle it.
+        (this as any).displayScoring( `banknotes${notif.args.casino}`, this.gamedatas.players[notif.args.playerId].color, points*10000, END_TURN_ANIMATIONS_DURATION);
+        this.casinos[notif.args.casino].removeDices(notif.args.playerId);
+    }
 
-           Note: game notification names correspond to "notifyAllPlayers" and "notifyPlayer" calls in
-                 your pylos.game.php file.
+    notif_removeBanknote(notif: Notif<NotifRemoveBanknoteArgs>) {
+        this.casinos[notif.args.casino].removeBanknote(notif.args.id);
+    }
 
-       */
-        setupNotifications() {
-            //console.log( 'notifications subscriptions setup' );
-
-            const notifs = [
-                /*['newTurn', 1],
-                ['dicesPlayed', 1],
-                ['removeDuplicates', END_TURN_ANIMATIONS_DURATION],
-                ['collectBanknote', END_TURN_ANIMATIONS_DURATION],
-                ['removeBanknote', END_TURN_ANIMATIONS_DURATION],
-                ['removeDices', END_TURN_ANIMATIONS_DURATION],*/
-            ];
-        
-            notifs.forEach((notif) => {
-                dojo.subscribe(notif[0], this, `notif_${notif[0]}`);
-                (this as any).notifqueue.setSynchronous(notif[0], notif[1]);
-            });
+    notif_removeDices(notif: Notif<NotifRemoveDicesArgs>) {
+        this.casinos.forEach(casino => casino.removeDices());
+        this.dicesCounters.forEach(dicesCounter => dicesCounter.setValue(notif.args.resetDicesNumber.player));
+        if (this.isVariant()) {
+            this.dicesCountersNeutral.forEach(dicesCounter => dicesCounter.setValue(notif.args.resetDicesNumber.neutral));
         }
-
-        /*notif_newTurn(notif: Notif<NotifNewTurnArgs>) {
-            this.placeFirstPlayerToken(notif.args.playerId);
-            this.casinos.forEach(casino => casino.setNewBanknotes(notif.args.casinos[casino.casino]));
-
-            notif.args.neutralDices.forEach(neutralDice => {
-                this.casinos[neutralDice].addSpaceForPlayer(0);
-                dojo.place(this.createDiceHtml(neutralDice, 0, this.neutralColor), this.casinos[neutralDice].getPlayerSpaceId(0));
-                this.casinos[neutralDice].reorderDices();
-            });
-        }
-
-        notif_dicesPlayed(notif: Notif<NotifDicesPlayedArgs>) {
-            this.moveDicesToCasino(notif.args.casino, notif.args.playerId);
-            this.dicesCounters[notif.args.playerId].toValue(notif.args.remainingDices.player);
-            if (this.isVariant()) {                
-                this.dicesCountersNeutral[notif.args.playerId].toValue(notif.args.remainingDices.neutral);
-            }
-        }
-
-        notif_removeDuplicates(notif: Notif<NotifRemoveDuplicatesArgs>) {
-            notif.args.playersId.forEach(playerId => this.casinos[notif.args.casino].removeDices(playerId));
-        }
-
-        notif_collectBanknote(notif: Notif<NotifCollectBanknoteArgs>) {
-            this.casinos[notif.args.casino].slideBanknoteTo(notif.args.id, notif.args.playerId);
-            const points = notif.args.value;
-            (this as any).scoreCtrl[notif.args.playerId].incValue(points);
-            this.setScoreSuffix(notif.args.playerId);
-
-            (this as any).displayScoring( `banknotes${notif.args.casino}`, this.gamedatas.players[notif.args.playerId].color, points*10000, END_TURN_ANIMATIONS_DURATION);
-            this.casinos[notif.args.casino].removeDices(notif.args.playerId);
-        }
-
-        notif_removeBanknote(notif: Notif<NotifRemoveBanknoteArgs>) {
-            this.casinos[notif.args.casino].removeBanknote(notif.args.id);
-        }
-
-        notif_removeDices(notif: Notif<NotifRemoveDicesArgs>) {
-            this.casinos.forEach(casino => casino.removeDices());
-            this.dicesCounters.forEach(dicesCounter => dicesCounter.setValue(notif.args.resetDicesNumber.player));
-            if (this.isVariant()) {
-                this.dicesCountersNeutral.forEach(dicesCounter => dicesCounter.setValue(notif.args.resetDicesNumber.neutral));
-            }
-        }*/
+    }*/
 
 }

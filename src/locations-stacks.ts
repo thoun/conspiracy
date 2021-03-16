@@ -17,6 +17,8 @@ const LOCATIONS_GUILDS_IDS = [100,101];
 
 class LocationsStacks {
     visibleLocationsStock: Stock;
+    
+    private selectable: boolean;
 
     constructor(private game: ConspiracyGame, visibleLocations: Location[]) {
         dojo.connect( $('location-hidden-pile'), 'click', this, 'onHiddenLocationClick' );
@@ -31,6 +33,12 @@ class LocationsStacks {
 
         visibleLocations.forEach(location => this.visibleLocationsStock.addToStockWithId(this.getCardUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`));
     } 
+
+    public setSelectable(selectable: boolean) {
+        this.selectable = selectable;
+        const action = selectable ? 'add' : 'remove';
+        document.getElementById('lord-hidden-pile').classList[action]('visible');
+    }
 
     public setupLocationCards(locationStocks: Stock[]) {
         const cardsurl = `${g_gamethemeurl}img/locations.jpg`;

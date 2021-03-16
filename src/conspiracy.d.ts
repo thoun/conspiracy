@@ -44,9 +44,14 @@ interface ConspiracyGame extends Game {
     takeAction: (action: string, data?: any) => void;
 }
 
-interface EnteringPlayerTurnArgs {
-    /*dices: Dices;*/
+interface EnteringLordStackSelectionArgs {
+    // TODO
 }
+
+interface EnteringLocationStackSelectionArgs {
+    // TODO
+}
+
 /*
 interface NotifNewTurnArgs {
     casinos: any;

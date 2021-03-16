@@ -14,11 +14,19 @@ const LORD_HEIGHT = 220;
 const LORDS_IDS = [1,2,3,4,5,6];
 
 class LordsStacks {
+    private selectable: boolean;
+
     constructor(private game: ConspiracyGame, private visibleLords: Lord[][]) {
     }
     
     private getCardUniqueId(type: number, guild: number) {
         return type * 10 + guild;
+    }
+
+    public setSelectable(selectable: boolean) {
+        this.selectable = selectable;
+        const action = selectable ? 'add' : 'remove';
+        document.getElementById('lord-hidden-pile').classList[action]('visible');
     }
 
     public onHiddenLordsClick(a, b) {

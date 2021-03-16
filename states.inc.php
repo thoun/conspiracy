@@ -140,9 +140,9 @@ $machinestates = array(
     ),  
 
     ST_PLAYER_LOCATION_SELECTION => array(
-        "name" => "placeSelection",
-        "description" => clienttranslate('${actplayer} must choose a place'),
-        "descriptionmyturn" => clienttranslate('${you} must choose a place'),
+        "name" => "locationSelection",
+        "description" => clienttranslate('${actplayer} must choose a location'),
+        "descriptionmyturn" => clienttranslate('${you} must choose a location'),
         "type" => "activeplayer",
         "action" => "stPlayerLocationSelection",
         "possibleactions" => array( "addLocation" ),

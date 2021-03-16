@@ -18,6 +18,11 @@ var LordsStacks = /** @class */ (function () {
     LordsStacks.prototype.getCardUniqueId = function (type, guild) {
         return type * 10 + guild;
     };
+    LordsStacks.prototype.setSelectable = function (selectable) {
+        this.selectable = selectable;
+        var action = selectable ? 'add' : 'remove';
+        document.getElementById('lord-hidden-pile').classList[action]('visible');
+    };
     LordsStacks.prototype.onHiddenLordsClick = function (a, b) {
         // TODO
         console.log(a, b);
@@ -71,6 +76,11 @@ var LocationsStacks = /** @class */ (function () {
         this.setupLocationCards([this.visibleLocationsStock]);
         visibleLocations.forEach(function (location) { var _a; return _this.visibleLocationsStock.addToStockWithId(_this.getCardUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id); });
     }
+    LocationsStacks.prototype.setSelectable = function (selectable) {
+        this.selectable = selectable;
+        var action = selectable ? 'add' : 'remove';
+        document.getElementById('lord-hidden-pile').classList[action]('visible');
+    };
     LocationsStacks.prototype.setupLocationCards = function (locationStocks) {
         var _this = this;
         var cardsurl = g_gamethemeurl + "img/locations.jpg";
@@ -115,7 +125,6 @@ var LocationsStacks = /** @class */ (function () {
 }());
 var Conspiracy = /** @class */ (function () {
     function Conspiracy() {
-        this.visibleLocationsStock = null;
     }
     /*
         setup:
@@ -130,13 +139,13 @@ var Conspiracy = /** @class */ (function () {
         "gamedatas" argument contains all datas retrieved by your "getAllDatas" PHP method.
     */
     Conspiracy.prototype.setup = function (gamedatas) {
-        //console.log( "Starting game setup" );
+        console.log("Starting game setup");
         this.gamedatas = gamedatas;
         console.log(gamedatas);
         this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords);
         this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations);
         this.setupNotifications();
-        //console.log( "Ending game setup" );
+        console.log("Ending game setup");
     };
     ///////////////////////////////////////////////////
     //// Game & client states
@@ -144,26 +153,45 @@ var Conspiracy = /** @class */ (function () {
     //                  You can use this method to perform some user interface changes at this moment.
     //
     Conspiracy.prototype.onEnteringState = function (stateName, args) {
-        //console.log( 'Entering state: '+stateName );
+        console.log('Entering state: ' + stateName);
         switch (stateName) {
-            case 'playerTurn':
-                this.onEnteringPlayerTurn(args.args);
+            case 'lordStackSelection':
+                this.onEnteringLordStackSelection(args.args);
+                break;
+            case 'locationStackSelection':
+                this.onEnteringLocationStackSelection(args.args);
                 break;
         }
     };
-    Conspiracy.prototype.onEnteringPlayerTurn = function (args) {
+    Conspiracy.prototype.onEnteringLordStackSelection = function (args) {
+        if (this.isCurrentPlayerActive()) {
+            this.lordsStacks.setSelectable(true);
+        }
+    };
+    Conspiracy.prototype.onEnteringLocationStackSelection = function (args) {
+        if (this.isCurrentPlayerActive()) {
+            this.locationsStacks.setSelectable(true);
+        }
     };
     // onLeavingState: this method is called each time we are leaving a game state.
     //                 You can use this method to perform some user interface changes at this moment.
     //
     Conspiracy.prototype.onLeavingState = function (stateName) {
+        console.log('Leaving state: ' + stateName);
         switch (stateName) {
-            case 'playerTurn':
-                this.onLeavingPlayerTurn();
+            case 'lordStackSelection':
+                this.onLeavingLordStackSelection();
+                break;
+            case 'locationStackSelection':
+                this.onLeavingLocationStackSelection();
                 break;
         }
     };
-    Conspiracy.prototype.onLeavingPlayerTurn = function () {
+    Conspiracy.prototype.onLeavingLordStackSelection = function () {
+        this.lordsStacks.setSelectable(false);
+    };
+    Conspiracy.prototype.onLeavingLocationStackSelection = function () {
+        this.locationsStacks.setSelectable(false);
     };
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
@@ -186,7 +214,7 @@ var Conspiracy = /** @class */ (function () {
         In this method, you associate each of your game notifications with your local method to handle it.
 
         Note: game notification names correspond to "notifyAllPlayers" and "notifyPlayer" calls in
-              your pylos.game.php file.
+                your pylos.game.php file.
 
     */
     Conspiracy.prototype.setupNotifications = function () {
