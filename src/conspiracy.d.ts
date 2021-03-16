@@ -2,6 +2,25 @@
  * Your game interfaces
  */
 
+interface Lord {
+    id: number;
+    // TODO
+}
+interface Location {
+    id: number;
+    type: number;
+    activePower?: number;
+    passivePower?: number;
+    passivePowerGuild?: number;
+    pearls: number;
+    points: number;
+}
+
+interface PlayerTableSpot {
+    lord?: Lord;
+    location?: Location;
+}
+
 interface ConspiracyGamedatas {
     current_player_id: string;
     decision: {decision_type: string};
@@ -15,9 +34,14 @@ interface ConspiracyGamedatas {
     tablespeed: string;
 
     // Add here variables you set up in getAllDatas
+    visibleLords: Lord[][];
+    visibleLocations: Location[];
+    masterPearlsPlayer: number;
+    playersTables: { [playerId: number]: PlayerTableSpot[] };
 }
 
 interface ConspiracyGame extends Game {
+    takeAction: (action: string, data?: any) => void;
 }
 
 interface EnteringPlayerTurnArgs {

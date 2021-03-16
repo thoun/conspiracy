@@ -9,6 +9,9 @@ declare const board: HTMLDivElement;
 
 class Conspiracy implements ConspiracyGame {
     private gamedatas: ConspiracyGamedatas;
+    private visibleLocationsStock: Stock = null;
+    private lordsStacks: LordsStacks;
+    private locationsStacks: LocationsStacks;
 
     constructor() {
     }
@@ -34,12 +37,14 @@ class Conspiracy implements ConspiracyGame {
 
         console.log(gamedatas);
 
+        
+        this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords);
+        this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations);
+
         this.setupNotifications();
 
         //console.log( "Ending game setup" );
-
-        //colors.forEach(color => dojo.place(this.createDiceHtml(5, color), `dices-test`));
-    } 
+    }
 
     ///////////////////////////////////////////////////
     //// Game & client states
@@ -91,23 +96,11 @@ class Conspiracy implements ConspiracyGame {
 
        ///////////////////////////////////////////////////
 
-        private takeAction(action: string, data?: any) {
+        public takeAction(action: string, data?: any) {
             data = data || {};
             data.lock = true;
             (this as any).ajaxcall(`/conspiracy/conspiracy/${action}.html`, data, this, () => {});
         }
-
-        /*public casinoSelected(casino: number) {
-            if(!(this as any).checkAction('chooseCasino')) {
-                return;
-            }          
-
-            this.moveDicesToCasino(casino, (this as any).getActivePlayerId());
-
-            this.takeAction("chooseCasino", {
-                casino
-            });
-        }*/
 
        ///////////////////////////////////////////////////
        //// Reaction to cometD notifications

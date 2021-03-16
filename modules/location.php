@@ -20,18 +20,20 @@ class LocationCard {
 
 class Location extends LocationCard {
     public /*int*/ $id;
-    public /*string*/ $location; // deck, deck_selection, table, player
-    public /*int*/ $location_arg; // player_id
+    public /*int*/ $type;
+    public /*string*/ $location; // deck, deck_selection, table, player${id}
+    public /*int*/ $location_arg; // index in player${id}
     public /*int*/ $passivePowerGuild;
 
 
-    public function __construct($dbPlace, $LOCATIONS) {
-        $this->id = intval($dbPlace['id']);
-        $this->location = $dbPlace['location'];
-        $this->location_arg = intval($dbPlace['location_arg']);
-        $this->passivePowerGuild = intval($dbPlace['type_arg']);
+    public function __construct($dbLocation, $LOCATIONS) {
+        $this->id = intval($dbLocation['id']);
+        $this->type = intval($dbLocation['type']);
+        $this->location = $dbLocation['location'];
+        $this->location_arg = intval($dbLocation['location_arg']);
+        $this->passivePowerGuild = intval($dbLocation['type_arg']);
 
-        $locationCard = $LOCATIONS[intval($dbPlace['type'])];
+        $locationCard = $LOCATIONS[$this->type];
         $this->points = $locationCard->points;
         $this->pearls = $locationCard->pearls;
         $this->activePower = $locationCard->activePower;   

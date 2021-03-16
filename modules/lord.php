@@ -22,17 +22,19 @@ class LordCard {
 
 class Lord extends LordCard {
     public /*int*/ $id;
-    public /*string*/ $location; // deck, lord_selection, table, player
-    public /*int*/ $location_arg; // guild index if table, else player_id
+    public /*int*/ $type;
+    public /*string*/ $location; // deck, lord_selection, table, player${id}
+    public /*int*/ $location_arg; // guild index if table, index in player${id}
     public /*int*/ $guild;
 
     public function __construct($dbLord, $LORDS) {
         $this->id = intval($dbLord['id']);
+        $this->type = intval($dbLord['type']);
         $this->location = $dbLord['location'];
         $this->location_arg = intval($dbLord['location_arg']);
         $this->guild = intval($dbPlace['type_arg']);
 
-        $lordCard = $LORDS[intval($dbPlace['type'])];
+        $lordCard = $LORDS[$this->type];
         $this->points = $lordCard->points;
         $this->switch = $lordCard->switch;
         $this->key = $lordCard->key;

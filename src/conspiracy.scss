@@ -1,1 +1,42 @@
- 
+#lord-stacks {
+    display: flex;
+
+    #lord-hidden-pile {
+        width: 220px;
+        height: 220px;
+        background: darkblue;
+
+        .buttons {
+            display: none;
+            flex: 1;
+            border: 3px dashed white;
+        }
+
+        &.active .buttons {
+            display: flex;
+            cursor: pointer;
+        }
+    }
+}
+
+#location-stacks {
+    display: flex;
+    
+    #location-hidden-pile {        
+        display: flex;
+        width: 200px;
+        height: 100px;
+        background: darkblue;
+
+        .buttons {
+            display: none;
+            flex: 1;
+            border: 3px dashed white;
+        }
+
+        &.active .buttons {
+            display: flex;
+            cursor: pointer;
+        }
+    }
+}

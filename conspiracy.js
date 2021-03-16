@@ -1,5 +1,121 @@
+/*declare const define;
+declare const ebg;
+declare const $;
+declare const dojo: Dojo;
+declare const _;
+declare const g_gamethemeurl;
+
+declare const board: HTMLDivElement;*/
+var GUILD_IDS = [1, 2, 3, 4, 5];
+var LORD_WIDTH = 220;
+var LORD_HEIGHT = 220;
+var LORDS_IDS = [1, 2, 3, 4, 5, 6];
+var LordsStacks = /** @class */ (function () {
+    function LordsStacks(game, visibleLords) {
+        this.game = game;
+        this.visibleLords = visibleLords;
+    }
+    LordsStacks.prototype.getCardUniqueId = function (type, guild) {
+        return type * 10 + guild;
+    };
+    LordsStacks.prototype.onHiddenLordsClick = function (a, b) {
+        // TODO
+        console.log(a, b);
+        var number = 2 + 2 - 2; // TODO
+        var action = number === 1 ? 'chooseOneOnStack' : 'chooseDeckStack';
+        if (!this.game.checkAction(action)) {
+            return;
+        }
+        this.game.takeAction(action.replace('choose', 'chooseLord'), {
+            number: number
+        });
+    };
+    LordsStacks.prototype.onVisibleLordsClick = function (a, b) {
+        // TODO
+        console.log(a, b);
+        var guild = 3; // TODO
+        var lordsNumber = 2 + 2 - 2; // TODO
+        var action = lordsNumber === 1 ? 'chooseVisibleStack' : 'chooseVisibleStackMultiple'; // TODO remove multiple
+        if (!this.game.checkAction(action)) {
+            return;
+        }
+        this.game.takeAction(action, {
+            guild: guild
+        });
+    };
+    return LordsStacks;
+}());
+/*declare const define;
+declare const ebg;
+declare const $;
+declare const dojo: Dojo;
+declare const _;
+declare const g_gamethemeurl;
+
+declare const board: HTMLDivElement;*/
+var LOCATION_WIDTH = 200;
+var LOCATION_HEIGHT = 100;
+var LOCATIONS_UNIQUE_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+var LOCATIONS_GUILDS_IDS = [100, 101];
+var LocationsStacks = /** @class */ (function () {
+    function LocationsStacks(game, visibleLocations) {
+        var _this = this;
+        this.game = game;
+        dojo.connect($('location-hidden-pile'), 'click', this, 'onHiddenLocationClick');
+        this.visibleLocationsStock = new ebg.stock();
+        this.visibleLocationsStock.create(this.game, $('location-visible-stock'), LOCATION_WIDTH, LOCATION_HEIGHT);
+        this.visibleLocationsStock.setSelectionMode(1);
+        this.visibleLocationsStock.setSelectionAppearance('class');
+        this.visibleLocationsStock.onItemCreate = dojo.hitch(this, 'setupNewLocationCard');
+        dojo.connect(this.visibleLocationsStock, 'onChangeSelection', this, 'onVisibleLocationClick');
+        this.setupLocationCards([this.visibleLocationsStock]);
+        visibleLocations.forEach(function (location) { var _a; return _this.visibleLocationsStock.addToStockWithId(_this.getCardUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id); });
+    }
+    LocationsStacks.prototype.setupLocationCards = function (locationStocks) {
+        var _this = this;
+        var cardsurl = g_gamethemeurl + "img/locations.jpg";
+        locationStocks.forEach(function (locationStock) {
+            LOCATIONS_UNIQUE_IDS.forEach(function (id, index) {
+                return locationStock.addItemType(_this.getCardUniqueId(id, 0), 0, cardsurl, index);
+            });
+            GUILD_IDS.forEach(function (guild, guildIndex) {
+                return LOCATIONS_GUILDS_IDS.forEach(function (id, index) {
+                    return locationStock.addItemType(_this.getCardUniqueId(id, guild), 0, cardsurl, 14 + guildIndex * LOCATIONS_GUILDS_IDS.length + index);
+                });
+            });
+        });
+    };
+    LocationsStacks.prototype.getCardUniqueId = function (type, guild) {
+        return type * 10 + guild;
+    };
+    LocationsStacks.prototype.setupNewLocationCard = function (card_div, card_type_id, card_id) {
+        // TODO (this as any).addTooltip( card_div.id, this.mowCards.getTooltip(card_type_id), '' );
+    };
+    LocationsStacks.prototype.onHiddenLocationClick = function (a, b) {
+        // TODO
+        console.log(a, b);
+        var number = 2 + 2 - 2; // TODO
+        var action = number === 1 ? 'chooseOneOnStack' : 'chooseDeckStack';
+        if (!this.game.checkAction(action)) {
+            return;
+        }
+        this.game.takeAction(action, {
+            number: number
+        });
+    };
+    LocationsStacks.prototype.onVisibleLocationClick = function (a, b) {
+        // TODO
+        console.log(a, b);
+        if (!this.game.checkAction('chooseVisibleLocation')) {
+            return;
+        }
+        this.game.takeAction('chooseVisibleLocation');
+    };
+    return LocationsStacks;
+}());
 var Conspiracy = /** @class */ (function () {
     function Conspiracy() {
+        this.visibleLocationsStock = null;
     }
     /*
         setup:
@@ -17,9 +133,10 @@ var Conspiracy = /** @class */ (function () {
         //console.log( "Starting game setup" );
         this.gamedatas = gamedatas;
         console.log(gamedatas);
+        this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords);
+        this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations);
         this.setupNotifications();
         //console.log( "Ending game setup" );
-        //colors.forEach(color => dojo.place(this.createDiceHtml(5, color), `dices-test`));
     };
     ///////////////////////////////////////////////////
     //// Game & client states
@@ -61,17 +178,6 @@ var Conspiracy = /** @class */ (function () {
         data.lock = true;
         this.ajaxcall("/conspiracy/conspiracy/" + action + ".html", data, this, function () { });
     };
-    /*public casinoSelected(casino: number) {
-        if(!(this as any).checkAction('chooseCasino')) {
-            return;
-        }
-
-        this.moveDicesToCasino(casino, (this as any).getActivePlayerId());
-
-        this.takeAction("chooseCasino", {
-            casino
-        });
-    }*/
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
     /*

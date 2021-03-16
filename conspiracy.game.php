@@ -24,6 +24,7 @@ require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
 require_once( 'modules/constants.inc.php' );
 require_once( 'modules/lord.php' );
 require_once( 'modules/location.php' );
+require_once( 'modules/player-table-spot.php' );
 
 
 class Conspiracy extends Table
@@ -171,10 +172,18 @@ class Conspiracy extends Table
         // players tables
         $result['playersTables'] = [];
         foreach( $result['players'] as $player_id => $playerDb ) {
-            $result['playersTables'][$player_id] = []; // TODO
+            $lords = $this->getLocationsFromDb($this->lords->getCardsInLocation("player$player_id"));
+            $locations = $this->getLocationsFromDb($this->locations->getCardsInLocation("player$player_id"));
+            $result['playersTables'][$player_id] = [];
+            for($spot=0;$spot<15;$spot++) {
+                $result['playersTables'][$player_id][$spot] = new PlayerTableSpot(
+                    current(array_filter($lords, function($lord) use ($spot) { return $lord->location_arg === $spot; })),
+                    current(array_filter($locations, function($location) use ($spot) { return $location->location_arg === $spot; }))
+                );                
+            }
         }
 
-        $result['masterPearlsPlayer'] = self::getGameStateValue('masterPearlsPlayer');        
+        $result['masterPearlsPlayer'] = intval(self::getGameStateValue('masterPearlsPlayer'));
   
         return $result;
     }
@@ -227,6 +236,16 @@ class Conspiracy extends Table
         Each time a player is doing some game action, one of the methods below is called.
         (note: each method below must match an input method in conspiracy.action.php)
     */
+
+    function chooseLordDeckStack($number) {
+        self::checkAction('chooseDeckStack'); 
+
+        $this->locations->pickCardsForLocation($number, 'deck', 'lord_selection');
+
+        /*if ($number == 1) {
+            $this->gamestate->nextState( 'addLord' );
+        }*/
+    }
 
     /*
     
