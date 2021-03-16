@@ -59,3 +59,5 @@ $this->LOCATIONS_GUILD = [
     100 => new LocationCard(0, 0, PP_LORD_MAX),
     101 => new LocationCard(1, 0, PP_LORD_COUNT),
 ];
+
+$this->LOCATIONS = $this->LOCATIONS_UNIQUE + $this->LOCATIONS_GUILD;

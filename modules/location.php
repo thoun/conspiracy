@@ -20,8 +20,8 @@ class LocationCard {
 
 class Location extends LocationCard {
     public /*int*/ $id;
-    public /*string*/ $location; // deck, place_selection, table
-    public /*int*/ $location_arg; //  1 if deck & visible, else player_id
+    public /*string*/ $location; // deck, deck_selection, table, player
+    public /*int*/ $location_arg; // player_id
     public /*int*/ $passivePowerGuild;
 
 
@@ -34,7 +34,8 @@ class Location extends LocationCard {
         $locationCard = $LOCATIONS[intval($dbPlace['type'])];
         $this->points = $locationCard->points;
         $this->pearls = $locationCard->pearls;
-        $this->power = $locationCard->power;     
+        $this->activePower = $locationCard->activePower;   
+        $this->passivePower = $locationCard->passivePower;    
     } 
 }
 ?>

@@ -37,14 +37,18 @@ class Conspiracy extends Table
         // Note: afterwards, you can get/set the global variables with getGameStateValue/setGameStateInitialValue/setGameStateValue
         parent::__construct();
         
-        self::initGameStateLabels( array( 
-            //    "my_first_global_variable" => 10,
-            //    "my_second_global_variable" => 11,
+        self::initGameStateLabels([
+                "masterPearlsPlayer" => 10,
+
+                //  // if > 0, indicates the player that added the constraint
+                'AP_FIRST_LORD' => 11, // reset to 0 when this player plays again
+                'AP_FIRST_LORDS' => 12, // reset to 0 when this player plays again
+                'AP_DECK_LOCATION' => 13, // apply for all game, not reseted
             //      ...
             //    "my_first_game_variant" => 100,
             //    "my_second_game_variant" => 101,
             //      ...
-        ) );    
+        ]);
 
         $this->lords = self::getNew( "module.common.deck" );
         $this->lords->init( "lord" );
@@ -89,7 +93,10 @@ class Conspiracy extends Table
         /************ Start the game initialization *****/
 
         // Init global values with their initial values
-        //self::setGameStateInitialValue( 'my_first_global_variable', 0 );
+        self::setGameStateInitialValue( 'masterPearlsPlayer', 0 );
+        self::setGameStateInitialValue( 'AP_FIRST_LORD', 0 );
+        self::setGameStateInitialValue( 'AP_FIRST_LORDS', 0 );
+        self::setGameStateInitialValue( 'AP_DECK_LOCATION', 0 );
         
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
@@ -97,9 +104,11 @@ class Conspiracy extends Table
         //self::initStat( 'player', 'player_teststat1', 0 );  // Init a player statistics (for all players)
 
         // setup the initial game situation here
-        //die('test');
         $this->setupLordsCards();
-        $this->setupLocationsCards();       
+        $this->setupLocationsCards(); 
+        
+        // show the first location
+        $this->locations->pickCardForLocation('deck', 'table');
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
@@ -148,10 +157,24 @@ class Conspiracy extends Table
     
         // Get information about players
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
-        $sql = "SELECT player_id id, player_score score FROM player ";
+        $sql = "SELECT player_id id, player_score score, pearls FROM player ";
         $result['players'] = self::getCollectionFromDb( $sql );
   
-        // TODO: Gather all information about current game situation (visible by player $current_player_id).
+        // Gather all information about current game situation (visible by player $current_player_id).
+
+        $result['visibleLords'] = [];
+        for ($guild=1; $guild<=5; $guild++) {
+            $result['visibleLords'][$guild] = $this->getLordsFromDb($this->lords->getCardsInLocation('table', $guild));
+        }
+        $result['visibleLocations'] = $this->getLocationsFromDb($this->locations->getCardsInLocation('table'));
+
+        // players tables
+        $result['playersTables'] = [];
+        foreach( $result['players'] as $player_id => $playerDb ) {
+            $result['playersTables'][$player_id] = []; // TODO
+        }
+
+        $result['masterPearlsPlayer'] = self::getGameStateValue('masterPearlsPlayer');        
   
         return $result;
     }
@@ -174,13 +197,27 @@ class Conspiracy extends Table
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Utility functions
-////////////    
+//////////// 
 
-    /*
-        In this space, you can put any utility methods useful for your game logic
-    */
+    function mustTakeFirstLord() {
+        return self::getGameStateValue('AP_FIRST_LORD') > 0;
+    }
 
+    function mustTakeFirstLords() {
+        return self::getGameStateValue('AP_FIRST_LORDS') > 0;
+    }
 
+    function mustPickOnLocationPile(int $playerId) {
+        return self::getGameStateValue('AP_DECK_LOCATION') == $playerId;
+    }
+
+    function getLordsFromDb(array $dbLords) {
+        return array_map(function($dbLord) { return new Lord($dbLord, $this->LORDS); }, array_values($dbLords));
+    }
+
+    function getLocationsFromDb(array $dbLocations) {
+        return array_map(function($dbLocation) { return new Location($dbLocation, $this->LOCATIONS); }, array_values($dbLocations));
+    }
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Player actions

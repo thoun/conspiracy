@@ -22,8 +22,8 @@ class LordCard {
 
 class Lord extends LordCard {
     public /*int*/ $id;
-    public /*string*/ $location; // deck, lord_selection, lord_pick, table
-    public /*int*/ $location_arg; //  guild index if deck & visible, else player_id
+    public /*string*/ $location; // deck, lord_selection, table, player
+    public /*int*/ $location_arg; // guild index if table, else player_id
     public /*int*/ $guild;
 
     public function __construct($dbLord, $LORDS) {
