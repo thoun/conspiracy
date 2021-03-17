@@ -15,8 +15,16 @@ const LORDS_IDS = [1,2,3,4,5,6];
 
 class LordsStacks {
     private selectable: boolean;
+    private lordsStocks: LordStock[];
 
     constructor(private game: ConspiracyGame, private visibleLords: Lord[][]) {
+        this.pileDiv.addEventListener('click', e => this.onHiddenLordsClick(e));
+
+        // TODO init lordsStocks with associated visibleLords
+    }
+
+    get pileDiv(): HTMLDivElement {
+        return document.getElementById('lord-hidden-pile') as HTMLDivElement;
     }
     
     private getCardUniqueId(type: number, guild: number) {
@@ -26,30 +34,28 @@ class LordsStacks {
     public setSelectable(selectable: boolean) {
         this.selectable = selectable;
         const action = selectable ? 'add' : 'remove';
-        document.getElementById('lord-hidden-pile').classList[action]('visible');
+        this.pileDiv.classList[action]('selectable');
     }
 
-    public onHiddenLordsClick(a, b) {
-        // TODO
-        console.log(a, b);
-
-        
-
-        const number = 2 + 2 - 2; // TODO
-        const action = number === 1 ? 'chooseOneOnStack' : 'chooseDeckStack';
-
-        if(!(this.game as any).checkAction(action)) {
+    public onHiddenLordsClick(event: MouseEvent) {
+        if (!this.selectable) {
             return;
         }
 
-        this.game.takeAction(action.replace('choose', 'chooseLord'), {
+        const number = parseInt((event.target as HTMLDivElement).dataset.number);
+
+        if(!(this.game as any).checkAction('chooseDeckStack')) {
+            return;
+        }
+
+        this.game.takeAction('chooseLordDeckStack', {
             number
         });
     }
 
-    public onVisibleLordsClick(a, b) {
+    public onVisibleLordsClick(event: MouseEvent) {
         // TODO
-        console.log(a, b);
+        console.log(event);
 
         const guild = 3; // TODO
         const lordsNumber = 2 + 2 - 2; // TODO

@@ -1,18 +1,23 @@
 #lord-stacks {
     display: flex;
 
-    #lord-hidden-pile {
+    #lord-hidden-pile {      
+        display: flex;
         width: 220px;
         height: 220px;
         background: darkblue;
 
-        .buttons {
+        .button {
             display: none;
             flex: 1;
             border: 3px dashed white;
+            color: white;
+            font-size: 300%;
+            justify-content: center;
+            align-items: center;
         }
 
-        &.active .buttons {
+        &.selectable .button {
             display: flex;
             cursor: pointer;
         }
@@ -28,13 +33,17 @@
         height: 100px;
         background: darkblue;
 
-        .buttons {
+        .button {
             display: none;
             flex: 1;
             border: 3px dashed white;
+            color: white;
+            font-size: 300%;
+            justify-content: center;
+            align-items: center;
         }
 
-        &.active .buttons {
+        &.selectable .button {
             display: flex;
             cursor: pointer;
         }

@@ -37,7 +37,7 @@ class LocationsStacks {
     public setSelectable(selectable: boolean) {
         this.selectable = selectable;
         const action = selectable ? 'add' : 'remove';
-        document.getElementById('lord-hidden-pile').classList[action]('visible');
+        document.getElementById('lord-hidden-pile').classList[action]('selectable');
     }
 
     public setupLocationCards(locationStocks: Stock[]) {

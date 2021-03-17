@@ -4,6 +4,8 @@
 
 interface Lord {
     id: number;
+    type: number;
+    guild: number;
     // TODO
 }
 interface Location {

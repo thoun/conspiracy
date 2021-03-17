@@ -11,6 +11,7 @@ class Conspiracy implements ConspiracyGame {
     private gamedatas: ConspiracyGamedatas;
     private lordsStacks: LordsStacks;
     private locationsStacks: LocationsStacks;
+    private playersTables: PlayerTable[] = [];
 
     constructor() {
     }
@@ -38,6 +39,8 @@ class Conspiracy implements ConspiracyGame {
         
         this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords);
         this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations);
+
+        Object.keys(gamedatas.players).forEach((playerId) => this.playersTables[playerId] = new PlayerTable(this, playerId, gamedatas.playersTables[playerId]));
 
         this.setupNotifications();
 

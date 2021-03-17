@@ -1,3 +1,8 @@
+var LordStock = /** @class */ (function () {
+    function LordStock() {
+    }
+    return LordStock;
+}());
 /*declare const define;
 declare const ebg;
 declare const $;
@@ -12,32 +17,42 @@ var LORD_HEIGHT = 220;
 var LORDS_IDS = [1, 2, 3, 4, 5, 6];
 var LordsStacks = /** @class */ (function () {
     function LordsStacks(game, visibleLords) {
+        var _this = this;
         this.game = game;
         this.visibleLords = visibleLords;
+        this.pileDiv.addEventListener('click', function (e) { return _this.onHiddenLordsClick(e); });
+        // TODO init lordsStocks with associated visibleLords
     }
+    Object.defineProperty(LordsStacks.prototype, "pileDiv", {
+        get: function () {
+            return document.getElementById('lord-hidden-pile');
+        },
+        enumerable: false,
+        configurable: true
+    });
     LordsStacks.prototype.getCardUniqueId = function (type, guild) {
         return type * 10 + guild;
     };
     LordsStacks.prototype.setSelectable = function (selectable) {
         this.selectable = selectable;
         var action = selectable ? 'add' : 'remove';
-        document.getElementById('lord-hidden-pile').classList[action]('visible');
+        this.pileDiv.classList[action]('selectable');
     };
-    LordsStacks.prototype.onHiddenLordsClick = function (a, b) {
-        // TODO
-        console.log(a, b);
-        var number = 2 + 2 - 2; // TODO
-        var action = number === 1 ? 'chooseOneOnStack' : 'chooseDeckStack';
-        if (!this.game.checkAction(action)) {
+    LordsStacks.prototype.onHiddenLordsClick = function (event) {
+        if (!this.selectable) {
             return;
         }
-        this.game.takeAction(action.replace('choose', 'chooseLord'), {
+        var number = parseInt(event.target.dataset.number);
+        if (!this.game.checkAction('chooseDeckStack')) {
+            return;
+        }
+        this.game.takeAction('chooseLordDeckStack', {
             number: number
         });
     };
-    LordsStacks.prototype.onVisibleLordsClick = function (a, b) {
+    LordsStacks.prototype.onVisibleLordsClick = function (event) {
         // TODO
-        console.log(a, b);
+        console.log(event);
         var guild = 3; // TODO
         var lordsNumber = 2 + 2 - 2; // TODO
         var action = lordsNumber === 1 ? 'chooseVisibleStack' : 'chooseVisibleStackMultiple'; // TODO remove multiple
@@ -79,7 +94,7 @@ var LocationsStacks = /** @class */ (function () {
     LocationsStacks.prototype.setSelectable = function (selectable) {
         this.selectable = selectable;
         var action = selectable ? 'add' : 'remove';
-        document.getElementById('lord-hidden-pile').classList[action]('visible');
+        document.getElementById('lord-hidden-pile').classList[action]('selectable');
     };
     LocationsStacks.prototype.setupLocationCards = function (locationStocks) {
         var _this = this;
@@ -123,8 +138,68 @@ var LocationsStacks = /** @class */ (function () {
     };
     return LocationsStacks;
 }());
+var PlayerTable = /** @class */ (function () {
+    function PlayerTable(game, playerId, spots, readonly) {
+        var _this = this;
+        if (readonly === void 0) { readonly = true; }
+        this.game = game;
+        this.playerId = playerId;
+        this.spots = spots;
+        this.readonly = readonly;
+        dojo.place("<div id=\"player-table-" + playerId + "\">\n            Player " + playerId + " lords : <div id=\"player" + playerId + "-lord-stock\"></div>\n            Player " + playerId + " locations : <div id=\"player" + playerId + "-location-stock\"></div>\n        </div>", 'players-tables');
+        this.lordsStock = new ebg.stock();
+        this.lordsStock.create(this.game, $("player" + playerId + "-lord-stock"), LORD_WIDTH, LORD_HEIGHT);
+        this.setupLordCards([this.lordsStock]);
+        spots.forEach(function (spots) {
+            var lord = spots.lord;
+            if (lord) {
+                _this.lordsStock.addToStockWithId(_this.getCardUniqueId(lord.type, lord.guild), "" + lord.id);
+            }
+        });
+        this.locationsStock = new ebg.stock();
+        this.locationsStock.create(this.game, $("player" + playerId + "-location-stock"), LOCATION_WIDTH, LOCATION_HEIGHT);
+        this.setupLocationCards([this.locationsStock]);
+        spots.forEach(function (spots) {
+            var _a;
+            var location = spots.location;
+            if (location) {
+                _this.locationsStock.addToStockWithId(_this.getCardUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id);
+            }
+        });
+    }
+    PlayerTable.prototype.setupLordCards = function (lordStocks) {
+        var _this = this;
+        var cardsurl = g_gamethemeurl + "img/lords.jpg";
+        lordStocks.forEach(function (lordStock) {
+            return GUILD_IDS.forEach(function (guild, guildIndex) {
+                return LORDS_IDS.forEach(function (id, index) {
+                    return lordStock.addItemType(_this.getCardUniqueId(id, guild), 0, cardsurl, guildIndex * 20 + index);
+                });
+            });
+        });
+    };
+    PlayerTable.prototype.setupLocationCards = function (locationStocks) {
+        var _this = this;
+        var cardsurl = g_gamethemeurl + "img/locations.jpg";
+        locationStocks.forEach(function (locationStock) {
+            LOCATIONS_UNIQUE_IDS.forEach(function (id, index) {
+                return locationStock.addItemType(_this.getCardUniqueId(id, 0), 0, cardsurl, index);
+            });
+            GUILD_IDS.forEach(function (guild, guildIndex) {
+                return LOCATIONS_GUILDS_IDS.forEach(function (id, index) {
+                    return locationStock.addItemType(_this.getCardUniqueId(id, guild), 0, cardsurl, 14 + guildIndex * LOCATIONS_GUILDS_IDS.length + index);
+                });
+            });
+        });
+    };
+    PlayerTable.prototype.getCardUniqueId = function (type, guild) {
+        return type * 10 + guild;
+    };
+    return PlayerTable;
+}());
 var Conspiracy = /** @class */ (function () {
     function Conspiracy() {
+        this.playersTables = [];
     }
     /*
         setup:
@@ -139,11 +214,13 @@ var Conspiracy = /** @class */ (function () {
         "gamedatas" argument contains all datas retrieved by your "getAllDatas" PHP method.
     */
     Conspiracy.prototype.setup = function (gamedatas) {
+        var _this = this;
         console.log("Starting game setup");
         this.gamedatas = gamedatas;
         console.log(gamedatas);
         this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords);
         this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations);
+        Object.keys(gamedatas.players).forEach(function (playerId) { return _this.playersTables[playerId] = new PlayerTable(_this, playerId, gamedatas.playersTables[playerId]); });
         this.setupNotifications();
         console.log("Ending game setup");
     };

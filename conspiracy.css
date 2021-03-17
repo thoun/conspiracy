@@ -2,16 +2,21 @@
   display: flex;
 }
 #lord-stacks #lord-hidden-pile {
+  display: flex;
   width: 220px;
   height: 220px;
   background: darkblue;
 }
-#lord-stacks #lord-hidden-pile .buttons {
+#lord-stacks #lord-hidden-pile .button {
   display: none;
   flex: 1;
   border: 3px dashed white;
+  color: white;
+  font-size: 300%;
+  justify-content: center;
+  align-items: center;
 }
-#lord-stacks #lord-hidden-pile.active .buttons {
+#lord-stacks #lord-hidden-pile.selectable .button {
   display: flex;
   cursor: pointer;
 }
@@ -25,12 +30,16 @@
   height: 100px;
   background: darkblue;
 }
-#location-stacks #location-hidden-pile .buttons {
+#location-stacks #location-hidden-pile .button {
   display: none;
   flex: 1;
   border: 3px dashed white;
+  color: white;
+  font-size: 300%;
+  justify-content: center;
+  align-items: center;
 }
-#location-stacks #location-hidden-pile.active .buttons {
+#location-stacks #location-hidden-pile.selectable .button {
   display: flex;
   cursor: pointer;
 }

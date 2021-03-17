@@ -242,9 +242,7 @@ class Conspiracy extends Table
 
         $this->locations->pickCardsForLocation($number, 'deck', 'lord_selection');
 
-        /*if ($number == 1) {
-            $this->gamestate->nextState( 'addLord' );
-        }*/
+        $this->gamestate->nextState($number == 1 ? 'chooseOneOnStack' : 'chooseDeckStack');
     }
 
     /*
