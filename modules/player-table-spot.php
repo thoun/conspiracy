@@ -1,5 +1,5 @@
 <?php
-class PlayerTableSpot {
+class PlayerTableSpot { // 1-indexed
     public $lord;
     public $location;  
   

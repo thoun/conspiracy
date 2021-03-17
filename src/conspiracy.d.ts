@@ -2,20 +2,21 @@
  * Your game interfaces
  */
 
-interface Lord {
+interface Card {
     id: number;
     type: number;
+    pearls: number;
+    points: number;
+}
+
+interface Lord extends Card {
     guild: number;
     // TODO
 }
-interface Location {
-    id: number;
-    type: number;
+interface Location extends Card {
     activePower?: number;
     passivePower?: number;
     passivePowerGuild?: number;
-    pearls: number;
-    points: number;
 }
 
 interface PlayerTableSpot {
@@ -36,7 +37,7 @@ interface ConspiracyGamedatas {
     tablespeed: string;
 
     // Add here variables you set up in getAllDatas
-    visibleLords: Lord[][];
+    visibleLords: { [spot: number]: Lord[] };
     visibleLocations: Location[];
     masterPearlsPlayer: number;
     playersTables: { [playerId: number]: PlayerTableSpot[] };
@@ -44,29 +45,34 @@ interface ConspiracyGamedatas {
 
 interface ConspiracyGame extends Game {
     takeAction: (action: string, data?: any) => void;
+    lordPick: (id: number) => void;
+    lordStockPick: (guild: number) => void;
+    locationPick: (id: number) => void;
 }
 
 interface EnteringLordStackSelectionArgs {
     // TODO
+}
+interface EnteringLordSelectionArgs {
+    lords: Lord[];
 }
 
 interface EnteringLocationStackSelectionArgs {
     // TODO
 }
 
+interface NotifLordPlayedArgs {
+    playerId: number;
+    lord: Lord;
+    spot: number;
+    discardedLords: Lord[];
+}
+
+interface NotifExtraLordRevealedArgs {
+    lord: Lord;
+}
+
 /*
-interface NotifNewTurnArgs {
-    casinos: any;
-    playerId: number;
-    neutralDices: number[];
-}
-
-interface NotifDicesPlayedArgs {
-    casino: number;
-    playerId: number;
-    remainingDices: DicesCount;
-}
-
 interface NotifRemoveDuplicatesArgs {
     casino: number;
     duplicatesValues: number[];

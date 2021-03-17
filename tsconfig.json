@@ -13,6 +13,7 @@
         "src/stock.d.ts",
         "src/conspiracy.d.ts",
         "src/lord-stock.ts",
+        "src/abstract-stacks.ts",
         "src/lords-stacks.ts",
         "src/locations-stacks.ts",
         "src/player-table.ts",

@@ -1,10 +1,9 @@
-#lord-stacks {
+.stacks {
     display: flex;
+    position: relative;
 
-    #lord-hidden-pile {      
+    .hidden-pile {    
         display: flex;
-        width: 220px;
-        height: 220px;
         background: darkblue;
 
         .button {
@@ -24,28 +23,37 @@
     }
 }
 
-#location-stacks {
-    display: flex;
-    
-    #location-hidden-pile {        
+#lord-stacks {
+    #lord-hidden-pile {  
+        width: 220px;
+        height: 220px;
+        margin-right: 10px;
+    }
+
+    #lord-visible-stocks {
         display: flex;
-        width: 200px;
-        height: 100px;
-        background: darkblue;
+        flex-wrap: wrap;
+    
+        &>div {
+            display: inline-block;
+            margin-right: 10px;
 
-        .button {
-            display: none;
-            flex: 1;
-            border: 3px dashed white;
-            color: white;
-            font-size: 300%;
-            justify-content: center;
-            align-items: center;
-        }
-
-        &.selectable .button {
-            display: flex;
-            cursor: pointer;
+            &.selectable {
+                border: 3px dashed white;
+            }
         }
     }
+}
+
+#location-stacks {    
+    #location-hidden-pile {   
+        width: 200px;
+        height: 100px;
+        margin-right: 10px;
+    }
+}
+
+.player-name {
+    font-weight: bold;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
 }

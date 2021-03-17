@@ -45,6 +45,42 @@
         self::ajaxResponse( );
     }
 
+    public function chooseVisibleStack() {
+        self::setAjaxMode();     
+
+        $guild = self::getArg( "guild", AT_posint, true );
+        $this->game->chooseVisibleStack( $guild );
+
+        self::ajaxResponse( );
+    }
+
+    public function pickLord() {
+        self::setAjaxMode();     
+
+        $id = self::getArg( "id", AT_posint, true );
+        $this->game->pickLord( $id );
+
+        self::ajaxResponse( );
+    }
+
+    public function chooseLocationDeckStack() {
+        self::setAjaxMode();     
+
+        $number = self::getArg( "number", AT_posint, true );
+        $this->game->chooseLocationDeckStack( $number );
+
+        self::ajaxResponse( );
+    }
+
+    public function pickLocation() {
+        self::setAjaxMode();     
+
+        $id = self::getArg( "id", AT_posint, true );
+        $this->game->pickLocation( $id );
+
+        self::ajaxResponse( );
+    }
+
   }
   
 

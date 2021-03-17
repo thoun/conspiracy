@@ -15,13 +15,13 @@ const LOCATIONS_UNIQUE_IDS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14];
 const LOCATIONS_GUILDS_IDS = [100,101];
 
 
-class LocationsStacks {
+class LocationsStacks extends AbstractStacks<Location> {
     visibleLocationsStock: Stock;
-    
-    private selectable: boolean;
 
     constructor(private game: ConspiracyGame, visibleLocations: Location[]) {
-        dojo.connect( $('location-hidden-pile'), 'click', this, 'onHiddenLocationClick' );
+        super();
+
+        this.pileDiv.addEventListener('click', e => this.onHiddenLocationClick(e));
 
         this.visibleLocationsStock = new ebg.stock() as Stock;
         this.visibleLocationsStock.create( this.game, $('location-visible-stock'), LOCATION_WIDTH, LOCATION_HEIGHT );
@@ -29,15 +29,27 @@ class LocationsStacks {
         this.visibleLocationsStock.setSelectionAppearance('class');
         this.visibleLocationsStock.onItemCreate = dojo.hitch( this, 'setupNewLocationCard' ); 
         dojo.connect( this.visibleLocationsStock, 'onChangeSelection', this, 'onVisibleLocationClick' );
-        this.setupLocationCards([this.visibleLocationsStock]);
+        
+        this.pickStock = new ebg.stock() as Stock;
+        this.pickStock.create( this.game, this.pickDiv, LORD_WIDTH, LORD_HEIGHT );
+        this.pickStock.centerItems = true;
+        this.setPickStockClick();
 
-        visibleLocations.forEach(location => this.visibleLocationsStock.addToStockWithId(this.getCardUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`));
-    } 
+        this.setupLocationCards([this.visibleLocationsStock, this.pickStock]);        
 
-    public setSelectable(selectable: boolean) {
-        this.selectable = selectable;
-        const action = selectable ? 'add' : 'remove';
-        document.getElementById('lord-hidden-pile').classList[action]('selectable');
+        visibleLocations.forEach(location => this.visibleLocationsStock.addToStockWithId(this.getCardUniqueId(location), `${location.id}`));
+    }
+
+    get pileDiv(): HTMLDivElement {
+        return document.getElementById('location-hidden-pile') as HTMLDivElement;
+    }
+
+    get pickDiv(): HTMLDivElement {
+        return document.getElementById('location-pick') as HTMLDivElement;
+    }
+
+    protected getCardUniqueId(location: Location) {
+        return this.getUniqueId(location.type, location.passivePowerGuild ?? 0);
     }
 
     public setupLocationCards(locationStocks: Stock[]) {
@@ -46,7 +58,7 @@ class LocationsStacks {
         locationStocks.forEach(locationStock => {
             LOCATIONS_UNIQUE_IDS.forEach((id, index) =>
                 locationStock.addItemType(
-                    this.getCardUniqueId(id, 0), 
+                    this.getUniqueId(id, 0), 
                     0, 
                     cardsurl, 
                     index
@@ -56,7 +68,7 @@ class LocationsStacks {
             GUILD_IDS.forEach((guild, guildIndex) => 
                 LOCATIONS_GUILDS_IDS.forEach((id, index) =>
                     locationStock.addItemType(
-                        this.getCardUniqueId(id, guild), 
+                        this.getUniqueId(id, guild), 
                         0, 
                         cardsurl, 
                         14 + guildIndex*LOCATIONS_GUILDS_IDS.length + index
@@ -65,36 +77,36 @@ class LocationsStacks {
             );
         });
     }
-    
-    private getCardUniqueId(type: number, guild: number) {
-        return type * 10 + guild;
+
+    protected pickClick(control_name: string, item_id: string) {
+        // removeAllTo => lordsStocks
+        this.game.locationPick(Number(item_id));
+        super.pickClick(control_name, item_id);
     }
 
     public setupNewLocationCard( card_div: HTMLDivElement, card_type_id: number, card_id: string ) {
         // TODO (this as any).addTooltip( card_div.id, this.mowCards.getTooltip(card_type_id), '' );
     }
 
-    public onHiddenLocationClick(a, b) {
-        // TODO
-        console.log(a, b);
-
-        
-
-        const number = 2 + 2 - 2; // TODO
-        const action = number === 1 ? 'chooseOneOnStack' : 'chooseDeckStack'
-
-        if(!(this.game as any).checkAction(action)) {
+    public onHiddenLocationClick(event: MouseEvent) {
+        if (!this.selectable) {
             return;
         }
 
-        this.game.takeAction(action, {
+        const number = parseInt((event.target as HTMLDivElement).dataset.number);
+
+        if(!(this.game as any).checkAction('chooseDeckStack')) {
+            return;
+        }
+
+        this.game.takeAction('chooseLocationDeckStack', {
             number
         });
     }
 
-    public onVisibleLocationClick(a, b) {
+    public onVisibleLocationClick(event: MouseEvent) {
         // TODO
-        console.log(a, b);
+        console.log(event);
 
         
         if(!(this.game as any).checkAction('chooseVisibleLocation')) {

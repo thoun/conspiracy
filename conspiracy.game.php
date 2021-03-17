@@ -45,6 +45,8 @@ class Conspiracy extends Table
                 'AP_FIRST_LORD' => 11, // reset to 0 when this player plays again
                 'AP_FIRST_LORDS' => 12, // reset to 0 when this player plays again
                 'AP_DECK_LOCATION' => 13, // apply for all game, not reseted
+
+                'stackSelection' => 20
             //      ...
             //    "my_first_game_variant" => 100,
             //    "my_second_game_variant" => 101,
@@ -98,6 +100,7 @@ class Conspiracy extends Table
         self::setGameStateInitialValue( 'AP_FIRST_LORD', 0 );
         self::setGameStateInitialValue( 'AP_FIRST_LORDS', 0 );
         self::setGameStateInitialValue( 'AP_DECK_LOCATION', 0 );
+        self::setGameStateInitialValue( 'stackSelection', 0 );
         
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
@@ -110,6 +113,12 @@ class Conspiracy extends Table
         
         // show the first location
         $this->locations->pickCardForLocation('deck', 'table');
+
+
+        // TODO TEMP à enlever
+        for ($i=0;$i<5;$i++) {
+            $this->addExtraLord();
+        }
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
@@ -172,10 +181,10 @@ class Conspiracy extends Table
         // players tables
         $result['playersTables'] = [];
         foreach( $result['players'] as $player_id => $playerDb ) {
-            $lords = $this->getLocationsFromDb($this->lords->getCardsInLocation("player$player_id"));
+            $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id"));
             $locations = $this->getLocationsFromDb($this->locations->getCardsInLocation("player$player_id"));
             $result['playersTables'][$player_id] = [];
-            for($spot=0;$spot<15;$spot++) {
+            for($spot=1;$spot<=15;$spot++) {
                 $result['playersTables'][$player_id][$spot] = new PlayerTableSpot(
                     current(array_filter($lords, function($lord) use ($spot) { return $lord->location_arg === $spot; })),
                     current(array_filter($locations, function($location) use ($spot) { return $location->location_arg === $spot; }))
@@ -220,12 +229,36 @@ class Conspiracy extends Table
         return self::getGameStateValue('AP_DECK_LOCATION') == $playerId;
     }
 
+    function getLordFromDb($dbLord) {
+        if (!$dbLord || !array_key_exists('id', $dbLord)) {
+            throw new Error('lord doesn\'t exists '.json_encode($dbLord));
+        }
+        return new Lord($dbLord, $this->LORDS);
+    }
+
     function getLordsFromDb(array $dbLords) {
-        return array_map(function($dbLord) { return new Lord($dbLord, $this->LORDS); }, array_values($dbLords));
+        return array_map(function($dbLord) { return $this->getLordFromDb($dbLord); }, array_values($dbLords));
+    }
+
+    function getLocationFromDb($dbLocation) {
+        if (!$dbLocation || !array_key_exists('id', $dbLocation)) {
+            throw new Error('lord doesn\'t exists '.json_encode($dbLocation));
+        }
+        return new Location($dbLocation, $this->LOCATIONS);
     }
 
     function getLocationsFromDb(array $dbLocations) {
-        return array_map(function($dbLocation) { return new Location($dbLocation, $this->LOCATIONS); }, array_values($dbLocations));
+        return array_map(function($dbLocation) { return $this->getLocationFromDb($dbLocation); }, array_values($dbLocations));
+    }
+
+    function canConstructWithNewKey(int $playerId, int $key) {
+        // TODO
+    }
+
+    function addExtraLord() {
+        $lord = $this->getLordFromDb($this->lords->pickCardForLocation( 'deck', 'table'));
+        $this->lords->moveCard($lord->id,'table', $lord->guild);
+        return $lord;
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -239,37 +272,55 @@ class Conspiracy extends Table
 
     function chooseLordDeckStack($number) {
         self::checkAction('chooseDeckStack'); 
+        self::debug('[GBA] chooseLordDeckStack');
 
-        $this->locations->pickCardsForLocation($number, 'deck', 'lord_selection');
+        $this->lords->pickCardsForLocation($number, 'deck', $number == 1 ? 'lord_pick' : 'lord_selection');
 
+        $message = $number > 1 ?
+          clienttranslate('${player_name} chooses to take ${number} lords from the deck') :
+          clienttranslate('${player_name} chooses to take ${number} lord from the deck');
+        self::notifyAllPlayers('lordDeckNumber', $message, [
+            'player_name' => self::getActivePlayerName(),
+            'number' => $number,
+        ]);
+
+        self::setGameStateValue('stackSelection', 1);
         $this->gamestate->nextState($number == 1 ? 'chooseOneOnStack' : 'chooseDeckStack');
     }
 
-    /*
-    
-    Example:
+    function chooseVisibleStack($guild) {
+        self::checkAction('chooseVisibleStack'); 
+        self::debug('[GBA] chooseLordVisibleStack');
 
-    function playCard( $card_id )
-    {
-        // Check that this is the player's turn and that it is a "possible action" at this game state (see states.inc.php)
-        self::checkAction( 'playCard' ); 
-        
-        $player_id = self::getActivePlayerId();
-        
-        // Add your game logic to play a card there 
-        ...
-        
-        // Notify all players about the card played
-        self::notifyAllPlayers( "cardPlayed", clienttranslate( '${player_name} plays ${card_name}' ), array(
-            'player_id' => $player_id,
-            'player_name' => self::getActivePlayerName(),
-            'card_name' => $card_name,
-            'card_id' => $card_id
-        ) );
-          
+        $this->lords->moveAllCardsInLocation('table', 'lord_selection', $guild);
+
+        self::setGameStateValue('stackSelection', 0);
+        $this->gamestate->nextState($this->lords->countCardInLocation('lord_selection') > 1 ? 'chooseOneOnStack' : 'chooseDeckStack');
     }
-    
-    */
+
+    function pickLord($id) {
+        self::debug('[GBA] pickLord');
+
+        $lord = $this->getLordFromDb($this->lords->getCard($id));
+        if ($lord->location !== 'lord_selection') {
+            throw new Error('Picked lord is not available');
+        }
+        $this->lords->moveCard($lord->id, 'lord_pick');
+
+        $this->gamestate->nextState('addLord');
+    }
+
+    function chooseLocationDeckStack($number) {
+        self::checkAction('chooseDeckStack'); 
+        self::debug('[GBA] chooseLocationDeckStack');
+
+        // TODO
+    }
+
+    function pickLocation($id) {
+        self::debug('[GBA] pickLocation');
+        // TODO
+    }
 
     
 //////////////////////////////////////////////////////////////////////////////
@@ -281,23 +332,16 @@ class Conspiracy extends Table
         These methods function is to return some additional information that is specific to the current
         game state.
     */
-
-    /*
     
-    Example for game state "MyGameState":
-    
-    function argMyGameState()
-    {
+    function argLordSelection() {
         // Get some values from the current game situation in database...
+        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
     
         // return values:
-        return array(
-            'variable1' => $value1,
-            'variable2' => $value2,
-            ...
-        );
-    }    
-    */
+        return [
+            'lords' => $lords
+        ];
+    }
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state actions
@@ -309,12 +353,60 @@ class Conspiracy extends Table
     */
     
 
-    /*function stPlayerLordStackSelection() {
-        // Do some stuff ...
+    function stPlayLord() {
+        self::debug('[GBA] stPlayLord');
+        self::debug('[GBA] stPlayLord getCardsInLordPick '.json_encode(array_values($this->lords->getCardsInLocation('lord_pick'))));
+        $lord = $this->getLordFromDb(array_values($this->lords->getCardsInLocation('lord_pick'))[0]);
+        self::debug('[GBA] stPlayLord lord '.json_encode($lord));
+        $player_id = intval(self::getActivePlayerId());
+
+        $spot = $this->lords->countCardInLocation("player${player_id}") + 1;
+        $this->lords->moveCard($lord->id, "player${player_id}", $spot);
+
+        $remainingLords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
+        $stackSelection = self::getGameStateValue('stackSelection') == 1;
+        if ($stackSelection) {
+            foreach($remainingLords as $lord) {
+                $this->lords->moveCard($lord->id, 'table', $lord->guild);
+            }
+        }
         
-        // (very often) go to another gamestate
-        //$this->gamestate->nextState( 'some_gamestate_transition' );
-    }*/
+        self::notifyAllPlayers('lordPlayed', clienttranslate( '${player_name} plays lord ${card_name}' ), [
+            'playerId' => $player_id,
+            'player_name' => self::getActivePlayerName(),
+            'card_name' => 'TODO',
+            'lord' => $lord,
+            'spot' => $spot,
+            'discardedLords' => $stackSelection ? $remainingLords : []
+        ]);
+
+        if ($lord->showExtraLord) {
+            $extraLord = $this->addExtraLord();
+
+            self::notifyAllPlayers('extraLordRevealed', clienttranslate( 'A lord is added in the discard pile' ), [
+                'lord' => $extraLord
+            ]);
+        }
+
+        if ($lord->switch) {
+            $this->gamestate->nextState('switch');
+        } else if ($lord->key && $this->canConstructWithNewKey($player_id, $lord->key)) {
+            $this->gamestate->nextState('addLocation');
+        } else if (!$stackSelection && $this->lords->countCardInLocation('lord_selection') > 0) {
+            $this->gamestate->nextState('nextLord');
+        } else {
+            $this->gamestate->nextState('nextPlayer');
+        }
+    }
+
+    function stNextPlayer() {
+        $player_id = self::activeNextPlayer();
+        self::giveExtraTime($player_id);
+
+        // TODO end game ? $this->gamestate->nextState('showScore');
+
+        $this->gamestate->nextState('nextPlayer');
+    }
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Zombie

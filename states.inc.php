@@ -67,12 +67,11 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} must choose lords'),
         "type" => "activeplayer",
         //"action" => "stPlayerLordStackSelection",
-        "possibleactions" => array( "chooseDeckStack", "chooseVisibleStack", "chooseVisibleStackMultiple" ),
+        "possibleactions" => array( "chooseDeckStack", "chooseVisibleStack" ),
         "transitions" => array( 
             "chooseDeckStack" => ST_PLAYER_LORD_SELECTION,
-            "chooseOneOnStack" => ST_ADD_LORD,
-            "chooseVisibleStack" => ST_ADD_LORD,
-            "chooseVisibleStackMultiple" => ST_PLAYER_LORD_PICK
+            "chooseOneOnStack" => ST_PLAY_LORD,
+            "chooseVisibleStack" => ST_PLAYER_LORD_PICK
         )
     ),  
 
@@ -81,10 +80,11 @@ $machinestates = array(
         "description" => clienttranslate('${actplayer} must choose a lord'),
         "descriptionmyturn" => clienttranslate('${you} must choose a lord'),
         "type" => "activeplayer",
+        "args" => "argLordSelection",
         // "action" => "stPlayerLordSelection",
         "possibleactions" => array( "addLord" ),
         "transitions" => array( 
-            "addLord" => ST_ADD_LORD
+            "addLord" => ST_PLAY_LORD
         )
     ),
 
@@ -96,19 +96,20 @@ $machinestates = array(
         // "action" => "stPlayerLordPick",
         "possibleactions" => array( "addLord" ),
         "transitions" => array( 
-            "addLord" => ST_ADD_LORD
+            "addLord" => ST_PLAY_LORD
         )
     ),
 
-    ST_ADD_LORD => array(
+    ST_PLAY_LORD => array(
         "name" => "lordPlacement",
         "description" => "",
         "type" => "game",
-        // "action" => "stPlayLord",
+        "action" => "stPlayLord",
         "updateGameProgression" => true,
         "transitions" => array( 
             "switch" => ST_PLAYER_LORDS_SWITCH,
             "addLocation" => ST_PLAYER_LOCATION_STACK_SELECTION,
+            "nextLord" => ST_PLAYER_LORD_SELECTION,
             "nextPlayer" => ST_NEXT_PLAYER,
         )
     ),
@@ -187,7 +188,7 @@ $machinestates = array(
         "name" => "nextPlayer",
         "description" => "",
         "type" => "game",
-        // "action" => "stNextPlayer",
+        "action" => "stNextPlayer",
         "updateGameProgression" => true,
         "transitions" => array( 
             "nextPlayer" => ST_PLAYER_LORD_STACK_SELECTION, 

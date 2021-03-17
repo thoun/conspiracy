@@ -1,42 +1,52 @@
 class PlayerTable {
-    lordsStock: Stock;
-    locationsStock: Stock;
+    private playerId: number;
+    private lordsStock: Stock;
+    private locationsStock: Stock;
 
     constructor(
         private game: ConspiracyGame, 
-        private playerId: string,
+        player: Player,
         private spots: PlayerTableSpot[],
         private readonly: boolean = true) {
 
-        dojo.place(`<div id="player-table-${playerId}">
-            Player ${playerId} lords : <div id="player${playerId}-lord-stock"></div>
-            Player ${playerId} locations : <div id="player${playerId}-location-stock"></div>
+        this.playerId = Number(player.id);
+
+        dojo.place(`<div class="whiteblock">
+            <div class="player-name" style="color: #${player.color}">${player.name}</div>
+            <div id="player-table-${this.playerId}">
+                Lords : <div id="player${this.playerId}-lord-stock"></div>
+                Locations : <div id="player${this.playerId}-location-stock"></div>
+            </div>
         </div>`, 'players-tables')
 
         this.lordsStock = new ebg.stock() as Stock;
-        this.lordsStock.create( this.game, $(`player${playerId}-lord-stock`), LORD_WIDTH, LORD_HEIGHT );
+        this.lordsStock.create( this.game, $(`player${this.playerId}-lord-stock`), LORD_WIDTH, LORD_HEIGHT );
         this.setupLordCards([this.lordsStock]);
 
-        spots.forEach(spots => {
-            const lord = spots.lord;
+        Object.entries(spots).forEach(([spotNumber, spot]) => {
+            const lord = spot.lord;
             if (lord) {
             this.lordsStock.addToStockWithId(this.getCardUniqueId(lord.type, lord.guild), `${lord.id}`);
             }
         });
 
         this.locationsStock = new ebg.stock() as Stock;
-        this.locationsStock.create( this.game, $(`player${playerId}-location-stock`), LOCATION_WIDTH, LOCATION_HEIGHT );
+        this.locationsStock.create( this.game, $(`player${this.playerId}-location-stock`), LOCATION_WIDTH, LOCATION_HEIGHT );
         this.setupLocationCards([this.locationsStock]);
 
-        spots.forEach(spots => {
-            const location = spots.location;
+        Object.entries(spots).forEach(([spotNumber, spot]) => {
+            const location = spot.location;
             if (location) {
                 this.locationsStock.addToStockWithId(this.getCardUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`);
             }
         });
     }
+    
+    public addLord(spot: number, lord: Lord) {
+        this.lordsStock.addToStockWithId(this.getCardUniqueId(lord.type, lord.guild), `${lord.id}`);
+    }
 
-    public setupLordCards(lordStocks: Stock[]) {
+    private setupLordCards(lordStocks: Stock[]) {
         const cardsurl = `${g_gamethemeurl}img/lords.jpg`;
 
         lordStocks.forEach(lordStock => 
@@ -53,7 +63,7 @@ class PlayerTable {
         );
     }
 
-    public setupLocationCards(locationStocks: Stock[]) {
+    private setupLocationCards(locationStocks: Stock[]) {
         const cardsurl = `${g_gamethemeurl}img/locations.jpg`;
 
         locationStocks.forEach(locationStock => {

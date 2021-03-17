@@ -40,7 +40,7 @@ class Conspiracy implements ConspiracyGame {
         this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords);
         this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations);
 
-        Object.keys(gamedatas.players).forEach((playerId) => this.playersTables[playerId] = new PlayerTable(this, playerId, gamedatas.playersTables[playerId]));
+        Object.keys(gamedatas.players).forEach((playerId) => this.playersTables[playerId] = new PlayerTable(this, gamedatas.players[playerId], gamedatas.playersTables[playerId]));
 
         this.setupNotifications();
 
@@ -54,12 +54,16 @@ class Conspiracy implements ConspiracyGame {
     //                  You can use this method to perform some user interface changes at this moment.
     //
     public onEnteringState(stateName: string, args: any) {
-        console.log( 'Entering state: '+stateName );
+        console.log( 'Entering state: '+stateName, args.args );
 
         switch (stateName) {
             case 'lordStackSelection':
                 this.onEnteringLordStackSelection(args.args);
                 break;
+            case 'lordSelection':
+                this.onEnteringLordSelection(args.args);
+                break;
+
             case 'locationStackSelection':
                 this.onEnteringLocationStackSelection(args.args);
                 break;
@@ -70,6 +74,10 @@ class Conspiracy implements ConspiracyGame {
         if ((this as any).isCurrentPlayerActive()) {
             this.lordsStacks.setSelectable(true);
         }
+    }
+
+    onEnteringLordSelection(args: EnteringLordSelectionArgs) {
+        this.lordsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.lords);
     }
 
     onEnteringLocationStackSelection(args: EnteringLocationStackSelectionArgs) {
@@ -88,6 +96,10 @@ class Conspiracy implements ConspiracyGame {
             case 'lordStackSelection':
                 this.onLeavingLordStackSelection();
                 break;
+            case 'lordSelection':
+                this.onLeavingLordSelection();
+                break;
+
             case 'locationStackSelection':
                 this.onLeavingLocationStackSelection();
                 break;
@@ -96,6 +108,10 @@ class Conspiracy implements ConspiracyGame {
 
     onLeavingLordStackSelection() {
         this.lordsStacks.setSelectable(false);
+    }
+
+    onLeavingLordSelection() {
+        this.lordsStacks.setPick(false, false);
     }
 
     onLeavingLocationStackSelection() {
@@ -115,6 +131,36 @@ class Conspiracy implements ConspiracyGame {
 
 
     ///////////////////////////////////////////////////
+
+    public lordPick(id: number) {
+        if(!(this as any).checkAction('addLord')) {
+            return;
+        }
+
+        this.takeAction('pickLord', {
+            id
+        });
+    }
+
+    public lordStockPick(guild: number) {
+        if(!(this as any).checkAction('chooseVisibleStack')) {
+            return;
+        }
+
+        this.takeAction('chooseVisibleStack', {
+            guild
+        });
+    }
+
+    public locationPick(id: number) {
+        if(!(this as any).checkAction('addLocation')) {
+            return;
+        }
+
+        this.takeAction('pickLocation', {
+            id
+        });
+    }
 
     public takeAction(action: string, data?: any) {
         data = data || {};
@@ -138,12 +184,8 @@ class Conspiracy implements ConspiracyGame {
         //console.log( 'notifications subscriptions setup' );
 
         const notifs = [
-            /*['newTurn', 1],
-            ['dicesPlayed', 1],
-            ['removeDuplicates', END_TURN_ANIMATIONS_DURATION],
-            ['collectBanknote', END_TURN_ANIMATIONS_DURATION],
-            ['removeBanknote', END_TURN_ANIMATIONS_DURATION],
-            ['removeDices', END_TURN_ANIMATIONS_DURATION],*/
+            ['lordPlayed', 1],
+            ['extraLordRevealed', 1],
         ];
     
         notifs.forEach((notif) => {
@@ -152,25 +194,17 @@ class Conspiracy implements ConspiracyGame {
         });
     }
 
-    /*notif_newTurn(notif: Notif<NotifNewTurnArgs>) {
-        this.placeFirstPlayerToken(notif.args.playerId);
-        this.casinos.forEach(casino => casino.setNewBanknotes(notif.args.casinos[casino.casino]));
-
-        notif.args.neutralDices.forEach(neutralDice => {
-            this.casinos[neutralDice].addSpaceForPlayer(0);
-            dojo.place(this.createDiceHtml(neutralDice, 0, this.neutralColor), this.casinos[neutralDice].getPlayerSpaceId(0));
-            this.casinos[neutralDice].reorderDices();
-        });
-    }
-
-    notif_dicesPlayed(notif: Notif<NotifDicesPlayedArgs>) {
-        this.moveDicesToCasino(notif.args.casino, notif.args.playerId);
-        this.dicesCounters[notif.args.playerId].toValue(notif.args.remainingDices.player);
-        if (this.isVariant()) {                
-            this.dicesCountersNeutral[notif.args.playerId].toValue(notif.args.remainingDices.neutral);
+    notif_lordPlayed(notif: Notif<NotifLordPlayedArgs>) {
+        this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);
+        if (notif.args.discardedLords?.length) {
+            this.lordsStacks.discardPick(notif.args.discardedLords);
         }
     }
 
+    notif_extraLordRevealed(notif: Notif<NotifExtraLordRevealedArgs>) {
+        this.lordsStacks.addLords([notif.args.lord]);
+    }
+/*
     notif_removeDuplicates(notif: Notif<NotifRemoveDuplicatesArgs>) {
         notif.args.playersId.forEach(playerId => this.casinos[notif.args.casino].removeDices(playerId));
     }
