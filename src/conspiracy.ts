@@ -12,6 +12,7 @@ class Conspiracy implements ConspiracyGame {
     private lordsStacks: LordsStacks;
     private locationsStacks: LocationsStacks;
     private playersTables: PlayerTable[] = [];
+    private pearlCounters: Counter[] = [];
 
     constructor() {
     }
@@ -36,6 +37,21 @@ class Conspiracy implements ConspiracyGame {
         this.gamedatas = gamedatas;
 
         console.log(gamedatas);
+
+        Object.values(gamedatas.players).forEach(player => {
+            const playerId = Number(player.id);
+            // TODO add color indicators
+            dojo.place(`<div class="pearl-counters">[pearl] <span id="pearl-counter-${player.id}"></span></div>`, `player_board_${player.id}` );
+
+            const counter = new ebg.counter();
+            counter.create(`pearl-counter-${player.id}`);
+            counter.setValue((player as any).pearls);
+            this.pearlCounters[playerId] = counter;
+
+            if (gamedatas.masterPearlsPlayer === playerId) {
+                this.placePearlMasterToken(gamedatas.masterPearlsPlayer);
+            }
+        });
         
         this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords);
         this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations);
@@ -168,6 +184,23 @@ class Conspiracy implements ConspiracyGame {
         (this as any).ajaxcall(`/conspiracy/conspiracy/${action}.html`, data, this, () => {});
     }
 
+    placePearlMasterToken(playerId: number) {
+        const pearlMasterToken = document.getElementById('pearlMasterToken');
+        if (pearlMasterToken) {
+            const animation = (this as any).slideToObject(pearlMasterToken, `player_board_${playerId}`);
+            dojo.connect(animation, 'onEnd', dojo.hitch(this, () => {
+                pearlMasterToken.style.top = 'unset';
+                pearlMasterToken.style.left = 'unset';
+                pearlMasterToken.style.position = 'unset';
+                pearlMasterToken.style.zIndex = 'unset';
+                document.getElementById(`player_board_${playerId}`).appendChild(pearlMasterToken);
+            }));
+            animation.play();
+        } else {
+            dojo.place('<div id="pearlMasterToken">PM</div>', `player_board_${playerId}`);
+        }
+    }
+
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
 
@@ -186,6 +219,7 @@ class Conspiracy implements ConspiracyGame {
         const notifs = [
             ['lordPlayed', 1],
             ['extraLordRevealed', 1],
+            ['newPearlMaster', 1],
         ];
     
         notifs.forEach((notif) => {
@@ -196,6 +230,8 @@ class Conspiracy implements ConspiracyGame {
 
     notif_lordPlayed(notif: Notif<NotifLordPlayedArgs>) {
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);
+        (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
+        this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         if (notif.args.discardedLords?.length) {
             this.lordsStacks.discardPick(notif.args.discardedLords);
         }
@@ -203,6 +239,10 @@ class Conspiracy implements ConspiracyGame {
 
     notif_extraLordRevealed(notif: Notif<NotifExtraLordRevealedArgs>) {
         this.lordsStacks.addLords([notif.args.lord]);
+    }
+
+    notif_newPearlMaster(notif: Notif<NotifNewPearlMasterArgs>) {
+        this.placePearlMasterToken(notif.args.playerId);
     }
 /*
     notif_removeDuplicates(notif: Notif<NotifRemoveDuplicatesArgs>) {

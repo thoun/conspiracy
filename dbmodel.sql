@@ -37,8 +37,3 @@ CREATE TABLE IF NOT EXISTS `location` (
    `card_location_arg` int(11),
    PRIMARY KEY (`card_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
--- Example 2: add a custom field to the standard "player" table
-ALTER TABLE `player` ADD `pearls` INT UNSIGNED NOT NULL DEFAULT '0';
-

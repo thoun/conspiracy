@@ -66,10 +66,16 @@ interface NotifLordPlayedArgs {
     lord: Lord;
     spot: number;
     discardedLords: Lord[];
+    points: number;
+    pearls: number;
 }
 
 interface NotifExtraLordRevealedArgs {
     lord: Lord;
+}
+
+interface NotifNewPearlMasterArgs {
+    playerId: number;
 }
 
 /*

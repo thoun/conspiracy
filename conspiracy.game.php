@@ -167,7 +167,7 @@ class Conspiracy extends Table
     
         // Get information about players
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
-        $sql = "SELECT player_id id, player_score score, pearls FROM player ";
+        $sql = "SELECT player_id id, player_score score, player_score_aux pearls FROM player ";
         $result['players'] = self::getCollectionFromDb( $sql );
   
         // Gather all information about current game situation (visible by player $current_player_id).
@@ -371,21 +371,40 @@ class Conspiracy extends Table
             }
         }
         
-        self::notifyAllPlayers('lordPlayed', clienttranslate( '${player_name} plays lord ${card_name}' ), [
+        $points = $lord->points;
+        $pearls = $lord->pearls;
+        self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_aux = player_score_aux + $pearls WHERE player_id = $playerId");
+        
+        self::notifyAllPlayers('lordPlayed', clienttranslate('${player_name} plays lord ${card_name}'), [
             'playerId' => $player_id,
             'player_name' => self::getActivePlayerName(),
             'card_name' => 'TODO',
             'lord' => $lord,
             'spot' => $spot,
-            'discardedLords' => $stackSelection ? $remainingLords : []
+            'discardedLords' => $stackSelection ? $remainingLords : [],
+            'points' => $points,
+            'pearls' => $pearls,
         ]);
 
         if ($lord->showExtraLord) {
             $extraLord = $this->addExtraLord();
 
-            self::notifyAllPlayers('extraLordRevealed', clienttranslate( 'A lord is added in the discard pile' ), [
+            self::notifyAllPlayers('extraLordRevealed', clienttranslate('A lord is added in the discard pile'), [
                 'lord' => $extraLord
             ]);
+        }
+
+        // check Master pearls
+        $masterPearlsPlayer = self::getGameStateValue('masterPearlsPlayer');
+        if ($masterPearlsPlayer !== $player_id) {
+            $newPearlMasterPlayer = intval(self::getUniqueValueFromDB( "SELECT player_id FROM `player` order by player_score_aux desc, player_id = $masterPearlsPlayer limit 1"));
+            
+            if ($newPearlMasterPlayer != $masterPearlsPlayer) {
+                self::notifyAllPlayers('newPearlMaster', clienttranslate('${player_name} becomes the new Pearl Master'), [
+                    'playerId' => $player_id,
+                    'player_name' => self::getActivePlayerName()
+                ]);
+            }
         }
 
         if ($lord->switch) {

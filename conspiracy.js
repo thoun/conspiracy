@@ -505,6 +505,7 @@ var PlayerTable = /** @class */ (function () {
 var Conspiracy = /** @class */ (function () {
     function Conspiracy() {
         this.playersTables = [];
+        this.pearlCounters = [];
     }
     /*
         setup:
@@ -523,6 +524,18 @@ var Conspiracy = /** @class */ (function () {
         console.log("Starting game setup");
         this.gamedatas = gamedatas;
         console.log(gamedatas);
+        Object.values(gamedatas.players).forEach(function (player) {
+            var playerId = Number(player.id);
+            // TODO add color indicators
+            dojo.place("<div class=\"pearl-counters\">[pearl] <span id=\"pearl-counter-" + player.id + "\"></span></div>", "player_board_" + player.id);
+            var counter = new ebg.counter();
+            counter.create("pearl-counter-" + player.id);
+            counter.setValue(player.pearls);
+            _this.pearlCounters[playerId] = counter;
+            if (gamedatas.masterPearlsPlayer === playerId) {
+                _this.placePearlMasterToken(gamedatas.masterPearlsPlayer);
+            }
+        });
         this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords);
         this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations);
         Object.keys(gamedatas.players).forEach(function (playerId) { return _this.playersTables[playerId] = new PlayerTable(_this, gamedatas.players[playerId], gamedatas.playersTables[playerId]); });
@@ -624,6 +637,23 @@ var Conspiracy = /** @class */ (function () {
         data.lock = true;
         this.ajaxcall("/conspiracy/conspiracy/" + action + ".html", data, this, function () { });
     };
+    Conspiracy.prototype.placePearlMasterToken = function (playerId) {
+        var pearlMasterToken = document.getElementById('pearlMasterToken');
+        if (pearlMasterToken) {
+            var animation = this.slideToObject(pearlMasterToken, "player_board_" + playerId);
+            dojo.connect(animation, 'onEnd', dojo.hitch(this, function () {
+                pearlMasterToken.style.top = 'unset';
+                pearlMasterToken.style.left = 'unset';
+                pearlMasterToken.style.position = 'unset';
+                pearlMasterToken.style.zIndex = 'unset';
+                document.getElementById("player_board_" + playerId).appendChild(pearlMasterToken);
+            }));
+            animation.play();
+        }
+        else {
+            dojo.place('<div id="pearlMasterToken">PM</div>', "player_board_" + playerId);
+        }
+    };
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
     /*
@@ -641,6 +671,7 @@ var Conspiracy = /** @class */ (function () {
         var notifs = [
             ['lordPlayed', 1],
             ['extraLordRevealed', 1],
+            ['newPearlMaster', 1],
         ];
         notifs.forEach(function (notif) {
             dojo.subscribe(notif[0], _this, "notif_" + notif[0]);
@@ -650,12 +681,17 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.notif_lordPlayed = function (notif) {
         var _a;
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);
+        this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
+        this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         if ((_a = notif.args.discardedLords) === null || _a === void 0 ? void 0 : _a.length) {
             this.lordsStacks.discardPick(notif.args.discardedLords);
         }
     };
     Conspiracy.prototype.notif_extraLordRevealed = function (notif) {
         this.lordsStacks.addLords([notif.args.lord]);
+    };
+    Conspiracy.prototype.notif_newPearlMaster = function (notif) {
+        this.placePearlMasterToken(notif.args.playerId);
     };
     return Conspiracy;
 }());
