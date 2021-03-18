@@ -138,7 +138,14 @@ class Conspiracy implements ConspiracyGame {
     //                        action status bar (ie: the HTML links in the status bar).
     //
     public onUpdateActionButtons(stateName: string, args: any) {
+        if((this as any).isCurrentPlayerActive()) {
+            switch (stateName) {
+                case 'lordSwitch':
+                (this as any).addActionButton( 'dontSwitch_button', _("Don't switch"), 'onDontSwitch' );
+                break;
+            }
 
+        }
     } 
     
 
@@ -199,6 +206,22 @@ class Conspiracy implements ConspiracyGame {
         } else {
             dojo.place('<div id="pearlMasterToken" class="token"></div>', `player_board_${playerId}`);
         }
+    }
+
+    public onSwitch(spots: number[]) {
+        if(!(this as any).checkAction('nextPlayer')) {
+            return;
+        }
+     
+        this.takeAction('switch', { spots: spots.join(',') });
+    }
+
+    public onDontSwitch() {
+        if(!(this as any).checkAction('nextPlayer')) {
+            return;
+        }
+     
+        this.takeAction('dontSwitch');
     }
 
     ///////////////////////////////////////////////////

@@ -6,6 +6,9 @@
 }
 .stacks .hidden-pile {
   display: flex;
+  border-radius: 10px;
+  box-shadow: 1px 1px 3px black;
+  background-position: 0% 0%;
 }
 .stacks .hidden-pile .button {
   display: none;
@@ -15,6 +18,7 @@
   font-size: 300%;
   justify-content: center;
   align-items: center;
+  text-shadow: 2px 2px 2px black;
 }
 .stacks .hidden-pile.selectable .button {
   display: flex;
@@ -22,10 +26,10 @@
 }
 
 #lord-stacks #lord-hidden-pile {
-  width: 220px;
-  height: 220px;
+  width: 207px;
+  height: 207px;
   margin-right: 10px;
-  background: darkblue;
+  background-image: url("img/lords.jpg");
 }
 #lord-stacks #lord-visible-stocks {
   display: flex;
@@ -44,11 +48,9 @@
   height: 124px;
   margin-right: 10px;
   background-image: url("img/locations.jpg");
-  background-position: 0% 0%;
-  border-radius: 10px;
-  box-shadow: 1px 1px 3px black;
 }
-#location-stacks .stockitem {
+
+.stockitem {
   border-radius: 10px;
   box-shadow: 1px 1px 3px black;
 }
@@ -64,6 +66,9 @@
 }
 .stacks .hidden-pile {
   display: flex;
+  border-radius: 10px;
+  box-shadow: 1px 1px 3px black;
+  background-position: 0% 0%;
 }
 .stacks .hidden-pile .button {
   display: none;
@@ -73,6 +78,7 @@
   font-size: 300%;
   justify-content: center;
   align-items: center;
+  text-shadow: 2px 2px 2px black;
 }
 .stacks .hidden-pile.selectable .button {
   display: flex;
@@ -80,10 +86,10 @@
 }
 
 #lord-stacks #lord-hidden-pile {
-  width: 220px;
-  height: 220px;
+  width: 207px;
+  height: 207px;
   margin-right: 10px;
-  background: darkblue;
+  background-image: url("img/lords.jpg");
 }
 #lord-stacks #lord-visible-stocks {
   display: flex;
@@ -102,11 +108,9 @@
   height: 124px;
   margin-right: 10px;
   background-image: url("img/locations.jpg");
-  background-position: 0% 0%;
-  border-radius: 10px;
-  box-shadow: 1px 1px 3px black;
 }
-#location-stacks .stockitem {
+
+.stockitem {
   border-radius: 10px;
   box-shadow: 1px 1px 3px black;
 }

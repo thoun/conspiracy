@@ -322,6 +322,17 @@ class Conspiracy extends Table
         // TODO
     }
 
+    function switch($spots) {
+        self::debug('[GBA] switch');
+        // TODO switch
+        // TODO notif
+        $this->gamestate->nextState('nextPlayer');
+    }
+
+    function dontSwitch() {
+        $this->gamestate->nextState('nextPlayer');
+    }
+
     
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state arguments
@@ -371,9 +382,10 @@ class Conspiracy extends Table
             }
         }
         
+        // TODO do not count all lords points 
         $points = $lord->points;
         $pearls = $lord->pearls;
-        self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_aux = player_score_aux + $pearls WHERE player_id = $playerId");
+        self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_aux = player_score_aux + $pearls WHERE player_id = $player_id");
         
         self::notifyAllPlayers('lordPlayed', clienttranslate('${player_name} plays lord ${card_name}'), [
             'playerId' => $player_id,
@@ -407,7 +419,7 @@ class Conspiracy extends Table
             }
         }
 
-        if ($lord->switch) {
+        if ($lord->switch && $this->lords->countCardInLocation("player${player_id}") >= 2) {
             $this->gamestate->nextState('switch');
         } else if ($lord->key && $this->canConstructWithNewKey($player_id, $lord->key)) {
             $this->gamestate->nextState('addLocation');

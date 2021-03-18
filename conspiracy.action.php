@@ -81,6 +81,22 @@
         self::ajaxResponse( );
     }
 
-  }
+    public function switch() {
+        self::setAjaxMode();     
+
+        $spots = self::getArg( "spots", AT_numberlist, true );
+        $this->game->switch( $spots );
+
+        self::ajaxResponse( );
+    }
+
+    public function dontSwitch() {
+        self::setAjaxMode();     
+
+        $this->game->dontSwitch();
+
+        self::ajaxResponse( );
+    }
+}
   
 

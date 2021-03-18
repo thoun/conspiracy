@@ -14,7 +14,9 @@
         <div id="lord-visible-stock5"></div>
     </div>
 </div>
-        <div id="lord-pick" class="pick whiteblock"></div>
+<div id="lord-pick" class="whiteblock">
+    <div id="lord-pick-stock"></div>
+</div>
 
 <div id="location-stacks" class="stacks whiteblock">
     <div id="location-hidden-pile" class="hidden-pile">
@@ -24,7 +26,9 @@
     </div>
     <div id="location-visible-stock"></div>
 </div>
-<div id="location-pick" class="pick whiteblock"></div>
+<div id="location-pick" class="whiteblock">
+    <div id="location-pick-stock"></div>
+</div>
 
 <div id="players-tables">
 </div>

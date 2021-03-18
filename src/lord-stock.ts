@@ -1,5 +1,5 @@
-const LORD_OVERLAP_WIDTH = 40;
-const LORD_OVERLAP_HEIGHT = 30;
+const LORD_OVERLAP_WIDTH = 45;
+const LORD_OVERLAP_HEIGHT = 65;
 
 function updateDisplay(from: string) {
     if (!$(this.control_name)) {
@@ -165,6 +165,7 @@ class LordStock {
     private updateSize() {
         this.div.style.width = `${LORD_WIDTH + (Math.max(this.visibleLords.length - 1, 0) * LORD_OVERLAP_WIDTH)}px`;
         this.div.style.height = `${LORD_HEIGHT + (Math.max(this.visibleLords.length - 1, 0) * LORD_OVERLAP_HEIGHT)}px`;
+        this.div.style.display = this.visibleLords.length ? 'inline-block' : 'none';
     }
 
     get div() {
@@ -194,11 +195,13 @@ class LordStock {
                         this.getUniqueId(id, guild), 
                         0, 
                         cardsurl, 
-                        guildIndex * 20 + index
+                        1 + guildIndex * 12 + index
                     )
                 )
             )
         );
+
+        // console.log(locationStock.item_type);
     }
 
     protected getUniqueId(type: number, guild: number): number {

@@ -8,8 +8,8 @@ declare const g_gamethemeurl;
 declare const board: HTMLDivElement;*/
 
 const GUILD_IDS = [1,2,3,4,5];
-const LORD_WIDTH = 220;
-const LORD_HEIGHT = 220;
+const LORD_WIDTH = 207.26;
+const LORD_HEIGHT = 207;
 
 const LORDS_IDS = [1,2,3,4,5,6];
 
@@ -24,7 +24,7 @@ class LordsStacks extends AbstractStacks<Lord> {
         GUILD_IDS.forEach(guild => this.lordsStocks[guild] = new LordStock(game, guild, visibleLords[guild]));
 
         this.pickStock = new ebg.stock() as Stock;
-        this.pickStock.create( this.game, this.pickDiv, LORD_WIDTH, LORD_HEIGHT );
+        this.pickStock.create( this.game, this.pickDiv.children[0], LORD_WIDTH, LORD_HEIGHT );
         this.pickStock.centerItems = true;
         this.setupLordCards([this.pickStock]);
         this.setPickStockClick();
@@ -74,11 +74,13 @@ class LordsStacks extends AbstractStacks<Lord> {
                         this.getUniqueId(id, guild), 
                         0, 
                         cardsurl, 
-                        guildIndex * 20 + index
+                        1 + guildIndex * 12 + index
                     )
                 )
             )
         );
+
+        // console.log(locationStock.item_type);
     }
 
     public onHiddenLordsClick(event: MouseEvent) {

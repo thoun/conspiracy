@@ -1,5 +1,5 @@
-var LORD_OVERLAP_WIDTH = 40;
-var LORD_OVERLAP_HEIGHT = 30;
+var LORD_OVERLAP_WIDTH = 45;
+var LORD_OVERLAP_HEIGHT = 65;
 function updateDisplay(from) {
     var _this = this;
     if (!$(this.control_name)) {
@@ -164,6 +164,7 @@ var LordStock = /** @class */ (function () {
     LordStock.prototype.updateSize = function () {
         this.div.style.width = LORD_WIDTH + (Math.max(this.visibleLords.length - 1, 0) * LORD_OVERLAP_WIDTH) + "px";
         this.div.style.height = LORD_HEIGHT + (Math.max(this.visibleLords.length - 1, 0) * LORD_OVERLAP_HEIGHT) + "px";
+        this.div.style.display = this.visibleLords.length ? 'inline-block' : 'none';
     };
     Object.defineProperty(LordStock.prototype, "div", {
         get: function () {
@@ -189,10 +190,11 @@ var LordStock = /** @class */ (function () {
         lordStocks.forEach(function (lordStock) {
             return GUILD_IDS.forEach(function (guild, guildIndex) {
                 return LORDS_IDS.forEach(function (id, index) {
-                    return lordStock.addItemType(_this.getUniqueId(id, guild), 0, cardsurl, guildIndex * 20 + index);
+                    return lordStock.addItemType(_this.getUniqueId(id, guild), 0, cardsurl, 1 + guildIndex * 12 + index);
                 });
             });
         });
+        // console.log(locationStock.item_type);
     };
     LordStock.prototype.getUniqueId = function (type, guild) {
         return type * 10 + guild;
@@ -251,8 +253,8 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 var GUILD_IDS = [1, 2, 3, 4, 5];
-var LORD_WIDTH = 220;
-var LORD_HEIGHT = 220;
+var LORD_WIDTH = 207.26;
+var LORD_HEIGHT = 207;
 var LORDS_IDS = [1, 2, 3, 4, 5, 6];
 var LordsStacks = /** @class */ (function (_super) {
     __extends(LordsStacks, _super);
@@ -264,7 +266,7 @@ var LordsStacks = /** @class */ (function (_super) {
         _this.pileDiv.addEventListener('click', function (e) { return _this.onHiddenLordsClick(e); });
         GUILD_IDS.forEach(function (guild) { return _this.lordsStocks[guild] = new LordStock(game, guild, visibleLords[guild]); });
         _this.pickStock = new ebg.stock();
-        _this.pickStock.create(_this.game, _this.pickDiv, LORD_WIDTH, LORD_HEIGHT);
+        _this.pickStock.create(_this.game, _this.pickDiv.children[0], LORD_WIDTH, LORD_HEIGHT);
         _this.pickStock.centerItems = true;
         _this.setupLordCards([_this.pickStock]);
         _this.setPickStockClick();
@@ -312,10 +314,11 @@ var LordsStacks = /** @class */ (function (_super) {
         lordStocks.forEach(function (lordStock) {
             return GUILD_IDS.forEach(function (guild, guildIndex) {
                 return LORDS_IDS.forEach(function (id, index) {
-                    return lordStock.addItemType(_this.getUniqueId(id, guild), 0, cardsurl, guildIndex * 20 + index);
+                    return lordStock.addItemType(_this.getUniqueId(id, guild), 0, cardsurl, 1 + guildIndex * 12 + index);
                 });
             });
         });
+        // console.log(locationStock.item_type);
     };
     LordsStacks.prototype.onHiddenLordsClick = function (event) {
         if (!this.selectable) {
@@ -369,7 +372,7 @@ var LocationsStacks = /** @class */ (function (_super) {
         _this.visibleLocationsStock.onItemCreate = dojo.hitch(_this, 'setupNewLocationCard');
         dojo.connect(_this.visibleLocationsStock, 'onChangeSelection', _this, 'onVisibleLocationClick');
         _this.pickStock = new ebg.stock();
-        _this.pickStock.create(_this.game, _this.pickDiv, LORD_WIDTH, LORD_HEIGHT);
+        _this.pickStock.create(_this.game, _this.pickDiv.children[0], LOCATION_WIDTH, LOCATION_HEIGHT);
         _this.pickStock.centerItems = true;
         _this.setPickStockClick();
         _this.setupLocationCards([_this.visibleLocationsStock, _this.pickStock]);
@@ -399,13 +402,14 @@ var LocationsStacks = /** @class */ (function (_super) {
         var cardsurl = g_gamethemeurl + "img/locations.jpg";
         locationStocks.forEach(function (locationStock) {
             LOCATIONS_UNIQUE_IDS.forEach(function (id, index) {
-                return locationStock.addItemType(_this.getUniqueId(id, 0), 0, cardsurl, index);
+                return locationStock.addItemType(_this.getUniqueId(id, 0), 0, cardsurl, 1 + index);
             });
             GUILD_IDS.forEach(function (guild, guildIndex) {
                 return LOCATIONS_GUILDS_IDS.forEach(function (id, index) {
-                    return locationStock.addItemType(_this.getUniqueId(id, guild), 0, cardsurl, 14 + guildIndex * LOCATIONS_GUILDS_IDS.length + index);
+                    return locationStock.addItemType(_this.getUniqueId(id, guild), 0, cardsurl, 15 + GUILD_IDS.length * index + guildIndex);
                 });
             });
+            // console.log(locationStock.item_type);
         });
     };
     LocationsStacks.prototype.pickClick = function (control_name, item_id) {
@@ -604,6 +608,13 @@ var Conspiracy = /** @class */ (function () {
     //                        action status bar (ie: the HTML links in the status bar).
     //
     Conspiracy.prototype.onUpdateActionButtons = function (stateName, args) {
+        if (this.isCurrentPlayerActive()) {
+            switch (stateName) {
+                case 'lordSwitch':
+                    this.addActionButton('dontSwitch_button', _("Don't switch"), 'onDontSwitch');
+                    break;
+            }
+        }
     };
     ///////////////////////////////////////////////////
     //// Utility methods
@@ -653,6 +664,18 @@ var Conspiracy = /** @class */ (function () {
         else {
             dojo.place('<div id="pearlMasterToken" class="token"></div>', "player_board_" + playerId);
         }
+    };
+    Conspiracy.prototype.onSwitch = function (spots) {
+        if (!this.checkAction('nextPlayer')) {
+            return;
+        }
+        this.takeAction('switch', { spots: spots.join(',') });
+    };
+    Conspiracy.prototype.onDontSwitch = function () {
+        if (!this.checkAction('nextPlayer')) {
+            return;
+        }
+        this.takeAction('dontSwitch');
     };
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications

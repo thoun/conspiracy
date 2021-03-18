@@ -31,7 +31,7 @@ class LocationsStacks extends AbstractStacks<Location> {
         dojo.connect( this.visibleLocationsStock, 'onChangeSelection', this, 'onVisibleLocationClick' );
         
         this.pickStock = new ebg.stock() as Stock;
-        this.pickStock.create( this.game, this.pickDiv, LORD_WIDTH, LORD_HEIGHT );
+        this.pickStock.create( this.game, this.pickDiv.children[0], LOCATION_WIDTH, LOCATION_HEIGHT );
         this.pickStock.centerItems = true;
         this.setPickStockClick();
 
@@ -56,12 +56,13 @@ class LocationsStacks extends AbstractStacks<Location> {
         const cardsurl = `${g_gamethemeurl}img/locations.jpg`;
 
         locationStocks.forEach(locationStock => {
+
             LOCATIONS_UNIQUE_IDS.forEach((id, index) =>
                 locationStock.addItemType(
                     this.getUniqueId(id, 0), 
                     0, 
                     cardsurl, 
-                    index
+                    1 + index
                 )
             );
 
@@ -71,10 +72,11 @@ class LocationsStacks extends AbstractStacks<Location> {
                         this.getUniqueId(id, guild), 
                         0, 
                         cardsurl, 
-                        14 + guildIndex*LOCATIONS_GUILDS_IDS.length + index
+                        15 + GUILD_IDS.length * index + guildIndex
                     )
                 )
             );
+            // console.log(locationStock.item_type);
         });
     }
 
