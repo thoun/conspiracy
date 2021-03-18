@@ -152,7 +152,7 @@ var LordStock = /** @class */ (function () {
         this.setupLordCards([this.stock]);
         visibleLords.forEach(function (lord) { return _this.stock.addToStockWithId(_this.getCardUniqueId(lord), "" + lord.id); });
         this.updateSize();
-        this.div.addEventListener('click', function () { return _this.click(); });
+        this.div.getElementsByClassName('overlay')[0].addEventListener('click', function () { return _this.click(); });
     }
     LordStock.prototype.addLords = function (lords) {
         var _a;

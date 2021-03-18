@@ -12,11 +12,11 @@
         "src/counter.d.ts",
         "src/stock.d.ts",
         "src/conspiracy.d.ts",
-        "src/lord-stock.ts",
-        "src/abstract-stacks.ts",
-        "src/lords-stacks.ts",
-        "src/locations-stacks.ts",
-        "src/player-table.ts",
+        "src/stacks/lord-stock.ts",
+        "src/stacks/abstract-stacks.ts",
+        "src/stacks/lords-stacks.ts",
+        "src/stacks/locations-stacks.ts",
+        "src/players-tables/player-table.ts",
         "src/conspiracy.ts",
         "src/define.ts"
     ]

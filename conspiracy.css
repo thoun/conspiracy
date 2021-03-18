@@ -1,5 +1,4 @@
 @import url(../../../css/csslayer.css);
-@import url(../../../css/csslayer.css);
 .stacks {
   display: flex;
   position: relative;
@@ -38,69 +37,21 @@
 #lord-stacks #lord-visible-stocks > div {
   display: inline-block;
   margin-right: 10px;
-}
-#lord-stacks #lord-visible-stocks > div.selectable {
-  border: 3px dashed white;
-}
-
-#location-stacks #location-hidden-pile {
-  width: 186px;
-  height: 124px;
-  margin-right: 10px;
-  background-image: url("img/locations.jpg");
-}
-
-.stockitem {
-  border-radius: 10px;
-  box-shadow: 1px 1px 3px black;
-}
-
-#players-tables .player-name {
-  font-weight: bold;
-  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
-}
-
-.stacks {
-  display: flex;
   position: relative;
 }
-.stacks .hidden-pile {
-  display: flex;
-  border-radius: 10px;
-  box-shadow: 1px 1px 3px black;
-  background-position: 0% 0%;
-}
-.stacks .hidden-pile .button {
-  display: none;
-  flex: 1;
-  border: 3px dashed white;
-  color: white;
-  font-size: 300%;
-  justify-content: center;
-  align-items: center;
-  text-shadow: 2px 2px 2px black;
-}
-.stacks .hidden-pile.selectable .button {
-  display: flex;
-  cursor: pointer;
-}
-
-#lord-stacks #lord-hidden-pile {
-  width: 207px;
-  height: 207px;
-  margin-right: 10px;
-  background-image: url("img/lords.jpg");
-}
-#lord-stacks #lord-visible-stocks {
-  display: flex;
-  flex-wrap: wrap;
-}
-#lord-stacks #lord-visible-stocks > div {
-  display: inline-block;
-  margin-right: 10px;
-}
 #lord-stacks #lord-visible-stocks > div.selectable {
   border: 3px dashed white;
+}
+#lord-stacks #lord-visible-stocks > div.selectable .overlay {
+  cursor: pointer;
+}
+#lord-stacks #lord-visible-stocks > div .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
 }
 
 #location-stacks #location-hidden-pile {

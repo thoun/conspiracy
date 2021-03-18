@@ -292,10 +292,12 @@ class Conspiracy extends Table
         self::checkAction('chooseVisibleStack'); 
         self::debug('[GBA] chooseLordVisibleStack');
 
-        $this->lords->moveAllCardsInLocation('table', 'lord_selection', $guild);
+        $number = $this->lords->countCardInLocation('table', $guild);
+
+        $this->lords->moveAllCardsInLocation('table', $number == 1 ? 'lord_pick' : 'lord_selection', $guild);
 
         self::setGameStateValue('stackSelection', 0);
-        $this->gamestate->nextState($this->lords->countCardInLocation('lord_selection') > 1 ? 'chooseOneOnStack' : 'chooseDeckStack');
+        $this->gamestate->nextState($number == 1 ? 'chooseOneOnStack' : 'chooseDeckStack');
     }
 
     function pickLord($id) {

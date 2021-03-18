@@ -25,7 +25,7 @@ class Lord extends LordCard {
     public /*int*/ $type;
     public /*string*/ $location; // deck, lord_selection, lord_pick, table, player${id}
     public /*int*/ $location_arg; // guild index if table, index in player${id}
-    public /*int*/ $guild;
+    public /*int*/ $guild; // 1 yellow, 2 red, 3 green, 4 blue, 5 purple
 
     public function __construct($dbLord, $LORDS) {
         $this->id = intval($dbLord['id']);

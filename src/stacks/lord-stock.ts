@@ -153,7 +153,7 @@ class LordStock {
         visibleLords.forEach(lord => this.stock.addToStockWithId(this.getCardUniqueId(lord), `${lord.id}`));
         this.updateSize();
 
-        this.div.addEventListener('click', () => this.click());
+        this.div.getElementsByClassName('overlay')[0].addEventListener('click', () => this.click());
     }
 
     addLords(lords: Lord[]): void {
