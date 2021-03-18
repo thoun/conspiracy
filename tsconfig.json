@@ -12,6 +12,7 @@
         "src/counter.d.ts",
         "src/stock.d.ts",
         "src/conspiracy.d.ts",
+        "src/stock-utils.ts",
         "src/stacks/lord-stock.ts",
         "src/stacks/abstract-stacks.ts",
         "src/stacks/lords-stacks.ts",

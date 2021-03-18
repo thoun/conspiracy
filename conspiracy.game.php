@@ -208,7 +208,7 @@ class Conspiracy extends Table
         (see states.inc.php)
     */
     function getGameProgression() {
-        $maxPlayedLords = intval(self::getUniqueValueFromDB( "SELECT count(*) FROM lord WHERE `card_location` = 'table' GROUP BY `card_location_arg` ORDER BY count(*) DESC LIMIT 1"));
+        $maxPlayedLords = intval(self::getUniqueValueFromDB( "SELECT count(*) FROM lord WHERE `card_location` like 'player%' GROUP BY `card_location_arg` ORDER BY count(*) DESC LIMIT 1"));
         return $maxPlayedLords * 100 / 15;
     }
 
@@ -251,8 +251,9 @@ class Conspiracy extends Table
         return array_map(function($dbLocation) { return $this->getLocationFromDb($dbLocation); }, array_values($dbLocations));
     }
 
-    function canConstructWithNewKey(int $playerId, int $key) {
+    function canConstructWithNewKey(int $playerId, int $key): bool {
         // TODO
+        return false;
     }
 
     function addExtraLord() {
@@ -326,6 +327,7 @@ class Conspiracy extends Table
 
     function switch($spots) {
         self::debug('[GBA] switch');
+        self::debug('[GBA] spots='.json_encode($spots));
         // TODO switch
         // TODO notif
         $this->gamestate->nextState('nextPlayer');

@@ -1,3 +1,46 @@
+/*declare const define;
+declare const ebg;
+declare const $;
+declare const dojo: Dojo;
+declare const _;
+declare const g_gamethemeurl;
+
+declare const board: HTMLDivElement;*/
+var GUILD_IDS = [1, 2, 3, 4, 5];
+var LORDS_IDS = [1, 2, 3, 4, 5, 6];
+var LOCATIONS_UNIQUE_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+var LOCATIONS_GUILDS_IDS = [100, 101];
+var LORD_WIDTH = 207.26;
+var LORD_HEIGHT = 207;
+var LOCATION_WIDTH = 186.24;
+var LOCATION_HEIGHT = 124;
+function getUniqueId(type, guild) {
+    return type * 10 + guild;
+}
+function setupLordCards(lordStocks) {
+    var _this = this;
+    var cardsurl = g_gamethemeurl + "img/lords.jpg";
+    lordStocks.forEach(function (lordStock) {
+        return GUILD_IDS.forEach(function (guild, guildIndex) {
+            return LORDS_IDS.forEach(function (lordType, index) {
+                return lordStock.addItemType(_this.getUniqueId(lordType, guild), 0, cardsurl, 1 + guildIndex * LORDS_IDS.length + index);
+            });
+        });
+    });
+}
+function setupLocationCards(locationStocks) {
+    var cardsurl = g_gamethemeurl + "img/locations.jpg";
+    locationStocks.forEach(function (locationStock) {
+        LOCATIONS_UNIQUE_IDS.forEach(function (id, index) {
+            return locationStock.addItemType(getUniqueId(id, 0), 0, cardsurl, 1 + index);
+        });
+        GUILD_IDS.forEach(function (guild, guildIndex) {
+            return LOCATIONS_GUILDS_IDS.forEach(function (id, index) {
+                return locationStock.addItemType(getUniqueId(id, guild), 0, cardsurl, 15 + GUILD_IDS.length * index + guildIndex);
+            });
+        });
+    });
+}
 var LORD_OVERLAP_WIDTH = 45;
 var LORD_OVERLAP_HEIGHT = 65;
 function updateDisplay(from) {
@@ -140,17 +183,17 @@ function updateDisplay(from) {
     dojo.style(this.control_name, "minHeight", (itemHeight + itemMargin) + "px");*/
 }
 var LordStock = /** @class */ (function () {
-    function LordStock(game, guild, visibleLords) {
+    function LordStock(lordsStacks, guild, visibleLords) {
         var _this = this;
-        this.game = game;
+        this.lordsStacks = lordsStacks;
         this.guild = guild;
         this.visibleLords = visibleLords;
         this.stock = new ebg.stock();
-        this.stock.create(this.game, this.div, LORD_WIDTH, LORD_HEIGHT);
+        this.stock.create(this.lordsStacks.game, this.div, LORD_WIDTH, LORD_HEIGHT);
         this.stock.setSelectionMode(0);
         this.stock.updateDisplay = function (from) { return updateDisplay.apply(_this.stock, [from]); };
-        this.setupLordCards([this.stock]);
-        visibleLords.forEach(function (lord) { return _this.stock.addToStockWithId(_this.getCardUniqueId(lord), "" + lord.id); });
+        setupLordCards([this.stock]);
+        visibleLords.forEach(function (lord) { return _this.stock.addToStockWithId(_this.lordsStacks.getCardUniqueId(lord), "" + lord.id); });
         this.updateSize();
         this.div.getElementsByClassName('overlay')[0].addEventListener('click', function () { return _this.click(); });
     }
@@ -158,7 +201,7 @@ var LordStock = /** @class */ (function () {
         var _a;
         var _this = this;
         (_a = this.visibleLords).push.apply(_a, lords);
-        lords.forEach(function (lord) { return _this.stock.addToStockWithId(_this.getCardUniqueId(lord), "" + lord.id); });
+        lords.forEach(function (lord) { return _this.stock.addToStockWithId(_this.lordsStacks.getCardUniqueId(lord), "" + lord.id); });
         this.updateSize();
     };
     LordStock.prototype.updateSize = function () {
@@ -182,34 +225,13 @@ var LordStock = /** @class */ (function () {
         if (!this.selectable) {
             return;
         }
-        this.game.lordStockPick(this.guild);
-    };
-    LordStock.prototype.setupLordCards = function (lordStocks) {
-        var _this = this;
-        var cardsurl = g_gamethemeurl + "img/lords.jpg";
-        lordStocks.forEach(function (lordStock) {
-            return GUILD_IDS.forEach(function (guild, guildIndex) {
-                return LORDS_IDS.forEach(function (id, index) {
-                    return lordStock.addItemType(_this.getUniqueId(id, guild), 0, cardsurl, 1 + guildIndex * 12 + index);
-                });
-            });
-        });
-        // console.log(locationStock.item_type);
-    };
-    LordStock.prototype.getUniqueId = function (type, guild) {
-        return type * 10 + guild;
-    };
-    LordStock.prototype.getCardUniqueId = function (lord) {
-        return this.getUniqueId(lord.type, lord.guild);
+        this.lordsStacks.game.lordStockPick(this.guild);
     };
     return LordStock;
 }());
 var AbstractStacks = /** @class */ (function () {
     function AbstractStacks() {
     }
-    AbstractStacks.prototype.getUniqueId = function (type, guild) {
-        return type * 10 + guild;
-    };
     AbstractStacks.prototype.setSelectable = function (selectable) {
         this.selectable = selectable;
         var action = selectable ? 'add' : 'remove';
@@ -252,23 +274,18 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var GUILD_IDS = [1, 2, 3, 4, 5];
-var LORD_WIDTH = 207.26;
-var LORD_HEIGHT = 207;
-var LORDS_IDS = [1, 2, 3, 4, 5, 6];
 var LordsStacks = /** @class */ (function (_super) {
     __extends(LordsStacks, _super);
     function LordsStacks(game, visibleLords) {
         var _this = _super.call(this) || this;
         _this.game = game;
-        _this.visibleLords = visibleLords;
         _this.lordsStocks = [];
         _this.pileDiv.addEventListener('click', function (e) { return _this.onHiddenLordsClick(e); });
-        GUILD_IDS.forEach(function (guild) { return _this.lordsStocks[guild] = new LordStock(game, guild, visibleLords[guild]); });
+        GUILD_IDS.forEach(function (guild) { return _this.lordsStocks[guild] = new LordStock(_this, guild, visibleLords[guild]); });
         _this.pickStock = new ebg.stock();
         _this.pickStock.create(_this.game, _this.pickDiv.children[0], LORD_WIDTH, LORD_HEIGHT);
         _this.pickStock.centerItems = true;
-        _this.setupLordCards([_this.pickStock]);
+        setupLordCards([_this.pickStock]);
         _this.setPickStockClick();
         return _this;
     }
@@ -301,24 +318,12 @@ var LordsStacks = /** @class */ (function (_super) {
         guilds.forEach(function (guild) { return _this.lordsStocks[guild].addLords(lords.filter(function (lord) { return lord.guild === guild; })); });
     };
     LordsStacks.prototype.getCardUniqueId = function (lord) {
-        return this.getUniqueId(lord.type, lord.guild);
+        return getUniqueId(lord.type, lord.guild);
     };
     LordsStacks.prototype.pickClick = function (control_name, item_id) {
         // removeAllTo => lordsStocks
         this.game.lordPick(Number(item_id));
         _super.prototype.pickClick.call(this, control_name, item_id);
-    };
-    LordsStacks.prototype.setupLordCards = function (lordStocks) {
-        var _this = this;
-        var cardsurl = g_gamethemeurl + "img/lords.jpg";
-        lordStocks.forEach(function (lordStock) {
-            return GUILD_IDS.forEach(function (guild, guildIndex) {
-                return LORDS_IDS.forEach(function (id, index) {
-                    return lordStock.addItemType(_this.getUniqueId(id, guild), 0, cardsurl, 1 + guildIndex * 12 + index);
-                });
-            });
-        });
-        // console.log(locationStock.item_type);
     };
     LordsStacks.prototype.onHiddenLordsClick = function (event) {
         if (!this.selectable) {
@@ -332,19 +337,6 @@ var LordsStacks = /** @class */ (function (_super) {
             number: number
         });
     };
-    LordsStacks.prototype.onVisibleLordsClick = function (event) {
-        // TODO
-        console.log(event);
-        var guild = 3; // TODO
-        var lordsNumber = 2 + 2 - 2; // TODO
-        var action = lordsNumber === 1 ? 'chooseVisibleStack' : 'chooseVisibleStackMultiple'; // TODO remove multiple
-        if (!this.game.checkAction(action)) {
-            return;
-        }
-        this.game.takeAction(action, {
-            guild: guild
-        });
-    };
     return LordsStacks;
 }(AbstractStacks));
 /*declare const define;
@@ -355,10 +347,6 @@ declare const _;
 declare const g_gamethemeurl;
 
 declare const board: HTMLDivElement;*/
-var LOCATION_WIDTH = 186.24;
-var LOCATION_HEIGHT = 124;
-var LOCATIONS_UNIQUE_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
-var LOCATIONS_GUILDS_IDS = [100, 101];
 var LocationsStacks = /** @class */ (function (_super) {
     __extends(LocationsStacks, _super);
     function LocationsStacks(game, visibleLocations) {
@@ -375,7 +363,7 @@ var LocationsStacks = /** @class */ (function (_super) {
         _this.pickStock.create(_this.game, _this.pickDiv.children[0], LOCATION_WIDTH, LOCATION_HEIGHT);
         _this.pickStock.centerItems = true;
         _this.setPickStockClick();
-        _this.setupLocationCards([_this.visibleLocationsStock, _this.pickStock]);
+        setupLocationCards([_this.visibleLocationsStock, _this.pickStock]);
         visibleLocations.forEach(function (location) { return _this.visibleLocationsStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
         return _this;
     }
@@ -395,22 +383,7 @@ var LocationsStacks = /** @class */ (function (_super) {
     });
     LocationsStacks.prototype.getCardUniqueId = function (location) {
         var _a;
-        return this.getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0);
-    };
-    LocationsStacks.prototype.setupLocationCards = function (locationStocks) {
-        var _this = this;
-        var cardsurl = g_gamethemeurl + "img/locations.jpg";
-        locationStocks.forEach(function (locationStock) {
-            LOCATIONS_UNIQUE_IDS.forEach(function (id, index) {
-                return locationStock.addItemType(_this.getUniqueId(id, 0), 0, cardsurl, 1 + index);
-            });
-            GUILD_IDS.forEach(function (guild, guildIndex) {
-                return LOCATIONS_GUILDS_IDS.forEach(function (id, index) {
-                    return locationStock.addItemType(_this.getUniqueId(id, guild), 0, cardsurl, 15 + GUILD_IDS.length * index + guildIndex);
-                });
-            });
-            // console.log(locationStock.item_type);
-        });
+        return getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0);
     };
     LocationsStacks.prototype.pickClick = function (control_name, item_id) {
         // removeAllTo => lordsStocks
@@ -453,56 +426,28 @@ var PlayerTable = /** @class */ (function () {
         dojo.place("<div class=\"whiteblock\">\n            <div class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</div>\n            <div id=\"player-table-" + this.playerId + "\">\n                Lords : <div id=\"player" + this.playerId + "-lord-stock\"></div>\n                Locations : <div id=\"player" + this.playerId + "-location-stock\"></div>\n            </div>\n        </div>", 'players-tables');
         this.lordsStock = new ebg.stock();
         this.lordsStock.create(this.game, $("player" + this.playerId + "-lord-stock"), LORD_WIDTH, LORD_HEIGHT);
-        this.setupLordCards([this.lordsStock]);
+        setupLordCards([this.lordsStock]);
         Object.entries(spots).forEach(function (_a) {
             var spotNumber = _a[0], spot = _a[1];
             var lord = spot.lord;
             if (lord) {
-                _this.lordsStock.addToStockWithId(_this.getCardUniqueId(lord.type, lord.guild), "" + lord.id);
+                _this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), "" + lord.id);
             }
         });
         this.locationsStock = new ebg.stock();
         this.locationsStock.create(this.game, $("player" + this.playerId + "-location-stock"), LOCATION_WIDTH, LOCATION_HEIGHT);
-        this.setupLocationCards([this.locationsStock]);
+        setupLocationCards([this.locationsStock]);
         Object.entries(spots).forEach(function (_a) {
             var _b;
             var spotNumber = _a[0], spot = _a[1];
             var location = spot.location;
             if (location) {
-                _this.locationsStock.addToStockWithId(_this.getCardUniqueId(location.type, (_b = location.passivePowerGuild) !== null && _b !== void 0 ? _b : 0), "" + location.id);
+                _this.locationsStock.addToStockWithId(getUniqueId(location.type, (_b = location.passivePowerGuild) !== null && _b !== void 0 ? _b : 0), "" + location.id);
             }
         });
     }
     PlayerTable.prototype.addLord = function (spot, lord) {
-        this.lordsStock.addToStockWithId(this.getCardUniqueId(lord.type, lord.guild), "" + lord.id);
-    };
-    PlayerTable.prototype.setupLordCards = function (lordStocks) {
-        var _this = this;
-        var cardsurl = g_gamethemeurl + "img/lords.jpg";
-        lordStocks.forEach(function (lordStock) {
-            return GUILD_IDS.forEach(function (guild, guildIndex) {
-                return LORDS_IDS.forEach(function (id, index) {
-                    return lordStock.addItemType(_this.getCardUniqueId(id, guild), 0, cardsurl, guildIndex * 20 + index);
-                });
-            });
-        });
-    };
-    PlayerTable.prototype.setupLocationCards = function (locationStocks) {
-        var _this = this;
-        var cardsurl = g_gamethemeurl + "img/locations.jpg";
-        locationStocks.forEach(function (locationStock) {
-            LOCATIONS_UNIQUE_IDS.forEach(function (id, index) {
-                return locationStock.addItemType(_this.getCardUniqueId(id, 0), 0, cardsurl, index);
-            });
-            GUILD_IDS.forEach(function (guild, guildIndex) {
-                return LOCATIONS_GUILDS_IDS.forEach(function (id, index) {
-                    return locationStock.addItemType(_this.getCardUniqueId(id, guild), 0, cardsurl, 14 + guildIndex * LOCATIONS_GUILDS_IDS.length + index);
-                });
-            });
-        });
-    };
-    PlayerTable.prototype.getCardUniqueId = function (type, guild) {
-        return type * 10 + guild;
+        this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), "" + lord.id);
     };
     return PlayerTable;
 }());
@@ -628,6 +573,7 @@ var Conspiracy = /** @class */ (function () {
         });
     };
     Conspiracy.prototype.lordStockPick = function (guild) {
+        console.log(guild);
         if (!this.checkAction('chooseVisibleStack')) {
             return;
         }

@@ -9,10 +9,6 @@ abstract class AbstractStacks<T extends Card> {
     protected abstract get pileDiv(): HTMLDivElement;
     protected abstract get pickDiv(): HTMLDivElement;
     protected abstract getCardUniqueId(card: T): number;
-    
-    protected getUniqueId(type: number, guild: number): number {
-        return type * 10 + guild;
-    }
 
     public setSelectable(selectable: boolean) {
         this.selectable = selectable;

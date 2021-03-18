@@ -143,14 +143,14 @@ class LordStock {
     private stock: Stock;
     protected selectable: boolean;
 
-    constructor(private game: ConspiracyGame, private guild: number, private visibleLords: Lord[]) {
+    constructor(private lordsStacks: LordsStacks, private guild: number, private visibleLords: Lord[]) {
         this.stock = new ebg.stock() as Stock;
-        this.stock.create(this.game, this.div, LORD_WIDTH, LORD_HEIGHT );
+        this.stock.create(this.lordsStacks.game, this.div, LORD_WIDTH, LORD_HEIGHT );
         this.stock.setSelectionMode(0);
         this.stock.updateDisplay = (from: string) => updateDisplay.apply(this.stock, [from]);
-        this.setupLordCards([this.stock]);
+        setupLordCards([this.stock]);
 
-        visibleLords.forEach(lord => this.stock.addToStockWithId(this.getCardUniqueId(lord), `${lord.id}`));
+        visibleLords.forEach(lord => this.stock.addToStockWithId(this.lordsStacks.getCardUniqueId(lord), `${lord.id}`));
         this.updateSize();
 
         this.div.getElementsByClassName('overlay')[0].addEventListener('click', () => this.click());
@@ -158,7 +158,7 @@ class LordStock {
 
     addLords(lords: Lord[]): void {
         this.visibleLords.push(...lords);
-        lords.forEach(lord => this.stock.addToStockWithId(this.getCardUniqueId(lord), `${lord.id}`));
+        lords.forEach(lord => this.stock.addToStockWithId(this.lordsStacks.getCardUniqueId(lord), `${lord.id}`));
         this.updateSize();
     }
 
@@ -182,33 +182,6 @@ class LordStock {
         if (!this.selectable) {
             return;
         }
-        this.game.lordStockPick(this.guild);
-    }
-
-    private setupLordCards(lordStocks: Stock[]) {
-        const cardsurl = `${g_gamethemeurl}img/lords.jpg`;
-
-        lordStocks.forEach(lordStock => 
-            GUILD_IDS.forEach((guild, guildIndex) => 
-                LORDS_IDS.forEach((id, index) =>
-                    lordStock.addItemType(
-                        this.getUniqueId(id, guild), 
-                        0, 
-                        cardsurl, 
-                        1 + guildIndex * 12 + index
-                    )
-                )
-            )
-        );
-
-        // console.log(locationStock.item_type);
-    }
-
-    protected getUniqueId(type: number, guild: number): number {
-        return type * 10 + guild;
-    }
-
-    protected getCardUniqueId(lord: Lord) {
-        return this.getUniqueId(lord.type, lord.guild);
+        this.lordsStacks.game.lordStockPick(this.guild);
     }
 }

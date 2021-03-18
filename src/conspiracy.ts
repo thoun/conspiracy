@@ -166,6 +166,7 @@ class Conspiracy implements ConspiracyGame {
     }
 
     public lordStockPick(guild: number) {
+        console.log(guild);
         if(!(this as any).checkAction('chooseVisibleStack')) {
             return;
         }

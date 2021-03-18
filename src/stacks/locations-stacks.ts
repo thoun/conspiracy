@@ -8,11 +8,6 @@ declare const g_gamethemeurl;
 declare const board: HTMLDivElement;*/
 
 
-const LOCATION_WIDTH = 186.24;
-const LOCATION_HEIGHT = 124;
-
-const LOCATIONS_UNIQUE_IDS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14];
-const LOCATIONS_GUILDS_IDS = [100,101];
 
 
 class LocationsStacks extends AbstractStacks<Location> {
@@ -35,7 +30,7 @@ class LocationsStacks extends AbstractStacks<Location> {
         this.pickStock.centerItems = true;
         this.setPickStockClick();
 
-        this.setupLocationCards([this.visibleLocationsStock, this.pickStock]);        
+        setupLocationCards([this.visibleLocationsStock, this.pickStock]);        
 
         visibleLocations.forEach(location => this.visibleLocationsStock.addToStockWithId(this.getCardUniqueId(location), `${location.id}`));
     }
@@ -49,35 +44,7 @@ class LocationsStacks extends AbstractStacks<Location> {
     }
 
     protected getCardUniqueId(location: Location) {
-        return this.getUniqueId(location.type, location.passivePowerGuild ?? 0);
-    }
-
-    public setupLocationCards(locationStocks: Stock[]) {
-        const cardsurl = `${g_gamethemeurl}img/locations.jpg`;
-
-        locationStocks.forEach(locationStock => {
-
-            LOCATIONS_UNIQUE_IDS.forEach((id, index) =>
-                locationStock.addItemType(
-                    this.getUniqueId(id, 0), 
-                    0, 
-                    cardsurl, 
-                    1 + index
-                )
-            );
-
-            GUILD_IDS.forEach((guild, guildIndex) => 
-                LOCATIONS_GUILDS_IDS.forEach((id, index) =>
-                    locationStock.addItemType(
-                        this.getUniqueId(id, guild), 
-                        0, 
-                        cardsurl, 
-                        15 + GUILD_IDS.length * index + guildIndex
-                    )
-                )
-            );
-            // console.log(locationStock.item_type);
-        });
+        return getUniqueId(location.type, location.passivePowerGuild ?? 0);
     }
 
     protected pickClick(control_name: string, item_id: string) {
