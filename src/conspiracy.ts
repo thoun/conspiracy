@@ -41,7 +41,7 @@ class Conspiracy implements ConspiracyGame {
         Object.values(gamedatas.players).forEach(player => {
             const playerId = Number(player.id);
             // TODO add color indicators
-            dojo.place(`<div class="pearl-counters">[pearl] <span id="pearl-counter-${player.id}"></span></div>`, `player_board_${player.id}` );
+            dojo.place(`<div class="pearl-counter"><div class="token pearl"></div> <span id="pearl-counter-${player.id}"></span></div>`, `player_board_${player.id}` );
 
             const counter = new ebg.counter();
             counter.create(`pearl-counter-${player.id}`);
@@ -197,7 +197,7 @@ class Conspiracy implements ConspiracyGame {
             }));
             animation.play();
         } else {
-            dojo.place('<div id="pearlMasterToken">PM</div>', `player_board_${playerId}`);
+            dojo.place('<div id="pearlMasterToken" class="token"></div>', `player_board_${playerId}`);
         }
     }
 

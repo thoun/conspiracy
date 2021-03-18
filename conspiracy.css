@@ -1,10 +1,11 @@
+@import url(../../../css/csslayer.css);
+@import url(../../../css/csslayer.css);
 .stacks {
   display: flex;
   position: relative;
 }
 .stacks .hidden-pile {
   display: flex;
-  background: darkblue;
 }
 .stacks .hidden-pile .button {
   display: none;
@@ -24,6 +25,7 @@
   width: 220px;
   height: 220px;
   margin-right: 10px;
+  background: darkblue;
 }
 #lord-stacks #lord-visible-stocks {
   display: flex;
@@ -38,16 +40,116 @@
 }
 
 #location-stacks #location-hidden-pile {
-  width: 200px;
-  height: 100px;
+  width: 186px;
+  height: 124px;
   margin-right: 10px;
+  background-image: url("img/locations.jpg");
+  background-position: 0% 0%;
+  border-radius: 10px;
+  box-shadow: 1px 1px 3px black;
+}
+#location-stacks .stockitem {
+  border-radius: 10px;
+  box-shadow: 1px 1px 3px black;
 }
 
-.player-name {
+#players-tables .player-name {
   font-weight: bold;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
 }
 
-#pearlMasterToken {
-  /* TODO */
+.stacks {
+  display: flex;
+  position: relative;
+}
+.stacks .hidden-pile {
+  display: flex;
+}
+.stacks .hidden-pile .button {
+  display: none;
+  flex: 1;
+  border: 3px dashed white;
+  color: white;
+  font-size: 300%;
+  justify-content: center;
+  align-items: center;
+}
+.stacks .hidden-pile.selectable .button {
+  display: flex;
+  cursor: pointer;
+}
+
+#lord-stacks #lord-hidden-pile {
+  width: 220px;
+  height: 220px;
+  margin-right: 10px;
+  background: darkblue;
+}
+#lord-stacks #lord-visible-stocks {
+  display: flex;
+  flex-wrap: wrap;
+}
+#lord-stacks #lord-visible-stocks > div {
+  display: inline-block;
+  margin-right: 10px;
+}
+#lord-stacks #lord-visible-stocks > div.selectable {
+  border: 3px dashed white;
+}
+
+#location-stacks #location-hidden-pile {
+  width: 186px;
+  height: 124px;
+  margin-right: 10px;
+  background-image: url("img/locations.jpg");
+  background-position: 0% 0%;
+  border-radius: 10px;
+  box-shadow: 1px 1px 3px black;
+}
+#location-stacks .stockitem {
+  border-radius: 10px;
+  box-shadow: 1px 1px 3px black;
+}
+
+#players-tables .player-name {
+  font-weight: bold;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.token {
+  display: inline-block;
+  position: relative;
+  width: 32px;
+  height: 32px;
+  background-image: url("img/tokens.png");
+  background-size: 600%;
+}
+.token.pearl {
+  background-position: 0% 0%;
+}
+.token#pearlMasterToken {
+  background-position: 100% 0%;
+}
+.token.guild1 {
+  background-position: 0% 100%;
+}
+.token.guild2 {
+  background-position: 25% 100%;
+}
+.token.guild3 {
+  background-position: 50% 100%;
+}
+.token.guild4 {
+  background-position: 75% 100%;
+}
+.token.guild5 {
+  background-position: 100% 100%;
+}
+
+.pearl-counter {
+  display: flex;
+  align-items: center;
+}
+.pearl-counter span {
+  margin-left: 10px;
 }

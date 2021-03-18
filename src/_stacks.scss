@@ -1,0 +1,64 @@
+.stacks {
+    display: flex;
+    position: relative;
+
+    .hidden-pile {    
+        display: flex;
+
+        .button {
+            display: none;
+            flex: 1;
+            border: 3px dashed white;
+            color: white;
+            font-size: 300%;
+            justify-content: center;
+            align-items: center;
+        }
+
+        &.selectable .button {
+            display: flex;
+            cursor: pointer;
+        }
+    }
+}
+
+#lord-stacks {
+    #lord-hidden-pile {  
+        width: 220px;
+        height: 220px;
+        margin-right: 10px;
+        background: darkblue;
+    }
+
+    #lord-visible-stocks {
+        display: flex;
+        flex-wrap: wrap;
+    
+        &>div {
+            display: inline-block;
+            margin-right: 10px;
+
+            &.selectable {
+                border: 3px dashed white;
+            }
+        }
+    }
+}
+
+#location-stacks {    
+    #location-hidden-pile {   
+        width: 186px;
+        height: 124px;
+        margin-right: 10px;
+
+        background-image: url('img/locations.jpg');
+        background-position: 0% 0%;
+        border-radius: 10px;
+        box-shadow: 1px 1px 3px black;
+    }
+
+    .stockitem {
+        border-radius: 10px;
+        box-shadow: 1px 1px 3px black;
+    }
+}

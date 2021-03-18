@@ -352,8 +352,8 @@ declare const _;
 declare const g_gamethemeurl;
 
 declare const board: HTMLDivElement;*/
-var LOCATION_WIDTH = 200;
-var LOCATION_HEIGHT = 100;
+var LOCATION_WIDTH = 186.24;
+var LOCATION_HEIGHT = 124;
 var LOCATIONS_UNIQUE_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 var LOCATIONS_GUILDS_IDS = [100, 101];
 var LocationsStacks = /** @class */ (function (_super) {
@@ -527,7 +527,7 @@ var Conspiracy = /** @class */ (function () {
         Object.values(gamedatas.players).forEach(function (player) {
             var playerId = Number(player.id);
             // TODO add color indicators
-            dojo.place("<div class=\"pearl-counters\">[pearl] <span id=\"pearl-counter-" + player.id + "\"></span></div>", "player_board_" + player.id);
+            dojo.place("<div class=\"pearl-counter\"><div class=\"token pearl\"></div> <span id=\"pearl-counter-" + player.id + "\"></span></div>", "player_board_" + player.id);
             var counter = new ebg.counter();
             counter.create("pearl-counter-" + player.id);
             counter.setValue(player.pearls);
@@ -651,7 +651,7 @@ var Conspiracy = /** @class */ (function () {
             animation.play();
         }
         else {
-            dojo.place('<div id="pearlMasterToken">PM</div>', "player_board_" + playerId);
+            dojo.place('<div id="pearlMasterToken" class="token"></div>', "player_board_" + playerId);
         }
     };
     ///////////////////////////////////////////////////

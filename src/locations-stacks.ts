@@ -8,8 +8,8 @@ declare const g_gamethemeurl;
 declare const board: HTMLDivElement;*/
 
 
-const LOCATION_WIDTH = 200;
-const LOCATION_HEIGHT = 100;
+const LOCATION_WIDTH = 186.24;
+const LOCATION_HEIGHT = 124;
 
 const LOCATIONS_UNIQUE_IDS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14];
 const LOCATIONS_GUILDS_IDS = [100,101];
