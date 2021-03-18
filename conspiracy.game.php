@@ -176,7 +176,10 @@ class Conspiracy extends Table
         for ($guild=1; $guild<=5; $guild++) {
             $result['visibleLords'][$guild] = $this->getLordsFromDb($this->lords->getCardsInLocation('table', $guild));
         }
+        $result['pickLords'] = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
+        
         $result['visibleLocations'] = $this->getLocationsFromDb($this->locations->getCardsInLocation('table'));
+        $result['pickLocations'] = $this->getLocationsFromDb($this->locations->getCardsInLocation('location_selection'));
 
         // players tables
         $result['playersTables'] = [];

@@ -276,7 +276,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var LordsStacks = /** @class */ (function (_super) {
     __extends(LordsStacks, _super);
-    function LordsStacks(game, visibleLords) {
+    function LordsStacks(game, visibleLords, pickLords) {
         var _this = _super.call(this) || this;
         _this.game = game;
         _this.lordsStocks = [];
@@ -287,6 +287,7 @@ var LordsStacks = /** @class */ (function (_super) {
         _this.pickStock.centerItems = true;
         setupLordCards([_this.pickStock]);
         _this.setPickStockClick();
+        pickLords.forEach(function (lord) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(lord), "" + lord.id); });
         return _this;
     }
     Object.defineProperty(LordsStacks.prototype, "pileDiv", {
@@ -349,7 +350,7 @@ declare const g_gamethemeurl;
 declare const board: HTMLDivElement;*/
 var LocationsStacks = /** @class */ (function (_super) {
     __extends(LocationsStacks, _super);
-    function LocationsStacks(game, visibleLocations) {
+    function LocationsStacks(game, visibleLocations, pickLocations) {
         var _this = _super.call(this) || this;
         _this.game = game;
         _this.pileDiv.addEventListener('click', function (e) { return _this.onHiddenLocationClick(e); });
@@ -365,6 +366,7 @@ var LocationsStacks = /** @class */ (function (_super) {
         _this.setPickStockClick();
         setupLocationCards([_this.visibleLocationsStock, _this.pickStock]);
         visibleLocations.forEach(function (location) { return _this.visibleLocationsStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
+        pickLocations.forEach(function (location) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
         return _this;
     }
     Object.defineProperty(LocationsStacks.prototype, "pileDiv", {
@@ -485,8 +487,8 @@ var Conspiracy = /** @class */ (function () {
                 _this.placePearlMasterToken(gamedatas.masterPearlsPlayer);
             }
         });
-        this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords);
-        this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations);
+        this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords, gamedatas.pickLords);
+        this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations, gamedatas.pickLocations);
         Object.keys(gamedatas.players).forEach(function (playerId) { return _this.playersTables[playerId] = new PlayerTable(_this, gamedatas.players[playerId], gamedatas.playersTables[playerId]); });
         this.setupNotifications();
         console.log("Ending game setup");

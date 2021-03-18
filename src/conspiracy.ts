@@ -52,9 +52,9 @@ class Conspiracy implements ConspiracyGame {
                 this.placePearlMasterToken(gamedatas.masterPearlsPlayer);
             }
         });
-        
-        this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords);
-        this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations);
+
+        this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords, gamedatas.pickLords);
+        this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations, gamedatas.pickLocations);
 
         Object.keys(gamedatas.players).forEach((playerId) => this.playersTables[playerId] = new PlayerTable(this, gamedatas.players[playerId], gamedatas.playersTables[playerId]));
 

@@ -10,7 +10,7 @@ declare const board: HTMLDivElement;*/
 class LordsStacks extends AbstractStacks<Lord> {
     private lordsStocks: LordStock[] = [];
 
-    constructor(public game: ConspiracyGame, visibleLords: { [spot: number]: Lord[] }) {
+    constructor(public game: ConspiracyGame, visibleLords: { [spot: number]: Lord[] }, pickLords: Lord[]) {
         super();
 
         this.pileDiv.addEventListener('click', e => this.onHiddenLordsClick(e));
@@ -22,6 +22,7 @@ class LordsStacks extends AbstractStacks<Lord> {
         this.pickStock.centerItems = true;
         setupLordCards([this.pickStock]);
         this.setPickStockClick();
+        pickLords.forEach(lord => this.pickStock.addToStockWithId(this.getCardUniqueId(lord), `${lord.id}`));
     }
 
     get pileDiv(): HTMLDivElement {

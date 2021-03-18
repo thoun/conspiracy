@@ -13,7 +13,7 @@ declare const board: HTMLDivElement;*/
 class LocationsStacks extends AbstractStacks<Location> {
     visibleLocationsStock: Stock;
 
-    constructor(private game: ConspiracyGame, visibleLocations: Location[]) {
+    constructor(private game: ConspiracyGame, visibleLocations: Location[], pickLocations: Location[]) {
         super();
 
         this.pileDiv.addEventListener('click', e => this.onHiddenLocationClick(e));
@@ -33,6 +33,7 @@ class LocationsStacks extends AbstractStacks<Location> {
         setupLocationCards([this.visibleLocationsStock, this.pickStock]);        
 
         visibleLocations.forEach(location => this.visibleLocationsStock.addToStockWithId(this.getCardUniqueId(location), `${location.id}`));
+        pickLocations.forEach(location => this.pickStock.addToStockWithId(this.getCardUniqueId(location), `${location.id}`));
     }
 
     get pileDiv(): HTMLDivElement {

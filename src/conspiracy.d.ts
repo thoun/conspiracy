@@ -38,7 +38,9 @@ interface ConspiracyGamedatas {
 
     // Add here variables you set up in getAllDatas
     visibleLords: { [spot: number]: Lord[] };
+    pickLords: Lord[];
     visibleLocations: Location[];
+    pickLocations: Location[];
     masterPearlsPlayer: number;
     playersTables: { [playerId: number]: PlayerTableSpot[] };
 }

@@ -21,7 +21,7 @@ class LocationCard {
 class Location extends LocationCard {
     public /*int*/ $id;
     public /*int*/ $type;
-    public /*string*/ $location; // deck, deck_selection, table, player${id}
+    public /*string*/ $location; // deck, lord_selection, table, player${id}
     public /*int*/ $location_arg; // index in player${id}
     public /*int*/ $passivePowerGuild;
 
