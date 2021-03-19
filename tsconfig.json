@@ -17,6 +17,7 @@
         "src/stacks/abstract-stacks.ts",
         "src/stacks/lords-stacks.ts",
         "src/stacks/locations-stacks.ts",
+        "src/players-tables/spot.ts",
         "src/players-tables/player-table.ts",
         "src/conspiracy.ts",
         "src/define.ts"

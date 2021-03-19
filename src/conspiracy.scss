@@ -3,3 +3,8 @@
 @import 'stacks/stacks';
 @import 'players-tables/players-tables';
 @import 'tokens';
+
+html {
+    background: url('img/background.jpg');
+    background-size: contain;
+}

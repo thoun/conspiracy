@@ -74,6 +74,81 @@
   font-weight: bold;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
 }
+#players-tables .player-table {
+  position: relative;
+  height: 1035px;
+}
+
+.player-table-spot {
+  position: absolute;
+  min-width: 210px;
+  display: inline-block;
+}
+.player-table-spot.spot1 {
+  top: 0;
+  left: 0px;
+}
+.player-table-spot.spot2 {
+  top: 0;
+  left: 207.26px;
+}
+.player-table-spot.spot3 {
+  top: 0;
+  left: 414.52px;
+}
+.player-table-spot.spot4 {
+  top: 0;
+  left: 621.78px;
+}
+.player-table-spot.spot5 {
+  top: 0;
+  left: 829.04px;
+}
+.player-table-spot.spot6 {
+  top: 207px;
+  left: 103.63px;
+}
+.player-table-spot.spot7 {
+  top: 207px;
+  left: 310.89px;
+}
+.player-table-spot.spot8 {
+  top: 207px;
+  left: 518.15px;
+}
+.player-table-spot.spot9 {
+  top: 207px;
+  left: 725.41px;
+}
+.player-table-spot.spot10 {
+  top: 414px;
+  left: 207.26px;
+}
+.player-table-spot.spot11 {
+  top: 414px;
+  left: 414.52px;
+}
+.player-table-spot.spot12 {
+  top: 414px;
+  left: 621.78px;
+}
+.player-table-spot.spot13 {
+  top: 621px;
+  left: 310.89px;
+}
+.player-table-spot.spot14 {
+  top: 621px;
+  left: 518.15px;
+}
+.player-table-spot.spot15 {
+  top: 828px;
+  left: 414.52px;
+}
+.player-table-spot .player-table-spot-location {
+  position: absolute;
+  top: 83px;
+  left: 0;
+}
 
 .token {
   display: inline-block;
@@ -111,4 +186,9 @@
 }
 .pearl-counter span {
   margin-left: 10px;
+}
+
+html {
+  background: url("img/background.jpg");
+  background-size: contain;
 }

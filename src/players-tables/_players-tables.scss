@@ -1,6 +1,18 @@
+$lord-width: 207.26px;
+$lord-height: 207px;
+$location-width: 186.24px;
+$location-height: 124px;
+
 #players-tables {
     .player-name {
         font-weight: bold;
         text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
     }
+
+    .player-table {
+        position: relative;
+        height: $lord-height * 5;
+    }
 }
+
+@import 'spot';

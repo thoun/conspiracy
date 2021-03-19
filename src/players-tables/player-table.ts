@@ -1,52 +1,34 @@
+const SPOTS_NUMBERS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+
 class PlayerTable {
     private playerId: number;
-    private lordsStock: Stock;
-    private locationsStock: Stock;
+    //private lordsStock: Stock;
+    //private locationsStock: Stock;
+    private spotsStock: PlayerTableSpotStock[] = [];
 
     constructor(
         private game: ConspiracyGame, 
         player: Player,
-        private spots: PlayerTableSpot[],
+        spots: PlayerTableSpot[],
         private readonly: boolean = true) {
 
         this.playerId = Number(player.id);
 
         dojo.place(`<div class="whiteblock">
             <div class="player-name" style="color: #${player.color}">${player.name}</div>
-            <div id="player-table-${this.playerId}">
-                Lords : <div id="player${this.playerId}-lord-stock"></div>
-                Locations : <div id="player${this.playerId}-location-stock"></div>
-            </div>
-        </div>`, 'players-tables')
+            <div id="player-table-${this.playerId}" class="player-table"></div>
+        </div>`, 'players-tables');
 
-        this.lordsStock = new ebg.stock() as Stock;
-        this.lordsStock.create( this.game, $(`player${this.playerId}-lord-stock`), LORD_WIDTH, LORD_HEIGHT );
-        setupLordCards([this.lordsStock]);
-
-        Object.entries(spots).forEach(([spotNumber, spot]) => {
-            const lord = spot.lord;
-            if (lord) {
-                this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), `${lord.id}`);
-            }
-        });
-
-        this.locationsStock = new ebg.stock() as Stock;
-        this.locationsStock.create( this.game, $(`player${this.playerId}-location-stock`), LOCATION_WIDTH, LOCATION_HEIGHT );
-        setupLocationCards([this.locationsStock]);
-
-        Object.entries(spots).forEach(([spotNumber, spot]) => {
-            const location = spot.location;
-            if (location) {
-                this.locationsStock.addToStockWithId(getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`);
-            }
+        SPOTS_NUMBERS.forEach(spotNumber => {
+            this.spotsStock[spotNumber] = new PlayerTableSpotStock(game, player, spots[spotNumber], spotNumber, readonly);
         });
     }
     
     public addLord(spot: number, lord: Lord) {
-        this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), `${lord.id}`);
+        this.spotsStock[spot].setLord(lord);
     }
 
     addLocation(spot: number, location: Location) {
-        this.locationsStock.addToStockWithId(getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`);
+        this.spotsStock[spot].setLocation(location);
     }
 }
