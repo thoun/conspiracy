@@ -299,6 +299,15 @@ class Conspiracy extends Table
         $number = $this->lords->countCardInLocation('table', $guild);
 
         $this->lords->moveAllCardsInLocation('table', $number == 1 ? 'lord_pick' : 'lord_selection', $guild);
+        
+        $message = $number > 1 ?
+            clienttranslate('${player_name} chooses to take visible lords from the deck') :
+            clienttranslate('${player_name} chooses to take visible lord from the deck');
+        self::notifyAllPlayers('lordVisiblePile', $message, [
+            'player_name' => self::getActivePlayerName(),
+            'guild' => $guild,
+            'number' => $number
+        ]);
 
         self::setGameStateValue('stackSelection', 0);
         $this->gamestate->nextState($number == 1 ? 'chooseOneOnStack' : 'chooseDeckStack');

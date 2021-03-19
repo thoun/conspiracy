@@ -41,7 +41,10 @@ class Conspiracy implements ConspiracyGame {
         Object.values(gamedatas.players).forEach(player => {
             const playerId = Number(player.id);
             // TODO add color indicators
-            dojo.place(`<div class="pearl-counter"><div class="token pearl"></div> <span id="pearl-counter-${player.id}"></span></div>`, `player_board_${player.id}` );
+            dojo.place(`<div class="pearl-counter">
+                <div class="token pearl"></div> 
+                <span id="pearl-counter-${player.id}"></span>
+            </div>`, `player_board_${player.id}` );
 
             const counter = new ebg.counter();
             counter.create(`pearl-counter-${player.id}`);
@@ -241,6 +244,7 @@ class Conspiracy implements ConspiracyGame {
         //console.log( 'notifications subscriptions setup' );
 
         const notifs = [
+            ['lordVisiblePile', 1],
             ['lordPlayed', 1],
             ['extraLordRevealed', 1],
             ['newPearlMaster', 1],
@@ -251,6 +255,12 @@ class Conspiracy implements ConspiracyGame {
             (this as any).notifqueue.setSynchronous(notif[0], notif[1]);
         });
     }
+
+
+    notif_lordVisiblePile(notif: Notif<NotifLordVisiblePileArgs>) {
+        this.lordsStacks.discardVisibleLordPile(notif.args.guild);
+    }
+    
 
     notif_lordPlayed(notif: Notif<NotifLordPlayedArgs>) {
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);

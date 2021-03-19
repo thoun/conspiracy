@@ -162,6 +162,12 @@ class LordStock {
         this.updateSize();
     }
 
+    removeLords() {
+        this.visibleLords = [];
+        this.stock.removeAll();
+        this.updateSize();
+    }
+
     private updateSize() {
         this.div.style.width = `${LORD_WIDTH + (Math.max(this.visibleLords.length - 1, 0) * LORD_OVERLAP_WIDTH)}px`;
         this.div.style.height = `${LORD_HEIGHT + (Math.max(this.visibleLords.length - 1, 0) * LORD_OVERLAP_HEIGHT)}px`;

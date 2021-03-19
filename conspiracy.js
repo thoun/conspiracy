@@ -204,6 +204,11 @@ var LordStock = /** @class */ (function () {
         lords.forEach(function (lord) { return _this.stock.addToStockWithId(_this.lordsStacks.getCardUniqueId(lord), "" + lord.id); });
         this.updateSize();
     };
+    LordStock.prototype.removeLords = function () {
+        this.visibleLords = [];
+        this.stock.removeAll();
+        this.updateSize();
+    };
     LordStock.prototype.updateSize = function () {
         this.div.style.width = LORD_WIDTH + (Math.max(this.visibleLords.length - 1, 0) * LORD_OVERLAP_WIDTH) + "px";
         this.div.style.height = LORD_HEIGHT + (Math.max(this.visibleLords.length - 1, 0) * LORD_OVERLAP_HEIGHT) + "px";
@@ -316,7 +321,10 @@ var LordsStacks = /** @class */ (function (_super) {
     LordsStacks.prototype.discardPick = function (lords) {
         var _this = this;
         var guilds = new Set(lords.map(function (lord) { return lord.guild; }));
-        guilds.forEach(function (guild) { return _this.lordsStocks[guild].addLords(lords.filter(function (lord) { return lord.guild === guild; })); });
+        guilds.forEach(function (guild) { return _this.lordsStocks[guild].addLords(lords.filter(function (lord) { return lord.guild === guild; })); }); // TODO maintain visibleLords ?
+    };
+    LordsStacks.prototype.discardVisibleLordPile = function (guild) {
+        this.lordsStocks[guild].removeLords(); // TODO maintain visibleLords ?
     };
     LordsStacks.prototype.getCardUniqueId = function (lord) {
         return getUniqueId(lord.type, lord.guild);
@@ -478,7 +486,7 @@ var Conspiracy = /** @class */ (function () {
         Object.values(gamedatas.players).forEach(function (player) {
             var playerId = Number(player.id);
             // TODO add color indicators
-            dojo.place("<div class=\"pearl-counter\"><div class=\"token pearl\"></div> <span id=\"pearl-counter-" + player.id + "\"></span></div>", "player_board_" + player.id);
+            dojo.place("<div class=\"pearl-counter\">\n                <div class=\"token pearl\"></div> \n                <span id=\"pearl-counter-" + player.id + "\"></span>\n            </div>", "player_board_" + player.id);
             var counter = new ebg.counter();
             counter.create("pearl-counter-" + player.id);
             counter.setValue(player.pearls);
@@ -640,6 +648,7 @@ var Conspiracy = /** @class */ (function () {
         //console.log( 'notifications subscriptions setup' );
         var _this = this;
         var notifs = [
+            ['lordVisiblePile', 1],
             ['lordPlayed', 1],
             ['extraLordRevealed', 1],
             ['newPearlMaster', 1],
@@ -648,6 +657,9 @@ var Conspiracy = /** @class */ (function () {
             dojo.subscribe(notif[0], _this, "notif_" + notif[0]);
             _this.notifqueue.setSynchronous(notif[0], notif[1]);
         });
+    };
+    Conspiracy.prototype.notif_lordVisiblePile = function (notif) {
+        this.lordsStacks.discardVisibleLordPile(notif.args.guild);
     };
     Conspiracy.prototype.notif_lordPlayed = function (notif) {
         var _a;

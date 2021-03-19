@@ -63,6 +63,11 @@ interface EnteringLocationStackSelectionArgs {
     // TODO
 }
 
+interface NotifLordVisiblePileArgs {
+    guild: number;
+    number: number;
+}
+
 interface NotifLordPlayedArgs {
     playerId: number;
     lord: Lord;
