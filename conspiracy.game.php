@@ -118,12 +118,6 @@ class Conspiracy extends Table
         // show the first location
         $this->locations->pickCardForLocation('deck', 'table');
 
-
-        // TODO TEMP à enlever
-        for ($i=0;$i<5;$i++) {
-            $this->addExtraLord();
-        }
-
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
 
@@ -264,7 +258,7 @@ class Conspiracy extends Table
         $locationsSpots = array_map(function($location) { return $location->location_arg; }, $locations);
         $lastLocationSpot = count($locationsSpots) > 0 ? max($locationsSpots) : 0;
 
-        if (self::getGameStateValue('AP_KEYS') == $playerId) { // TODO set value when location is played
+        if (self::getGameStateValue('AP_KEYS') == $playerId) {
             $keys = count(array_filter($lords, function($lord) use ($lastLocationSpot) { return $lord->location_arg > $lastLocationSpot && $lord->key >= 1; }));
             
             return $keys >= 2;
@@ -415,6 +409,18 @@ class Conspiracy extends Table
         }
         return $remainingLords;
     } 
+
+    function getTopLordPoints($player_id, $guild): int {
+        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id"));
+        $guildLords = array_values(array_filter($lords, function($lord) use ($guild) { return $lord->guild == $guild; }));
+        $guildLordsPoints = array_map(function ($lord) { return $lord->points; }, $guildLords);
+
+        if (count($guildLordsPoints) > 0) {
+            return max($guildLordsPoints);
+        } else {
+            return 0;
+        }
+    }
     
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state arguments
@@ -459,9 +465,12 @@ class Conspiracy extends Table
         if (self::getGameStateValue('stackSelection') == 1) {
             $remainingLords = $this->placeRemainingLordSelectionToTable();
         }
-        
-        // TODO do not count all lords points 
-        $points = $lord->points;
+
+        $topLordPoints = $this->getTopLordPoints($player_id, $lord->guild);
+        $points = 0;
+        if ($lord->points > $topLordPoints) {
+            $points = $lord->points - $topLordPoints;
+        }
         $pearls = $lord->pearls;
         self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_aux = player_score_aux + $pearls WHERE player_id = $player_id");
         

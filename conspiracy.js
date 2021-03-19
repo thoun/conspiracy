@@ -715,6 +715,9 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.notif_lordPlayed = function (notif) {
         var _a;
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);
+        if (notif.args.points) {
+            // TODO place/move top lord token
+        }
         this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         if ((_a = notif.args.discardedLords) === null || _a === void 0 ? void 0 : _a.length) {

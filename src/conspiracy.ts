@@ -283,6 +283,9 @@ class Conspiracy implements ConspiracyGame {
 
     notif_lordPlayed(notif: Notif<NotifLordPlayedArgs>) {
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);
+        if (notif.args.points) {
+            // TODO place/move top lord token
+        }
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         if (notif.args.discardedLords?.length) {
