@@ -47,7 +47,9 @@ class Conspiracy extends Table
                 'AP_KEYS' => 13, // reset to 0 when this player plays again
                 'AP_DECK_LOCATION' => 14, // apply for all game, not reseted                
 
-                'stackSelection' => 20
+                'stackSelection' => 20, // 1 for lord stack selection, 0 for visible lords selection
+
+                'endTurn' => 30, // id of player launching last turn
             //      ...
             //    "my_first_game_variant" => 100,
             //    "my_second_game_variant" => 101,
@@ -102,6 +104,7 @@ class Conspiracy extends Table
         self::setGameStateInitialValue( 'AP_FIRST_LORDS', 0 );
         self::setGameStateInitialValue( 'AP_DECK_LOCATION', 0 );
         self::setGameStateInitialValue( 'stackSelection', 0 );
+        self::setGameStateInitialValue( 'endTurn', 0 );
         
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
@@ -404,6 +407,14 @@ class Conspiracy extends Table
             }
         }
     }
+
+    function placeRemainingLordSelectionToTable(): array {
+        $remainingLords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
+        foreach($remainingLords as $lord) {
+            $this->lords->moveCard($lord->id, 'table', $lord->guild);
+        }
+        return $remainingLords;
+    } 
     
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state arguments
@@ -433,7 +444,6 @@ class Conspiracy extends Table
         Here, you can create methods defined as "game state actions" (see "action" property in states.inc.php).
         The action method of state X is called everytime the current game state is set to X.
     */
-    
 
     function stPlayLord() {
         self::debug('[GBA] stPlayLord');
@@ -445,12 +455,9 @@ class Conspiracy extends Table
         $spot = $this->lords->countCardInLocation("player${player_id}") + 1;
         $this->lords->moveCard($lord->id, "player${player_id}", $spot);
 
-        $remainingLords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
-        $stackSelection = self::getGameStateValue('stackSelection') == 1;
-        if ($stackSelection) {
-            foreach($remainingLords as $lord) {
-                $this->lords->moveCard($lord->id, 'table', $lord->guild);
-            }
+        $remainingLords = [];
+        if (self::getGameStateValue('stackSelection') == 1) {
+            $remainingLords = $this->placeRemainingLordSelectionToTable();
         }
         
         // TODO do not count all lords points 
@@ -464,7 +471,7 @@ class Conspiracy extends Table
             'card_name' => 'TODO',
             'lord' => $lord,
             'spot' => $spot,
-            'discardedLords' => $stackSelection ? $remainingLords : [],
+            'discardedLords' => $remainingLords,
             'points' => $points,
             'pearls' => $pearls,
         ]);
@@ -533,20 +540,40 @@ class Conspiracy extends Table
     }
 
     function stEndLord() {
-        if ($this->lords->countCardInLocation('lord_selection') > 0) {
-            $this->gamestate->nextState('nextLord');
+
+        if ($this->lords->countCardInLocation('lord_selection') > 0) { 
+            $player_id = self::activeNextPlayer();
+            $playerdords = $this->lords->countCardInLocation("player$player_id");
+
+            if ($playedLords < 15) {
+                $this->gamestate->nextState('nextLord');
+            } else {
+                $this->placeRemainingLordSelectionToTable();
+                $this->gamestate->nextState('nextPlayer');
+            }
         } else {
             $this->gamestate->nextState('nextPlayer');
         }
     }
 
     function stNextPlayer() {
+        if (self::getGameStateValue('endTurn') == 0) {            
+            $player_id = self::activeNextPlayer();
+            $playedLords = $this->lords->countCardInLocation("player$player_id");
+
+            if ($playedLords == 15) {
+                self::setGameStateValue('endTurn', $player_id);
+            }
+        }
+
         $player_id = self::activeNextPlayer();
         self::giveExtraTime($player_id);
 
-        // TODO end game ? $this->gamestate->nextState('showScore');
-
-        $this->gamestate->nextState('nextPlayer');
+        if (self::getGameStateValue('endTurn') == $player_id) {
+            $this->gamestate->nextState('showScore');
+        } else {
+            $this->gamestate->nextState('nextPlayer');
+        }
     }
 
 //////////////////////////////////////////////////////////////////////////////
