@@ -309,6 +309,10 @@ var LordsStacks = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
+    LordsStacks.prototype.discardVisible = function () {
+        var _this = this;
+        GUILD_IDS.forEach(function (guild) { return _this.lordsStocks[guild].removeLords(); });
+    };
     LordsStacks.prototype.addLords = function (lords) {
         var _this = this;
         var guilds = new Set(lords.map(function (lord) { return lord.guild; }));
@@ -391,6 +395,9 @@ var LocationsStacks = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
+    LocationsStacks.prototype.discardVisible = function () {
+        this.visibleLocationsStock.removeAll();
+    };
     LocationsStacks.prototype.discardPick = function (locations) {
         var _this = this;
         locations.forEach(function (location) { return _this.visibleLocationsStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
@@ -660,6 +667,8 @@ var Conspiracy = /** @class */ (function () {
             ['lordPlayed', 1],
             ['extraLordRevealed', 1],
             ['locationPlayed', 1],
+            ['discardLords', 1],
+            ['discardLocations', 1],
             ['newPearlMaster', 1],
         ];
         notifs.forEach(function (notif) {
@@ -690,6 +699,12 @@ var Conspiracy = /** @class */ (function () {
         if ((_a = notif.args.discardedLocations) === null || _a === void 0 ? void 0 : _a.length) {
             this.locationsStacks.discardPick(notif.args.discardedLocations);
         }
+    };
+    Conspiracy.prototype.notif_discardLords = function () {
+        this.lordsStacks.discardVisible();
+    };
+    Conspiracy.prototype.notif_discardLocations = function () {
+        this.locationsStacks.discardVisible();
     };
     Conspiracy.prototype.notif_newPearlMaster = function (notif) {
         this.placePearlMasterToken(notif.args.playerId);

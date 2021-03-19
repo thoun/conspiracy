@@ -52,18 +52,6 @@
 
 $basicGameStates = [
 
-];
-
-$lordGameStates = [
-
-];
-
-$locationGameStates = [
-
-];
- 
-$machinestates = [
-
     // The initial state. Please do not modify.
     ST_BGA_GAME_SETUP => array(
         "name" => "gameSetup",
@@ -72,7 +60,40 @@ $machinestates = [
         "action" => "stGameSetup",
         "transitions" => array( "" => ST_PLAYER_LORD_STACK_SELECTION )
     ),
-        
+
+    ST_NEXT_PLAYER => array(
+        "name" => "nextPlayer",
+        "description" => "",
+        "type" => "game",
+        "action" => "stNextPlayer",
+        "updateGameProgression" => true,
+        "transitions" => array( 
+            "nextPlayer" => ST_PLAYER_LORD_STACK_SELECTION, 
+            "showScore" => ST_SHOW_SCORE
+        )
+    ),
+
+    ST_SHOW_SCORE => array(
+      "name" => "showScore",
+      "description" => "",
+      "type" => "game",
+      // "action" => "stShowScore",
+      "transitions" => array( "endGame" => ST_END_GAME )
+    ),
+   
+    // Final state.
+    // Please do not modify.
+    ST_END_GAME => array(
+        "name" => "gameEnd",
+        "description" => clienttranslate("End of game"),
+        "type" => "manager",
+        "action" => "stGameEnd",
+        "args" => "argGameEnd"
+    ),
+
+];
+
+$lordGameStates = [
     ST_PLAYER_LORD_STACK_SELECTION => array(
         "name" => "lordStackSelection",
         "description" => clienttranslate('${actplayer} must choose lords'),
@@ -117,12 +138,10 @@ $machinestates = [
         "description" => "",
         "type" => "game",
         "action" => "stPlayLord",
-        "updateGameProgression" => true,
         "transitions" => array( 
             "switch" => ST_PLAYER_LORDS_SWITCH,
             "addLocation" => ST_PLAYER_LOCATION_STACK_SELECTION,
-            "nextLord" => ST_PLAYER_LORD_SELECTION,
-            "nextPlayer" => ST_NEXT_PLAYER,
+            "next" => ST_END_LORD,
         )
     ),
 
@@ -134,9 +153,24 @@ $machinestates = [
         // "action" => "stPlayerLordSwitch",
         "possibleactions" => array( "nextPlayer" ),
         "transitions" => array( 
-            "nextPlayer" => ST_NEXT_PLAYER
+            "next" => ST_END_LORD
         )
     ),
+
+    ST_END_LORD => array(
+        "name" => "endLord",
+        "description" => "",
+        "type" => "game",
+        "action" => "stEndLord",
+        "updateGameProgression" => true,
+        "transitions" => array(
+            "nextLord" => ST_PLAYER_LORD_SELECTION,
+            "nextPlayer" => ST_NEXT_PLAYER,
+        )
+    ),
+];
+
+$locationGameStates = [
 
     ST_PLAYER_LOCATION_STACK_SELECTION => array(
         "name" => "locationStackSelection",
@@ -170,63 +204,9 @@ $machinestates = [
         "type" => "game",
         "action" => "stAddLocation",
         "transitions" => array( 
-            "discardLords" => ST_DISCARD_LORDS,
-            "discardPlaces" => ST_DISCARD_LOCATIONS,
-            "nextPlayer" => ST_NEXT_PLAYER,
+            "next" => ST_END_LORD,
         )
-    ),
-
-    ST_DISCARD_LORDS => array(
-        "name" => "discardLords",
-        "description" => "",
-        "type" => "game",
-        // "action" => "stDiscardLords",
-        "transitions" => array( 
-            "nextPlayer" => ST_NEXT_PLAYER,
-        )
-    ),
-
-    ST_DISCARD_LOCATIONS => array(
-        "name" => "discardPlaces",
-        "description" => "",
-        "type" => "game",
-        // "action" => "stDiscardPlaces",
-        "transitions" => array( 
-            "nextPlayer" => ST_NEXT_PLAYER,
-        )
-    ),
-
-    ST_NEXT_PLAYER => array(
-        "name" => "nextPlayer",
-        "description" => "",
-        "type" => "game",
-        "action" => "stNextPlayer",
-        "updateGameProgression" => true,
-        "transitions" => array( 
-            "nextPlayer" => ST_PLAYER_LORD_STACK_SELECTION, 
-            "showScore" => ST_SHOW_SCORE
-        )
-    ),
-
-    ST_SHOW_SCORE => array(
-      "name" => "showScore",
-      "description" => "",
-      "type" => "game",
-      // "action" => "stShowScore",
-      "transitions" => array( "endGame" => ST_END_GAME )
-    ),
-   
-    // Final state.
-    // Please do not modify.
-    ST_END_GAME => array(
-        "name" => "gameEnd",
-        "description" => clienttranslate("End of game"),
-        "type" => "manager",
-        "action" => "stGameEnd",
-        "args" => "argGameEnd"
     )
-
 ];
-
-
-
+ 
+$machinestates = $basicGameStates + $lordGameStates + $locationGameStates;

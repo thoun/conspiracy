@@ -33,6 +33,10 @@ class LordsStacks extends AbstractStacks<Lord> {
         return document.getElementById('lord-pick') as HTMLDivElement;
     }
 
+    public discardVisible() {
+        GUILD_IDS.forEach(guild => this.lordsStocks[guild].removeLords());
+    }
+
     public addLords(lords: Lord[]) {
         const guilds = new Set(lords.map(lord => lord.guild));
         guilds.forEach(guild => this.lordsStocks[guild].addLords(lords.filter(lord => lord.guild === guild)));

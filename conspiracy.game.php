@@ -465,10 +465,8 @@ class Conspiracy extends Table
             $this->gamestate->nextState('switch');
         } else if ($lord->key && $this->canConstructWithNewKey($player_id, $lord->key)) {
             $this->gamestate->nextState('addLocation');
-        } else if (!$stackSelection && $this->lords->countCardInLocation('lord_selection') > 0) {
-            $this->gamestate->nextState('nextLord');
         } else {
-            $this->gamestate->nextState('nextPlayer');
+            $this->gamestate->nextState('next');
         }
     }
 
@@ -504,15 +502,24 @@ class Conspiracy extends Table
 
         $this->checkPearlMaster($player_id);
 
-        /* TODO if ($lord->switch && $this->lords->countCardInLocation("player${player_id}") >= 2) {
-            $this->gamestate->nextState('switch');
-        } else if ($lord->key && $this->canConstructWithNewKey($player_id, $lord->key)) {
-            $this->gamestate->nextState('addLocation');
-        } else if (!$stackSelection && $this->lords->countCardInLocation('lord_selection') > 0) {
+        if ($location->activePower == AP_DISCARD_LORDS && $this->lords->countCardInLocation("table") > 0) {
+            self::notifyAllPlayers('discardLords', clienttranslate('Lords are discarded'), []);
+            $this->lords->shuffle('deck');
+        }
+        if ($location->activePower == AP_DISCARD_LOCATIONS && $this->locations->countCardInLocation("table") > 0) {
+            self::notifyAllPlayers('discardLocations', clienttranslate('Locations are discarded'), []);
+            $this->locations->shuffle('deck');
+        }
+
+        $this->gamestate->nextState('next');
+    }
+
+    function stEndLord() {
+        if ($this->lords->countCardInLocation('lord_selection') > 0) {
             $this->gamestate->nextState('nextLord');
-        } else {*/
+        } else {
             $this->gamestate->nextState('nextPlayer');
-        /*}*/
+        }
     }
 
     function stNextPlayer() {

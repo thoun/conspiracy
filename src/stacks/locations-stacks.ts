@@ -44,6 +44,10 @@ class LocationsStacks extends AbstractStacks<Location> {
         return document.getElementById('location-pick') as HTMLDivElement;
     }
 
+    public discardVisible() {
+        this.visibleLocationsStock.removeAll();
+    }
+
     public discardPick(locations: Location[]) {
         locations.forEach(location => this.visibleLocationsStock.addToStockWithId(this.getCardUniqueId(location), `${location.id}`));
     }

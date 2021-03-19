@@ -248,6 +248,8 @@ class Conspiracy implements ConspiracyGame {
             ['lordPlayed', 1],
             ['extraLordRevealed', 1],
             ['locationPlayed', 1],
+            ['discardLords', 1],
+            ['discardLocations', 1],
             ['newPearlMaster', 1],
         ];
     
@@ -283,6 +285,14 @@ class Conspiracy implements ConspiracyGame {
         if (notif.args.discardedLocations?.length) {
             this.locationsStacks.discardPick(notif.args.discardedLocations);
         }
+    }
+
+    notif_discardLords() {
+        this.lordsStacks.discardVisible();
+    }
+
+    notif_discardLocations() {
+        this.locationsStacks.discardVisible();
     }
 
     notif_newPearlMaster(notif: Notif<NotifNewPearlMasterArgs>) {
