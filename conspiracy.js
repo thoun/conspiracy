@@ -391,6 +391,10 @@ var LocationsStacks = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
+    LocationsStacks.prototype.discardPick = function (locations) {
+        var _this = this;
+        locations.forEach(function (location) { return _this.visibleLocationsStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
+    };
     LocationsStacks.prototype.getCardUniqueId = function (location) {
         var _a;
         return getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0);
@@ -415,13 +419,13 @@ var LocationsStacks = /** @class */ (function (_super) {
             number: number
         });
     };
-    LocationsStacks.prototype.onVisibleLocationClick = function (event) {
-        // TODO
-        console.log(event);
+    LocationsStacks.prototype.onVisibleLocationClick = function (control_name, item_id) {
         if (!this.game.checkAction('chooseVisibleLocation')) {
             return;
         }
-        this.game.takeAction('chooseVisibleLocation');
+        this.game.takeAction('chooseVisibleLocation', {
+            id: item_id
+        });
     };
     return LocationsStacks;
 }(AbstractStacks));
@@ -458,6 +462,10 @@ var PlayerTable = /** @class */ (function () {
     }
     PlayerTable.prototype.addLord = function (spot, lord) {
         this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), "" + lord.id);
+    };
+    PlayerTable.prototype.addLocation = function (spot, location) {
+        var _a;
+        this.locationsStock.addToStockWithId(getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id);
     };
     return PlayerTable;
 }());
@@ -651,6 +659,7 @@ var Conspiracy = /** @class */ (function () {
             ['lordVisiblePile', 1],
             ['lordPlayed', 1],
             ['extraLordRevealed', 1],
+            ['locationPlayed', 1],
             ['newPearlMaster', 1],
         ];
         notifs.forEach(function (notif) {
@@ -672,6 +681,15 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.notif_extraLordRevealed = function (notif) {
         this.lordsStacks.addLords([notif.args.lord]);
+    };
+    Conspiracy.prototype.notif_locationPlayed = function (notif) {
+        var _a;
+        this.playersTables[notif.args.playerId].addLocation(notif.args.spot, notif.args.location);
+        this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
+        this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
+        if ((_a = notif.args.discardedLocations) === null || _a === void 0 ? void 0 : _a.length) {
+            this.locationsStacks.discardPick(notif.args.discardedLocations);
+        }
     };
     Conspiracy.prototype.notif_newPearlMaster = function (notif) {
         this.placePearlMasterToken(notif.args.playerId);

@@ -247,6 +247,7 @@ class Conspiracy implements ConspiracyGame {
             ['lordVisiblePile', 1],
             ['lordPlayed', 1],
             ['extraLordRevealed', 1],
+            ['locationPlayed', 1],
             ['newPearlMaster', 1],
         ];
     
@@ -273,6 +274,15 @@ class Conspiracy implements ConspiracyGame {
 
     notif_extraLordRevealed(notif: Notif<NotifExtraLordRevealedArgs>) {
         this.lordsStacks.addLords([notif.args.lord]);
+    }
+
+    notif_locationPlayed(notif: Notif<NotifLocationPlayedArgs>) {
+        this.playersTables[notif.args.playerId].addLocation(notif.args.spot, notif.args.location);
+        (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
+        this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
+        if (notif.args.discardedLocations?.length) {
+            this.locationsStacks.discardPick(notif.args.discardedLocations);
+        }
     }
 
     notif_newPearlMaster(notif: Notif<NotifNewPearlMasterArgs>) {

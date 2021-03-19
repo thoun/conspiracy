@@ -46,7 +46,7 @@
     }
 
     public function chooseVisibleStack() {
-        self::setAjaxMode();     
+        self::setAjaxMode();
 
         $guild = self::getArg( "guild", AT_posint, true );
         $this->game->chooseVisibleStack( $guild );
@@ -59,6 +59,23 @@
 
         $id = self::getArg( "id", AT_posint, true );
         $this->game->pickLord( $id );
+
+        self::ajaxResponse( );
+    }
+
+    public function switch() {
+        self::setAjaxMode();     
+
+        $spots = self::getArg( "spots", AT_numberlist, true );
+        $this->game->switch( $spots );
+
+        self::ajaxResponse( );
+    }
+
+    public function dontSwitch() {
+        self::setAjaxMode();     
+
+        $this->game->dontSwitch();
 
         self::ajaxResponse( );
     }
@@ -81,19 +98,11 @@
         self::ajaxResponse( );
     }
 
-    public function switch() {
-        self::setAjaxMode();     
+    public function chooseVisibleLocation() {
+        self::setAjaxMode();
 
-        $spots = self::getArg( "spots", AT_numberlist, true );
-        $this->game->switch( $spots );
-
-        self::ajaxResponse( );
-    }
-
-    public function dontSwitch() {
-        self::setAjaxMode();     
-
-        $this->game->dontSwitch();
+        $id = self::getArg( "id", AT_posint, true );
+        $this->game->chooseVisibleLocation( $id );
 
         self::ajaxResponse( );
     }

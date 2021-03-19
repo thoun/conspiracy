@@ -44,7 +44,8 @@ class Conspiracy extends Table
                 //  // if > 0, indicates the player that added the constraint
                 'AP_FIRST_LORD' => 11, // reset to 0 when this player plays again
                 'AP_FIRST_LORDS' => 12, // reset to 0 when this player plays again
-                'AP_DECK_LOCATION' => 13, // apply for all game, not reseted
+                'AP_KEYS' => 13, // reset to 0 when this player plays again
+                'AP_DECK_LOCATION' => 14, // apply for all game, not reseted                
 
                 'stackSelection' => 20
             //      ...
@@ -255,8 +256,21 @@ class Conspiracy extends Table
     }
 
     function canConstructWithNewKey(int $playerId, int $key): bool {
-        // TODO
-        return false;
+        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$playerId"));
+        $locations = $this->getLocationsFromDb($this->locations->getCardsInLocation("player$playerId"));
+        $locationsSpots = array_map(function($location) { return $location->location_arg; }, $locations);
+        $lastLocationSpot = count($locationsSpots) > 0 ? max($locationsSpots) : 0;
+
+        if (self::getGameStateValue('AP_KEYS') == $playerId) { // TODO set value when location is played
+            $keys = count(array_filter($lords, function($lord) use ($lastLocationSpot) { return $lord->location_arg > $lastLocationSpot && $lord->key >= 1; }));
+            
+            return $keys >= 2;
+        } else {
+            $silverKeys = count(array_filter($lords, function($lord) use ($lastLocationSpot) { return $lord->location_arg > $lastLocationSpot && $lord->key === 1; }));
+            $goldKeys = count(array_filter($lords, function($lord) use ($lastLocationSpot) { return $lord->location_arg > $lastLocationSpot && $lord->key === 2; }));
+
+            return $silverKeys >= 2 || $goldKeys >= 2;
+        }
     }
 
     function addExtraLord() {
@@ -325,18 +339,6 @@ class Conspiracy extends Table
         $this->gamestate->nextState('addLord');
     }
 
-    function chooseLocationDeckStack($number) {
-        self::checkAction('chooseDeckStack'); 
-        self::debug('[GBA] chooseLocationDeckStack');
-
-        // TODO
-    }
-
-    function pickLocation($id) {
-        self::debug('[GBA] pickLocation');
-        // TODO
-    }
-
     function switch($spots) {
         self::debug('[GBA] switch');
         self::debug('[GBA] spots='.json_encode($spots));
@@ -349,6 +351,41 @@ class Conspiracy extends Table
         $this->gamestate->nextState('nextPlayer');
     }
 
+    function chooseLocationDeckStack($number) {
+        self::checkAction('chooseDeckStack'); 
+        self::debug('[GBA] chooseLocationDeckStack');
+
+        // TODO
+    }
+
+    function pickLocation($id) {
+        self::debug('[GBA] pickLocation');
+        // TODO
+    }
+
+    function chooseVisibleLocation($id) {        
+        self::debug('[GBA] chooseVisibleLocation');
+        
+        $this->locations->moveCard($id, 'location_pick');
+
+        $this->gamestate->nextState('chooseVisibleLocation');
+    }
+
+    function checkPearlMaster($player_id) {        
+
+        // check Master pearls
+        $masterPearlsPlayer = self::getGameStateValue('masterPearlsPlayer');
+        if ($masterPearlsPlayer !== $player_id) {
+            $newPearlMasterPlayer = intval(self::getUniqueValueFromDB( "SELECT player_id FROM `player` order by player_score_aux desc, player_id = $masterPearlsPlayer limit 1"));
+            
+            if ($newPearlMasterPlayer != $masterPearlsPlayer) {
+                self::notifyAllPlayers('newPearlMaster', clienttranslate('${player_name} becomes the new Pearl Master'), [
+                    'playerId' => $player_id,
+                    'player_name' => self::getActivePlayerName()
+                ]);
+            }
+        }
+    }
     
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state arguments
@@ -422,18 +459,7 @@ class Conspiracy extends Table
             ]);
         }
 
-        // check Master pearls
-        $masterPearlsPlayer = self::getGameStateValue('masterPearlsPlayer');
-        if ($masterPearlsPlayer !== $player_id) {
-            $newPearlMasterPlayer = intval(self::getUniqueValueFromDB( "SELECT player_id FROM `player` order by player_score_aux desc, player_id = $masterPearlsPlayer limit 1"));
-            
-            if ($newPearlMasterPlayer != $masterPearlsPlayer) {
-                self::notifyAllPlayers('newPearlMaster', clienttranslate('${player_name} becomes the new Pearl Master'), [
-                    'playerId' => $player_id,
-                    'player_name' => self::getActivePlayerName()
-                ]);
-            }
-        }
+        $this->checkPearlMaster($player_id);
 
         if ($lord->switch && $this->lords->countCardInLocation("player${player_id}") >= 2) {
             $this->gamestate->nextState('switch');
@@ -444,6 +470,49 @@ class Conspiracy extends Table
         } else {
             $this->gamestate->nextState('nextPlayer');
         }
+    }
+
+    function stAddLocation() {
+        self::debug('[GBA] stAddLocation');
+        self::debug('[GBA] stAddLocation getCardInLordPick '.json_encode(array_values($this->locations->getCardsInLocation('location_pick'))));
+        $location = $this->getLocationFromDb(array_values($this->locations->getCardsInLocation('location_pick'))[0]);
+        self::debug('[GBA] stAddLocation location '.json_encode($location));
+        $player_id = intval(self::getActivePlayerId());
+
+        $spot = $this->lords->countCardInLocation("player${player_id}") + 1;
+        $this->locations->moveCard($location->id, "player${player_id}", $spot);
+
+        $remainingLocations = $this->getLocationsFromDb($this->locations->getCardsInLocation('location_selection'));
+        foreach($remainingLocations as $location) {
+            $this->locations->moveCard($location->id, 'table');
+        }
+        
+        $points = $location->points;
+        $pearls = $location->pearls;
+        self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_aux = player_score_aux + $pearls WHERE player_id = $player_id");
+        
+        self::notifyAllPlayers('locationPlayed', clienttranslate('${player_name} plays location ${card_name}'), [
+            'playerId' => $player_id,
+            'player_name' => self::getActivePlayerName(),
+            'card_name' => 'TODO',
+            'location' => $location,
+            'spot' => $spot,
+            'discardedLocations' => $remainingLocations,
+            'points' => $points,
+            'pearls' => $pearls,
+        ]);
+
+        $this->checkPearlMaster($player_id);
+
+        /* TODO if ($lord->switch && $this->lords->countCardInLocation("player${player_id}") >= 2) {
+            $this->gamestate->nextState('switch');
+        } else if ($lord->key && $this->canConstructWithNewKey($player_id, $lord->key)) {
+            $this->gamestate->nextState('addLocation');
+        } else if (!$stackSelection && $this->lords->countCardInLocation('lord_selection') > 0) {
+            $this->gamestate->nextState('nextLord');
+        } else {*/
+            $this->gamestate->nextState('nextPlayer');
+        /*}*/
     }
 
     function stNextPlayer() {

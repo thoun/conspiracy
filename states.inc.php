@@ -49,8 +49,20 @@
 
 //    !! It is not a good idea to modify this file when a game is running !!
 
+
+$basicGameStates = [
+
+];
+
+$lordGameStates = [
+
+];
+
+$locationGameStates = [
+
+];
  
-$machinestates = array(
+$machinestates = [
 
     // The initial state. Please do not modify.
     ST_BGA_GAME_SETUP => array(
@@ -156,7 +168,7 @@ $machinestates = array(
         "name" => "addLocation",
         "description" => "",
         "type" => "game",
-        // "action" => "stAddLocation",
+        "action" => "stAddLocation",
         "transitions" => array( 
             "discardLords" => ST_DISCARD_LORDS,
             "discardPlaces" => ST_DISCARD_LOCATIONS,
@@ -214,7 +226,7 @@ $machinestates = array(
         "args" => "argGameEnd"
     )
 
-);
+];
 
 
 

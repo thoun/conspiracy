@@ -81,6 +81,15 @@ interface NotifExtraLordRevealedArgs {
     lord: Lord;
 }
 
+interface NotifLocationPlayedArgs {
+    playerId: number;
+    location: Location;
+    spot: number;
+    discardedLocations: Location[];
+    points: number;
+    pearls: number;
+}
+
 interface NotifNewPearlMasterArgs {
     playerId: number;
 }

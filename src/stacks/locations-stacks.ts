@@ -44,6 +44,10 @@ class LocationsStacks extends AbstractStacks<Location> {
         return document.getElementById('location-pick') as HTMLDivElement;
     }
 
+    public discardPick(locations: Location[]) {
+        locations.forEach(location => this.visibleLocationsStock.addToStockWithId(this.getCardUniqueId(location), `${location.id}`));
+    }
+
     protected getCardUniqueId(location: Location) {
         return getUniqueId(location.type, location.passivePowerGuild ?? 0);
     }
@@ -74,16 +78,14 @@ class LocationsStacks extends AbstractStacks<Location> {
         });
     }
 
-    public onVisibleLocationClick(event: MouseEvent) {
-        // TODO
-        console.log(event);
-
-        
+    public onVisibleLocationClick(control_name: string, item_id: string) {
         if(!(this.game as any).checkAction('chooseVisibleLocation')) {
             return;
         }
 
-        this.game.takeAction('chooseVisibleLocation');
+        this.game.takeAction('chooseVisibleLocation', {
+            id: item_id
+        });
     }
 
 }

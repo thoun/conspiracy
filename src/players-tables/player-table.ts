@@ -26,7 +26,7 @@ class PlayerTable {
         Object.entries(spots).forEach(([spotNumber, spot]) => {
             const lord = spot.lord;
             if (lord) {
-            this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), `${lord.id}`);
+                this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), `${lord.id}`);
             }
         });
 
@@ -44,5 +44,9 @@ class PlayerTable {
     
     public addLord(spot: number, lord: Lord) {
         this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), `${lord.id}`);
+    }
+
+    addLocation(spot: number, location: Location) {
+        this.locationsStock.addToStockWithId(getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`);
     }
 }
