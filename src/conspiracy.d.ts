@@ -63,6 +63,10 @@ interface EnteringLocationStackSelectionArgs {
     // TODO
 }
 
+interface EnteringLocationSelectionArgs {
+    locations: Location[];
+}
+
 interface NotifLordVisiblePileArgs {
     guild: number;
     number: number;

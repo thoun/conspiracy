@@ -86,6 +86,10 @@ class Conspiracy implements ConspiracyGame {
             case 'locationStackSelection':
                 this.onEnteringLocationStackSelection(args.args);
                 break;
+
+            case 'locationSelection':
+                this.onEnteringLocationSelection(args.args);
+                break;
         }
     }
 
@@ -103,7 +107,11 @@ class Conspiracy implements ConspiracyGame {
         if ((this as any).isCurrentPlayerActive()) {
             this.locationsStacks.setSelectable(true);
         }
-    }    
+    } 
+
+    onEnteringLocationSelection(args: EnteringLocationSelectionArgs) {
+        this.locationsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.locations);
+    }   
 
     // onLeavingState: this method is called each time we are leaving a game state.
     //                 You can use this method to perform some user interface changes at this moment.
@@ -122,6 +130,10 @@ class Conspiracy implements ConspiracyGame {
             case 'locationStackSelection':
                 this.onLeavingLocationStackSelection();
                 break;
+
+            case 'locationSelection':
+                this.onLeavingLocationSelection();
+                break;
         }
     }
 
@@ -135,6 +147,10 @@ class Conspiracy implements ConspiracyGame {
 
     onLeavingLocationStackSelection() {
         this.locationsStacks.setSelectable(false);
+    }
+
+    onLeavingLocationSelection() {
+        this.locationsStacks.setPick(false, false);
     }
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the

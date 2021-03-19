@@ -244,9 +244,11 @@ var AbstractStacks = /** @class */ (function () {
     };
     AbstractStacks.prototype.setPick = function (showPick, pickSelectable, collection) {
         var _this = this;
+        console.log(this.pickStock);
         this.pickDiv.style.display = showPick ? 'block' : 'none';
         this.pickSelectable = pickSelectable;
         collection === null || collection === void 0 ? void 0 : collection.forEach(function (item) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(item), "" + item.id); });
+        collection === null || collection === void 0 ? void 0 : collection.forEach(function (item) { return console.log(_this.getCardUniqueId(item), "" + item.id); });
     };
     AbstractStacks.prototype.setPickStockClick = function () {
         dojo.connect(this.pickStock, 'onChangeSelection', this, 'pickClick');
@@ -378,6 +380,8 @@ var LocationsStacks = /** @class */ (function (_super) {
         _this.setPickStockClick();
         setupLocationCards([_this.visibleLocationsStock, _this.pickStock]);
         visibleLocations.forEach(function (location) { return _this.visibleLocationsStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
+        pickLocations === null || pickLocations === void 0 ? void 0 : pickLocations.forEach(function (item) { return console.log(_this.getCardUniqueId(item), "" + item.id); });
+        console.log('pickStock', _this.pickStock);
         pickLocations.forEach(function (location) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
         return _this;
     }
@@ -550,6 +554,9 @@ var Conspiracy = /** @class */ (function () {
             case 'locationStackSelection':
                 this.onEnteringLocationStackSelection(args.args);
                 break;
+            case 'locationSelection':
+                this.onEnteringLocationSelection(args.args);
+                break;
         }
     };
     Conspiracy.prototype.onEnteringLordStackSelection = function (args) {
@@ -564,6 +571,9 @@ var Conspiracy = /** @class */ (function () {
         if (this.isCurrentPlayerActive()) {
             this.locationsStacks.setSelectable(true);
         }
+    };
+    Conspiracy.prototype.onEnteringLocationSelection = function (args) {
+        this.locationsStacks.setPick(true, this.isCurrentPlayerActive(), args.locations);
     };
     // onLeavingState: this method is called each time we are leaving a game state.
     //                 You can use this method to perform some user interface changes at this moment.
@@ -580,6 +590,9 @@ var Conspiracy = /** @class */ (function () {
             case 'locationStackSelection':
                 this.onLeavingLocationStackSelection();
                 break;
+            case 'locationSelection':
+                this.onLeavingLocationSelection();
+                break;
         }
     };
     Conspiracy.prototype.onLeavingLordStackSelection = function () {
@@ -590,6 +603,9 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.onLeavingLocationStackSelection = function () {
         this.locationsStacks.setSelectable(false);
+    };
+    Conspiracy.prototype.onLeavingLocationSelection = function () {
+        this.locationsStacks.setPick(false, false);
     };
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).

@@ -180,7 +180,7 @@ class Conspiracy extends Table
         $result['pickLords'] = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
         
         $result['visibleLocations'] = $this->getLocationsFromDb($this->locations->getCardsInLocation('table'));
-        $result['pickLocations'] = $this->getLocationsFromDb($this->locations->getCardsInLocation('location_selection'));
+        $result['pickLocations'] = $this->getLocationsFromDb($this->locations->getCardsInLocation('location_sel'));
 
         // players tables
         $result['playersTables'] = [];
@@ -355,12 +355,29 @@ class Conspiracy extends Table
         self::checkAction('chooseDeckStack'); 
         self::debug('[GBA] chooseLocationDeckStack');
 
-        // TODO
+        $this->locations->pickCardsForLocation($number, 'deck', $number == 1 ? 'location_pick' : 'location_sel');
+
+        $message = $number > 1 ?
+          clienttranslate('${player_name} chooses to take ${number} locations from the deck') :
+          clienttranslate('${player_name} chooses to take ${number} location from the deck');
+        self::notifyAllPlayers('locationDeckNumber', $message, [
+            'player_name' => self::getActivePlayerName(),
+            'number' => $number,
+        ]);
+
+        $this->gamestate->nextState($number == 1 ? 'chooseOneOnStack' : 'chooseDeckStack');
     }
 
     function pickLocation($id) {
         self::debug('[GBA] pickLocation');
-        // TODO
+
+        $location = $this->getLocationFromDb($this->locations->getCard($id));
+        if ($location->location !== 'location_sel') {
+            throw new Error('Picked location is not available');
+        }
+        $this->locations->moveCard($location->id, 'location_pick');
+
+        $this->gamestate->nextState('addLocation');
     }
 
     function chooseVisibleLocation($id) {        
@@ -379,6 +396,7 @@ class Conspiracy extends Table
             $newPearlMasterPlayer = intval(self::getUniqueValueFromDB( "SELECT player_id FROM `player` order by player_score_aux desc, player_id = $masterPearlsPlayer limit 1"));
             
             if ($newPearlMasterPlayer != $masterPearlsPlayer) {
+                self::setGameStateValue('masterPearlsPlayer', $newPearlMasterPlayer);
                 self::notifyAllPlayers('newPearlMaster', clienttranslate('${player_name} becomes the new Pearl Master'), [
                     'playerId' => $player_id,
                     'player_name' => self::getActivePlayerName()
@@ -398,13 +416,13 @@ class Conspiracy extends Table
     */
     
     function argLordSelection() {
-        // Get some values from the current game situation in database...
-        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
-    
-        // return values:
-        return [
-            'lords' => $lords
-        ];
+        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));    
+        return [ 'lords' => $lords ];
+    }
+
+    function argLocationSelection() {
+        $locations = $this->getLocationsFromDb($this->locations->getCardsInLocation('location_sel'));    
+        return [ 'locations' => $locations ];
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -480,7 +498,7 @@ class Conspiracy extends Table
         $spot = $this->lords->countCardInLocation("player${player_id}") + 1;
         $this->locations->moveCard($location->id, "player${player_id}", $spot);
 
-        $remainingLocations = $this->getLocationsFromDb($this->locations->getCardsInLocation('location_selection'));
+        $remainingLocations = $this->getLocationsFromDb($this->locations->getCardsInLocation('location_sel'));
         foreach($remainingLocations as $location) {
             $this->locations->moveCard($location->id, 'table');
         }

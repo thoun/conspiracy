@@ -64,6 +64,9 @@
   margin-right: 10px;
   background-image: url("img/locations.jpg");
 }
+#location-stacks #location-visible-stock {
+  flex: 1;
+}
 
 .stockitem {
   border-radius: 10px;

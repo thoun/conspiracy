@@ -33,6 +33,8 @@ class LocationsStacks extends AbstractStacks<Location> {
         setupLocationCards([this.visibleLocationsStock, this.pickStock]);        
 
         visibleLocations.forEach(location => this.visibleLocationsStock.addToStockWithId(this.getCardUniqueId(location), `${location.id}`));
+        pickLocations?.forEach(item => console.log(this.getCardUniqueId(item), `${item.id}`));
+        console.log('pickStock',this.pickStock);
         pickLocations.forEach(location => this.pickStock.addToStockWithId(this.getCardUniqueId(location), `${location.id}`));
     }
 
