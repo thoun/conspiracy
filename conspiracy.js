@@ -614,6 +614,7 @@ var Conspiracy = /** @class */ (function () {
         if (this.isCurrentPlayerActive()) {
             switch (stateName) {
                 case 'lordSwitch':
+                    this.addActionButton('switch_button', _("TODO switch"), 'onSwitch');
                     this.addActionButton('dontSwitch_button', _("Don't switch"), 'onDontSwitch');
                     break;
             }
@@ -673,6 +674,8 @@ var Conspiracy = /** @class */ (function () {
         if (!this.checkAction('nextPlayer')) {
             return;
         }
+        // TODO remove
+        spots = [1, 2];
         this.takeAction('switch', { spots: spots.join(',') });
     };
     Conspiracy.prototype.onDontSwitch = function () {

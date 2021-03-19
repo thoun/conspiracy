@@ -160,6 +160,7 @@ class Conspiracy implements ConspiracyGame {
         if((this as any).isCurrentPlayerActive()) {
             switch (stateName) {
                 case 'lordSwitch':
+                (this as any).addActionButton( 'switch_button', _("TODO switch"), 'onSwitch' );
                 (this as any).addActionButton( 'dontSwitch_button', _("Don't switch"), 'onDontSwitch' );
                 break;
             }
@@ -232,6 +233,8 @@ class Conspiracy implements ConspiracyGame {
         if(!(this as any).checkAction('nextPlayer')) {
             return;
         }
+        // TODO remove
+        spots = [1,2];
      
         this.takeAction('switch', { spots: spots.join(',') });
     }

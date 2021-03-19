@@ -10,9 +10,12 @@ interface Card {
 }
 
 interface Lord extends Card {
-    guild: number;
-    // TODO
+    guild: number;    
+    key: number; 
+    showExtraLord: boolean;
+    switch: boolean;
 }
+
 interface Location extends Card {
     activePower?: number;
     passivePower?: number;

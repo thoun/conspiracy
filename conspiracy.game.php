@@ -336,16 +336,20 @@ class Conspiracy extends Table
         $this->gamestate->nextState('addLord');
     }
 
-    function switch($spots) {
+    function switch($spotsStr) {
         self::debug('[GBA] switch');
-        self::debug('[GBA] spots='.json_encode($spots));
+
+        $spots = explode(',', $spotsStr);
+        $spot1 = intval($spots[0]);
+        $spot2 = intval($spots[1]);
+
         // TODO switch
         // TODO notif
-        $this->gamestate->nextState('nextPlayer');
+        $this->gamestate->nextState('next');
     }
 
     function dontSwitch() {
-        $this->gamestate->nextState('nextPlayer');
+        $this->gamestate->nextState('next');
     }
 
     function chooseLocationDeckStack($number) {
