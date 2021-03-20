@@ -38,7 +38,6 @@ $this->LORDS = [
 /*
  * Locations
  */
-  
 $this->LOCATIONS_UNIQUE = [
     1 => new LocationCard(7, 0),
     2 => new LocationCard(5, 1),
@@ -61,3 +60,24 @@ $this->LOCATIONS_GUILD = [
 ];
 
 $this->LOCATIONS = $this->LOCATIONS_UNIQUE + $this->LOCATIONS_GUILD;
+
+/*
+ * Coalition
+ */
+$this->NEIGHBOURS = [
+    1 => [2, 6],
+    2 => [3, 6, 7],
+    3 => [4, 7, 8],
+    4 => [5, 8, 9],
+    5 => [9],
+    6 => [7, 10],
+    7 => [8, 10, 11],
+    8 => [9, 11, 12],
+    9 => [12],
+    10 => [11, 13],
+    11 => [12, 13, 14],
+    12 => [14],
+    13 => [14, 15],
+    14 => [15],
+    15 => [],
+];

@@ -112,6 +112,12 @@ interface NotifNewPearlMasterArgs {
 interface NotifScorePointArgs {
     playerId: number;
     points: number;
+    coalition: {
+        spot: number;
+        size: number;
+        $guild: number;
+        alreadyCounted: number[];
+    };
 }
 
 interface NotifScorePearlsArgs {

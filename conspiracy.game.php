@@ -510,23 +510,44 @@ class Conspiracy extends Table
         return $points;
     }
 
-    function getCoalitionSize($player_id, $startingSpot) {
-        // TODO
-        return 1;
+    function getLordInSpot($player_id, $spot) {
+        return $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id", $spot))[0];
     }
 
-    function getScoreCoalition($player_id): int {
-        $topCoalition = 0;
+    function getCoalitionSize($player_id, $coalition, $currentSpot) {
+        $coalition->size++;
+        $coalition->alreadyCounted = array_merge($coalition->alreadyCounted, [$currentSpot]);
+
+        $neighbours = $this->NEIGHBOURS[$currentSpot];
+        $filteredNeigbours = array_filter($neighbours, function($neighbour) use ($neighbours) {
+            return (array_search($neighbour, $neighbours) === false) && 
+                ($coalition->guild === $this->getLordInSpot($player_id, $neighbour)->guild);
+        });
+
+        foreach ($filteredNeigbour as $n) {
+            $coalition->size += $this->getCoalitionSize($player_id, $coalition, $n);
+        }
+    }
+
+    function getScoreTopCoalition($player_id) {
+        $topCoalition = null;
 
         for ($spot=1; $spot<=15; $spot++) {
-            $coalition = $this->getCoalitionSize($player_id, $spot);
+            $coalition = new stdClass();
+            $coalition->spot = $spot;
+            $coalition->size = 0;
+            $coalition->$guild = $this->getLordInSpot($player_id, $spot)->guild;
+            $coalition->alreadyCounted = [];
+            $this->getCoalitionSize($player_id, $coalition, $spot);
             
-            if ($coalition > $topCoalition) {
+            if (!$topCoalition || $coalition->size > $topCoalition->size) {
                 $topCoalition = $coalition;
             }
         }
 
-        return $topCoalition * 3;
+        self::debug('[GBA]coalition='.json_encode($topCoalition));
+
+        return $topCoalition;
     }
     
 //////////////////////////////////////////////////////////////////////////////
@@ -734,7 +755,8 @@ class Conspiracy extends Table
 
         // coalition
         foreach ($players as $player_id => $playerDb) {
-            $points = $this->getScoreCoalition($player_id);
+            $coalition = $this->getScoreTopCoalition($player_id);
+            $points = $coalition->size * 3;
 
             self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_coalition = $points WHERE player_id = $player_id");
 
@@ -742,6 +764,7 @@ class Conspiracy extends Table
                 'playerId' => $player_id,
                 'player_name' => self::getActivePlayerName(),
                 'points' => $points,
+                'coalition' => $coalition,
             ]);
         }
 
