@@ -75,9 +75,12 @@ class PlayerTable {
     public setCanSwitch() {
         this.game.setCanSwitch(this.switchSpots);
     }
+    
+    public lordSwitched(args: NotifLordSwitchedArgs) {
+        const lordSpot1 = this.spotsStock[args.spot1].getLord();
+        const lordSpot2 = this.spotsStock[args.spot2].getLord();
 
-    public moveTopLordToken() {        
-            // TODO place/move top lord token
-        //throw new Error("Method not implemented.");
+        this.spotsStock[args.spot1].setLord(lordSpot2);
+        this.spotsStock[args.spot2].setLord(lordSpot1);
     }
 }

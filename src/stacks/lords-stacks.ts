@@ -1,12 +1,3 @@
-/*declare const define;
-declare const ebg;
-declare const $;
-declare const dojo: Dojo;
-declare const _;
-declare const g_gamethemeurl;
-
-declare const board: HTMLDivElement;*/
-
 class LordsStacks extends AbstractStacks<Lord> {
     private lordsStocks: LordStock[] = [];
 
@@ -50,11 +41,11 @@ class LordsStacks extends AbstractStacks<Lord> {
 
     public discardPick(lords: Lord[]) {
         const guilds = new Set(lords.map(lord => lord.guild));
-        guilds.forEach(guild => this.lordsStocks[guild].addLords(lords.filter(lord => lord.guild === guild))); // TODO maintain visibleLords ?
+        guilds.forEach(guild => this.lordsStocks[guild].addLords(lords.filter(lord => lord.guild === guild)));
     }
 
     public discardVisibleLordPile(guild: number) {
-        this.lordsStocks[guild].removeLords(); // TODO maintain visibleLords ?
+        this.lordsStocks[guild].removeLords();
     }
 
     public getCardUniqueId(lord: Lord) {

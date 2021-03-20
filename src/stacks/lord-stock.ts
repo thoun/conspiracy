@@ -164,7 +164,7 @@ class LordStock {
 
     removeLords() {
         this.visibleLords = [];
-        this.stock.removeAll();
+        this.stock.items.forEach(item => this.stock.removeFromStockById(item.id));
         this.updateSize();
     }
 

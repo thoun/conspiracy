@@ -161,14 +161,12 @@ class Conspiracy extends Table
     protected function getAllDatas() {
         $result = array();
     
-        $current_player_id = self::getCurrentPlayerId();    // !! We must only return informations visible by this player !!
+        $current_player_id = self::getCurrentPlayerId();
     
-        // Get information about players
-        // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
         $sql = "SELECT player_id id, player_score score, player_score_aux pearls FROM player ";
         $result['players'] = self::getCollectionFromDb( $sql );
   
-        // Gather all information about current game situation (visible by player $current_player_id).
+        // Gather all information about current game situation.
 
         $result['visibleLords'] = [];
         for ($guild=1; $guild<=5; $guild++) {
@@ -343,8 +341,21 @@ class Conspiracy extends Table
         $spot1 = intval($spots[0]);
         $spot2 = intval($spots[1]);
 
-        // TODO switch
-        // TODO notif
+        $player_id = intval(self::getActivePlayerId());
+
+        $cardSpot1 = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id", $spot1))[0];
+        $cardSpot2 = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id", $spot2))[0];
+
+        $this->lords->moveCard($cardSpot1->id, "player$player_id", $spot2);
+        $this->lords->moveCard($cardSpot2->id, "player$player_id", $spot1);
+
+        self::notifyAllPlayers('lordSwitched', clienttranslate('${player_name} switches two lords'), [
+            'playerId' => $player_id,
+            'player_name' => self::getActivePlayerName(),
+            'spot1' => $spot1,
+            'spot2' => $spot2,
+        ]);
+
         $this->gamestate->nextState('next');
     }
 

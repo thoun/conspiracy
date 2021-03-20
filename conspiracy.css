@@ -80,6 +80,7 @@
 #players-tables .player-table {
   position: relative;
   height: 1035px;
+  margin-top: 10px;
 }
 
 .player-table-spot {
@@ -93,59 +94,59 @@
 }
 .player-table-spot.spot2 {
   top: 0;
-  left: 207.26px;
+  left: 212.26px;
 }
 .player-table-spot.spot3 {
   top: 0;
-  left: 414.52px;
+  left: 424.52px;
 }
 .player-table-spot.spot4 {
   top: 0;
-  left: 621.78px;
+  left: 636.78px;
 }
 .player-table-spot.spot5 {
   top: 0;
-  left: 829.04px;
+  left: 849.04px;
 }
 .player-table-spot.spot6 {
-  top: 207px;
-  left: 103.63px;
+  top: 212px;
+  left: 106.13px;
 }
 .player-table-spot.spot7 {
-  top: 207px;
-  left: 310.89px;
+  top: 212px;
+  left: 318.39px;
 }
 .player-table-spot.spot8 {
-  top: 207px;
-  left: 518.15px;
+  top: 212px;
+  left: 530.65px;
 }
 .player-table-spot.spot9 {
-  top: 207px;
-  left: 725.41px;
+  top: 212px;
+  left: 742.91px;
 }
 .player-table-spot.spot10 {
-  top: 414px;
-  left: 207.26px;
+  top: 424px;
+  left: 212.26px;
 }
 .player-table-spot.spot11 {
-  top: 414px;
-  left: 414.52px;
+  top: 424px;
+  left: 424.52px;
 }
 .player-table-spot.spot12 {
-  top: 414px;
-  left: 621.78px;
+  top: 424px;
+  left: 636.78px;
 }
 .player-table-spot.spot13 {
-  top: 621px;
-  left: 310.89px;
+  top: 636px;
+  left: 318.39px;
 }
 .player-table-spot.spot14 {
-  top: 621px;
-  left: 518.15px;
+  top: 636px;
+  left: 530.65px;
 }
 .player-table-spot.spot15 {
-  top: 828px;
-  left: 414.52px;
+  top: 848px;
+  left: 424.52px;
 }
 .player-table-spot .stockitem.disabled {
   cursor: not-allowed;

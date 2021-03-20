@@ -186,7 +186,6 @@ class Conspiracy implements ConspiracyGame {
             html += `</div>`;
             dojo.place(html, `player_board_${player.id}`);
 
-            // TODO add color indicators
             dojo.place(`<div class="pearl-counter">
                 <div class="token pearl"></div> 
                 <span id="pearl-counter-${player.id}"></span>
@@ -310,6 +309,7 @@ class Conspiracy implements ConspiracyGame {
         const notifs = [
             ['lordVisiblePile', 1],
             ['lordPlayed', 1],
+            ['lordSwitched', 1],
             ['extraLordRevealed', 1],
             ['locationPlayed', 1],
             ['discardLords', 1],
@@ -331,14 +331,15 @@ class Conspiracy implements ConspiracyGame {
 
     notif_lordPlayed(notif: Notif<NotifLordPlayedArgs>) {
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);
-        if (notif.args.points) {
-            this.playersTables[notif.args.playerId].moveTopLordToken();
-        }
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         if (notif.args.discardedLords?.length) {
             this.lordsStacks.discardPick(notif.args.discardedLords);
         }
+    }
+
+    notif_lordSwitched(notif: Notif<NotifLordSwitchedArgs>) {
+        this.playersTables[notif.args.playerId].lordSwitched(notif.args);
     }
 
     notif_extraLordRevealed(notif: Notif<NotifExtraLordRevealedArgs>) {

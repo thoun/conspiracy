@@ -1,39 +1,42 @@
+$lord-left-margin: 5px;
+$lord-top-margin: 5px;
+
 .player-table-spot {
     position: absolute;
     min-width: 210px;
     display: inline-block;
 
     @for $i from 1 through 5 {
-        &.spot#{$i}{
+        &.spot#{$i} {
             top: 0;
-            left: $lord-width * ($i - 1);
+            left: ($lord-width + $lord-left-margin) * ($i - 1);
         }
     }
 
     @for $i from 6 through 9 {
-        &.spot#{$i}{
-            top: $lord-height;
-            left: $lord-width * ($i - 5.5);
+        &.spot#{$i} {
+            top: $lord-height + $lord-top-margin;
+            left: ($lord-width + $lord-left-margin) * ($i - 5.5);
         }
     }
 
     @for $i from 10 through 12 {
-        &.spot#{$i}{
-            top: $lord-height * 2;
-            left: $lord-width * ($i - 9);
+        &.spot#{$i} {
+            top: ($lord-height + $lord-top-margin) * 2;
+            left: ($lord-width + $lord-left-margin) * ($i - 9);
         }
     }
 
     @for $i from 13 through 14 {
-        &.spot#{$i}{
-            top: $lord-height * 3;
-            left: $lord-width * ($i - 11.5);
+        &.spot#{$i} {
+            top: ($lord-height + $lord-top-margin) * 3;
+            left: ($lord-width + $lord-left-margin) * ($i - 11.5);
         }
     }
 
-    &.spot15{
-        top: $lord-height * 4;
-        left: $lord-width * 2;
+    &.spot15 {
+        top: ($lord-height + $lord-top-margin) * 4;
+        left: ($lord-width + $lord-left-margin) * 2;
     }
 
     

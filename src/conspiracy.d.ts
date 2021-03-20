@@ -78,6 +78,12 @@ interface NotifLordPlayedArgs {
     pearls: number;
 }
 
+interface NotifLordSwitchedArgs {
+    playerId: number;
+    spot1: number;
+    spot2: number;
+}
+
 interface NotifExtraLordRevealedArgs {
     lord: Lord;
 }
