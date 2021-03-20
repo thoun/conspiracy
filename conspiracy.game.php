@@ -163,7 +163,7 @@ class Conspiracy extends Table
     
         $current_player_id = self::getCurrentPlayerId();
     
-        $sql = "SELECT player_id id, player_score score, player_score_aux pearls FROM player ";
+        $sql = "SELECT player_id id, player_score score, player_score_aux pearls, player_score_lords lords, player_score_locations locations, player_score_coalition coalition FROM player ";
         $result['players'] = self::getCollectionFromDb( $sql );
   
         // Gather all information about current game situation.
@@ -183,7 +183,7 @@ class Conspiracy extends Table
             $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id"));
             $locations = $this->getLocationsFromDb($this->locations->getCardsInLocation("player$player_id"));
             $result['playersTables'][$player_id] = [];
-            for($spot=1;$spot<=15;$spot++) {
+            for($spot=1; $spot<=15; $spot++) {
                 $result['playersTables'][$player_id][$spot] = new PlayerTableSpot(
                     current(array_filter($lords, function($lord) use ($spot) { return $lord->location_arg === $spot; })),
                     current(array_filter($locations, function($location) use ($spot) { return $location->location_arg === $spot; }))
@@ -192,6 +192,21 @@ class Conspiracy extends Table
         }
 
         $result['masterPearlsPlayer'] = intval(self::getGameStateValue('masterPearlsPlayer'));
+
+        $stateName = $this->gamestate->state()['name']; 
+
+        if ($stateName === 'showScore' || $stateName === 'showScore') {
+            foreach( $result['players'] as $player_id => $playerDb ) {
+                $detailedScore = new stdClass();
+                $detailedScore->lords = intval($playerDb['lords']);
+                $detailedScore->locations = intval($playerDb['locations']);
+                $detailedScore->coalition = intval($playerDb['coalition']);
+                $detailedScore->pearls = intval($playerDb['pearls']);
+                $detailedScore->pearlMaster = $result['masterPearlsPlayer'] == $player_id ? 5 : 0;
+
+                $result['players']['detailedScore'] = $detailedScore;
+            }
+        }
   
         return $result;
     }
@@ -618,6 +633,11 @@ class Conspiracy extends Table
     }
 
     function stShowScore() {
+/*
+        ALTER TABLE `player` ADD `player_score_lords` int(10);
+ALTER TABLE `player` ADD `player_score_locations` int(10);
+ALTER TABLE `player` ADD `player_score_coalition` int(10);
+*/
         // TODO NOTIFS
         $this->gamestate->nextState('endGame');
     }

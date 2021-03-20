@@ -596,6 +596,9 @@ var Conspiracy = /** @class */ (function () {
         this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords, gamedatas.pickLords);
         this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations, gamedatas.pickLocations);
         this.createPlayerTables(gamedatas);
+        if (Number(gamedatas.gamestate.id) >= 80) { // score or end
+            this.onEnteringShowScore();
+        }
         this.setupNotifications();
         console.log("Ending game setup");
     };
@@ -622,6 +625,9 @@ var Conspiracy = /** @class */ (function () {
             case 'locationSelection':
                 this.onEnteringLocationSelection(args.args);
                 break;
+            case 'showScore':
+                this.onEnteringShowScore();
+                break;
         }
     };
     Conspiracy.prototype.onEnteringLordStackSelection = function () {
@@ -644,6 +650,14 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.onEnteringLocationSelection = function (args) {
         this.locationsStacks.setPick(true, this.isCurrentPlayerActive(), args.locations);
+    };
+    Conspiracy.prototype.onEnteringShowScore = function () {
+        document.getElementById('stacks').style.display = 'none';
+        document.getElementById('score').style.display = 'flex';
+        Object.values(this.gamedatas.players).forEach(function (player) {
+            var detailedScore = player.detailedScore;
+            dojo.place("<tr>\n                <td class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.lords) !== undefined ? detailedScore.lords : '') + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.locations) !== undefined ? detailedScore.locations : '') + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.coalition) !== undefined ? detailedScore.coalition : '') + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.pearls) !== undefined ? detailedScore.pearls : '') + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.pearlMaster) !== undefined ? detailedScore.pearlMaster : '') + "</td>\n            </tr>", 'score-table-body');
+        });
     };
     // onLeavingState: this method is called each time we are leaving a game state.
     //                 You can use this method to perform some user interface changes at this moment.

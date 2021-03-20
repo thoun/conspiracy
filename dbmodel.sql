@@ -37,3 +37,7 @@ CREATE TABLE IF NOT EXISTS `location` (
    `card_location_arg` int(11),
    PRIMARY KEY (`card_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `player` ADD `player_score_lords` int(10);
+ALTER TABLE `player` ADD `player_score_locations` int(10);
+ALTER TABLE `player` ADD `player_score_coalition` int(10);

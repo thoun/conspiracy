@@ -79,7 +79,7 @@
 }
 #players-tables .player-table {
   position: relative;
-  height: 1035px;
+  height: 1060px;
   margin-top: 10px;
 }
 
@@ -218,6 +218,33 @@
 }
 .pearl-counter span {
   margin-left: 10px;
+}
+
+#score {
+  display: none;
+  justify-content: center;
+}
+#score table {
+  width: 620px;
+  background: url("img/score.jpg");
+  box-shadow: 2px 2px 5px 5px black;
+}
+#score table tr {
+  height: 125px;
+}
+#score table tr td {
+  width: 105px;
+  max-width: 105px;
+  text-align: center;
+}
+#score table tr td:not(:first-child) {
+  font-size: 150%;
+  text-shadow: 1px 1px 1px white;
+}
+#score table tr td.player-name {
+  font-weight: bold;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  word-break: break-all;
 }
 
 html {

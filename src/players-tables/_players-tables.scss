@@ -2,6 +2,8 @@ $lord-width: 207.26px;
 $lord-height: 207px;
 $location-width: 186.24px;
 $location-height: 124px;
+$lord-left-margin: 5px;
+$lord-top-margin: 5px;
 
 #players-tables {
     .player-name {
@@ -11,7 +13,7 @@ $location-height: 124px;
 
     .player-table {
         position: relative;
-        height: $lord-height * 5;
+        height: ($lord-height + $lord-top-margin) * 5;
         margin-top: 10px;
     }
 }

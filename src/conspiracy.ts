@@ -46,6 +46,10 @@ class Conspiracy implements ConspiracyGame {
 
         this.createPlayerTables(gamedatas);
 
+        if (Number(gamedatas.gamestate.id) >= 80) { // score or end
+            this.onEnteringShowScore();
+        }
+
         this.setupNotifications();
 
         console.log( "Ending game setup" );
@@ -74,9 +78,12 @@ class Conspiracy implements ConspiracyGame {
             case 'locationStackSelection':
                 this.onEnteringLocationStackSelection();
                 break;
-
             case 'locationSelection':
                 this.onEnteringLocationSelection(args.args);
+                break;
+
+            case 'showScore':
+                this.onEnteringShowScore();
                 break;
         }
     }
@@ -107,6 +114,24 @@ class Conspiracy implements ConspiracyGame {
         this.locationsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.locations);
     }   
 
+    onEnteringShowScore() {
+        document.getElementById('stacks').style.display = 'none';
+        document.getElementById('score').style.display = 'flex';
+
+        Object.values(this.gamedatas.players).forEach(player => {
+            const detailedScore: DetailedScore = (player as any).detailedScore;
+            
+            dojo.place(`<tr>
+                <td class="player-name" style="color: #${player.color}">${player.name}</td>
+                <td>${detailedScore?.lords !== undefined ? detailedScore.lords : ''}</td>
+                <td>${detailedScore?.locations !== undefined ? detailedScore.locations : ''}</td>
+                <td>${detailedScore?.coalition !== undefined ? detailedScore.coalition : ''}</td>
+                <td>${detailedScore?.pearls !== undefined ? detailedScore.pearls : ''}</td>
+                <td>${detailedScore?.pearlMaster !== undefined ? detailedScore.pearlMaster : ''}</td>
+            </tr>`, 'score-table-body');
+        });
+    }
+
     // onLeavingState: this method is called each time we are leaving a game state.
     //                 You can use this method to perform some user interface changes at this moment.
     //
@@ -127,7 +152,6 @@ class Conspiracy implements ConspiracyGame {
             case 'locationStackSelection':
                 this.onLeavingLocationStackSelection();
                 break;
-
             case 'locationSelection':
                 this.onLeavingLocationSelection();
                 break;

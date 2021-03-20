@@ -27,6 +27,14 @@ interface PlayerTableSpot {
     location?: Location;
 }
 
+interface DetailedScore {
+    lords: number;
+    locations: number;
+    coalition: number;
+    pearls: number;
+    pearlMaster: number;
+}
+
 interface ConspiracyGamedatas {
     current_player_id: string;
     decision: {decision_type: string};

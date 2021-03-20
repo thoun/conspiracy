@@ -1,0 +1,31 @@
+#score {
+    display: none;
+    justify-content: center;
+
+    table {
+        width: 620px;
+        background: url('img/score.jpg');
+        box-shadow: 2px 2px 5px 5px black;
+
+        tr {
+            height: 125px;
+
+            td {
+                width: 105px;
+                max-width: 105px;
+                text-align: center;
+
+                &:not(:first-child) {
+                    font-size: 150%;
+                    text-shadow: 1px 1px 1px white;
+                }
+
+                &.player-name {
+                    font-weight: bold;
+                    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+                    word-break: break-all;
+                }
+            }
+        }
+    }
+}
