@@ -491,11 +491,10 @@ class Conspiracy extends Table
     */
 
     function stPlayLord() {
-        self::debug('[GBA] stPlayLord');
-        self::debug('[GBA] stPlayLord getCardsInLordPick '.json_encode(array_values($this->lords->getCardsInLocation('lord_pick'))));
         $lord = $this->getLordFromDb(array_values($this->lords->getCardsInLocation('lord_pick'))[0]);
-        self::debug('[GBA] stPlayLord lord '.json_encode($lord));
         $player_id = intval(self::getActivePlayerId());
+        
+        $topLordPoints = $this->getTopLordPoints($player_id, $lord->guild);
 
         $spot = $this->lords->countCardInLocation("player${player_id}") + 1;
         $this->lords->moveCard($lord->id, "player${player_id}", $spot);
@@ -505,7 +504,7 @@ class Conspiracy extends Table
             $remainingLords = $this->placeRemainingLordSelectionToTable();
         }
 
-        $topLordPoints = $this->getTopLordPoints($player_id, $lord->guild);
+        self::debug('[GBA] points '.$topLordPoints. ' '.$lord->points);
         $points = 0;
         if ($lord->points > $topLordPoints) {
             $points = $lord->points - $topLordPoints;
