@@ -570,6 +570,7 @@ var PlayerTable = /** @class */ (function () {
     };
     return PlayerTable;
 }());
+var SCORE_MS = 2000;
 var Conspiracy = /** @class */ (function () {
     function Conspiracy() {
         this.playersTables = [];
@@ -656,7 +657,7 @@ var Conspiracy = /** @class */ (function () {
         document.getElementById('score').style.display = 'flex';
         Object.values(this.gamedatas.players).forEach(function (player) {
             var detailedScore = player.detailedScore;
-            dojo.place("<tr>\n                <td class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.lords) !== undefined ? detailedScore.lords : '') + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.locations) !== undefined ? detailedScore.locations : '') + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.coalition) !== undefined ? detailedScore.coalition : '') + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.pearls) !== undefined ? detailedScore.pearls : '') + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.pearlMaster) !== undefined ? detailedScore.pearlMaster : '') + "</td>\n            </tr>", 'score-table-body');
+            dojo.place("<tr id=\"score" + player.id + "\">\n                <td class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.lords) !== undefined ? detailedScore.lords : '') + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.locations) !== undefined ? detailedScore.locations : '') + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.coalition) !== undefined ? detailedScore.coalition : '') + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.pearls) !== undefined ? detailedScore.pearls : '') + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.pearlMaster) !== undefined ? detailedScore.pearlMaster : '') + "</td>\n            </tr>", 'score-table-body');
         });
     };
     // onLeavingState: this method is called each time we are leaving a game state.
@@ -809,6 +810,9 @@ var Conspiracy = /** @class */ (function () {
         }*/
         this.takeAction('dontSwitch');
     };
+    Conspiracy.prototype.setScore = function (playerId, column, score) {
+        document.getElementById("score" + playerId).childNodes[column].innerHTML = "" + score;
+    };
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
     /*
@@ -832,6 +836,11 @@ var Conspiracy = /** @class */ (function () {
             ['discardLords', 1],
             ['discardLocations', 1],
             ['newPearlMaster', 1],
+            ['scoreLords', SCORE_MS],
+            ['scoreLocations', SCORE_MS],
+            ['scoreCoalition', SCORE_MS],
+            ['scorePearls', SCORE_MS],
+            ['scorePearlMaster', SCORE_MS],
         ];
         notifs.forEach(function (notif) {
             dojo.subscribe(notif[0], _this, "notif_" + notif[0]);
@@ -874,6 +883,22 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.notif_newPearlMaster = function (notif) {
         this.placePearlMasterToken(notif.args.playerId);
+    };
+    Conspiracy.prototype.notif_scoreLords = function (notif) {
+        this.setScore(notif.args.playerId, 1, notif.args.points);
+    };
+    Conspiracy.prototype.notif_scoreLocations = function (notif) {
+        this.setScore(notif.args.playerId, 2, notif.args.points);
+    };
+    Conspiracy.prototype.notif_scoreCoalition = function (notif) {
+        this.setScore(notif.args.playerId, 3, notif.args.points);
+    };
+    Conspiracy.prototype.notif_scorePearls = function (notif) {
+        this.setScore(notif.args.playerId, 4, notif.args.pearls);
+    };
+    Conspiracy.prototype.notif_scorePearlMaster = function (notif) {
+        var _this = this;
+        Object.keys(this.gamedatas.players).forEach(function (playerId) { return _this.setScore(playerId, 5, notif.args.playerId == Number(playerId) ? 5 : 0); });
     };
     return Conspiracy;
 }());

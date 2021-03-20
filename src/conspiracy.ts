@@ -7,6 +7,8 @@ declare const g_gamethemeurl;
 
 declare const board: HTMLDivElement;
 
+const SCORE_MS = 2000;
+
 class Conspiracy implements ConspiracyGame {
     private gamedatas: ConspiracyGamedatas;
     private lordsStacks: LordsStacks;
@@ -120,8 +122,8 @@ class Conspiracy implements ConspiracyGame {
 
         Object.values(this.gamedatas.players).forEach(player => {
             const detailedScore: DetailedScore = (player as any).detailedScore;
-            
-            dojo.place(`<tr>
+
+            dojo.place(`<tr id="score${player.id}">
                 <td class="player-name" style="color: #${player.color}">${player.name}</td>
                 <td>${detailedScore?.lords !== undefined ? detailedScore.lords : ''}</td>
                 <td>${detailedScore?.locations !== undefined ? detailedScore.locations : ''}</td>
@@ -315,6 +317,10 @@ class Conspiracy implements ConspiracyGame {
         this.takeAction('dontSwitch');
     }
 
+    private setScore(playerId: number | string, column: number, score: number) { // column 1 for lord ... 5 for pearl master
+        (document.getElementById(`score${playerId}`).childNodes[column] as HTMLTableDataCellElement).innerHTML = `${score}`;
+    }
+
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
 
@@ -339,6 +345,11 @@ class Conspiracy implements ConspiracyGame {
             ['discardLords', 1],
             ['discardLocations', 1],
             ['newPearlMaster', 1],
+            ['scoreLords', SCORE_MS],
+            ['scoreLocations', SCORE_MS],
+            ['scoreCoalition', SCORE_MS],
+            ['scorePearls', SCORE_MS],
+            ['scorePearlMaster', SCORE_MS],
         ];
     
         notifs.forEach((notif) => {
@@ -391,31 +402,24 @@ class Conspiracy implements ConspiracyGame {
     notif_newPearlMaster(notif: Notif<NotifNewPearlMasterArgs>) {
         this.placePearlMasterToken(notif.args.playerId);
     }
-/*
-    notif_removeDuplicates(notif: Notif<NotifRemoveDuplicatesArgs>) {
-        notif.args.playersId.forEach(playerId => this.casinos[notif.args.casino].removeDices(playerId));
+
+    notif_scoreLords(notif: Notif<NotifScorePointArgs>) {
+        this.setScore(notif.args.playerId, 1, notif.args.points);
     }
 
-    notif_collectBanknote(notif: Notif<NotifCollectBanknoteArgs>) {
-        this.casinos[notif.args.casino].slideBanknoteTo(notif.args.id, notif.args.playerId);
-        const points = notif.args.value;
-        (this as any).scoreCtrl[notif.args.playerId].incValue(points);
-        this.setScoreSuffix(notif.args.playerId);
-
-        (this as any).displayScoring( `banknotes${notif.args.casino}`, this.gamedatas.players[notif.args.playerId].color, points*10000, END_TURN_ANIMATIONS_DURATION);
-        this.casinos[notif.args.casino].removeDices(notif.args.playerId);
+    notif_scoreLocations(notif: Notif<NotifScorePointArgs>) {
+        this.setScore(notif.args.playerId, 2, notif.args.points);
     }
 
-    notif_removeBanknote(notif: Notif<NotifRemoveBanknoteArgs>) {
-        this.casinos[notif.args.casino].removeBanknote(notif.args.id);
+    notif_scoreCoalition(notif: Notif<NotifScorePointArgs>) {
+        this.setScore(notif.args.playerId, 3, notif.args.points);
     }
 
-    notif_removeDices(notif: Notif<NotifRemoveDicesArgs>) {
-        this.casinos.forEach(casino => casino.removeDices());
-        this.dicesCounters.forEach(dicesCounter => dicesCounter.setValue(notif.args.resetDicesNumber.player));
-        if (this.isVariant()) {
-            this.dicesCountersNeutral.forEach(dicesCounter => dicesCounter.setValue(notif.args.resetDicesNumber.neutral));
-        }
-    }*/
+    notif_scorePearls(notif: Notif<NotifScorePearlsArgs>) {
+        this.setScore(notif.args.playerId, 4, notif.args.pearls);
+    }
 
+    notif_scorePearlMaster(notif: Notif<NotifScorePearlMasterArgs>) {
+        Object.keys(this.gamedatas.players).forEach(playerId => this.setScore(playerId, 5, notif.args.playerId == Number(playerId) ? 5 : 0));
+    }
 }

@@ -109,24 +109,16 @@ interface NotifNewPearlMasterArgs {
     playerId: number;
 }
 
-/*
-interface NotifRemoveDuplicatesArgs {
-    casino: number;
-    duplicatesValues: number[];
-    playersId: number[];
-}
-
-interface NotifCollectBanknoteArgs {
-    casino: number;
+interface NotifScorePointArgs {
     playerId: number;
-    id: number;
-    value: number;
+    points: number;
 }
 
-interface NotifRemoveBanknoteArgs {
-    casino: number;
-    id: number;
+interface NotifScorePearlsArgs {
+    playerId: number;
+    pearls: number;
 }
-interface NotifRemoveDicesArgs {
-    resetDicesNumber: DicesCount;
-}*/
+
+interface NotifScorePearlMasterArgs {
+    playerId: number;
+}

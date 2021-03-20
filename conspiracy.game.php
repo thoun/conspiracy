@@ -194,18 +194,19 @@ class Conspiracy extends Table
         $result['masterPearlsPlayer'] = intval(self::getGameStateValue('masterPearlsPlayer'));
 
         $stateName = $this->gamestate->state()['name']; 
+        $isEnd = $stateName === 'showScore' || $stateName === 'showScore';
 
-        if ($stateName === 'showScore' || $stateName === 'showScore') {
-            foreach( $result['players'] as $player_id => $playerDb ) {
-                $detailedScore = new stdClass();
+        foreach( $result['players'] as $player_id => $playerDb ) {
+            $detailedScore = new stdClass();
+            if ($isEnd) {
                 $detailedScore->lords = intval($playerDb['lords']);
                 $detailedScore->locations = intval($playerDb['locations']);
                 $detailedScore->coalition = intval($playerDb['coalition']);
                 $detailedScore->pearls = intval($playerDb['pearls']);
                 $detailedScore->pearlMaster = $result['masterPearlsPlayer'] == $player_id ? 5 : 0;
-
-                $result['players']['detailedScore'] = $detailedScore;
             }
+
+            $result['players']['detailedScore'] = $detailedScore;
         }
   
         return $result;
@@ -460,6 +461,73 @@ class Conspiracy extends Table
 
         return count($switchableLords) >= 2;
     }
+
+    function getScoreLords($player_id): int {
+        $points = 0;
+
+        for ($guild=1; $guild<=5; $guild++) {
+            $points += $this->getTopLordPoints($player_id, $guild);
+        }
+
+        return $points;
+    }
+
+    function getScoreLocations($player_id, $pearls): int {
+        $points = 0;
+
+        $locations = $this->getLocationsFromDb($this->locations->getCardsInLocation("player$player_id"));
+
+        foreach($locations as $location) {
+            $points += $location->points;
+
+            if ($location->passivePower === PP_SILVER_KEYS) {
+                $points += count(array_values(array_filter($locations, function($location) { return $location->key === 1; })));
+            }
+
+            if ($location->passivePower === PP_GOLD_KEYS) {
+                $points += count(array_values(array_filter($locations, function($location) { return $location->key === 2; }))) * 2;
+            }
+
+            if ($location->passivePower === PP_PEARLS) {
+                $points += floor($pearls / 2);
+            }
+
+            if ($location->passivePower === PP_LOCATIONS) {
+                $points += count($locations) * 2;
+            }
+
+            if ($location->passivePower === PP_LORD_MAX) {
+                $points += $this->getTopLordPoints($player_id, $location->passivePowerGuild);
+            }
+
+            if ($location->passivePower === PP_LORD_COUNT) {
+                $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id"));
+                $guild = $location->passivePowerGuild;
+                $points += count(array_values(array_filter($lords, function($lord) use ($guild) { return $lord->guild == $guild; })));
+            }
+        }
+
+        return $points;
+    }
+
+    function getCoalitionSize($player_id, $startingSpot) {
+        // TODO
+        return 1;
+    }
+
+    function getScoreCoalition($player_id): int {
+        $topCoalition = 0;
+
+        for ($spot=1; $spot<=15; $spot++) {
+            $coalition = $this->getCoalitionSize($player_id, $spot);
+            
+            if ($coalition > $topCoalition) {
+                $topCoalition = $coalition;
+            }
+        }
+
+        return $topCoalition * 3;
+    }
     
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state arguments
@@ -493,7 +561,7 @@ class Conspiracy extends Table
     function stPlayLord() {
         $lord = $this->getLordFromDb(array_values($this->lords->getCardsInLocation('lord_pick'))[0]);
         $player_id = intval(self::getActivePlayerId());
-        
+
         $topLordPoints = $this->getTopLordPoints($player_id, $lord->guild);
 
         $spot = $this->lords->countCardInLocation("player${player_id}") + 1;
@@ -632,12 +700,71 @@ class Conspiracy extends Table
     }
 
     function stShowScore() {
-/*
-        ALTER TABLE `player` ADD `player_score_lords` int(10);
-ALTER TABLE `player` ADD `player_score_locations` int(10);
-ALTER TABLE `player` ADD `player_score_coalition` int(10);
-*/
-        // TODO NOTIFS
+        $sql = "SELECT player_id id, player_name, player_score_aux pearls FROM player";
+        $players = self::getCollectionFromDb($sql);
+
+        // we reinit points as we gave points for lords & locations
+        self::DbQuery("UPDATE player SET player_score = 0");
+
+        // lords 
+        foreach ($players as $player_id => $playerDb) {
+            $points = $this->getScoreLords($player_id);
+
+            self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_lords = $points WHERE player_id = $player_id");
+
+            self::notifyAllPlayers('scoreLords', clienttranslate('${player_name} wins ${points} points with lords'), [
+                'playerId' => $player_id,
+                'player_name' => self::getActivePlayerName(),
+                'points' => $points,
+            ]);
+        }
+
+        // locations
+        foreach ($players as $player_id => $playerDb) {
+            $points = $this->getScoreLocations($player_id, intval($playerDb['pearls']));
+
+            self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_locations = $points WHERE player_id = $player_id");
+
+            self::notifyAllPlayers('scoreLocations', clienttranslate('${player_name} wins ${points} points with locations'), [
+                'playerId' => $player_id,
+                'player_name' => self::getActivePlayerName(),
+                'points' => $points,
+            ]);
+        }
+
+        // coalition
+        foreach ($players as $player_id => $playerDb) {
+            $points = $this->getScoreCoalition($player_id);
+
+            self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_coalition = $points WHERE player_id = $player_id");
+
+            self::notifyAllPlayers('scoreCoalition', clienttranslate('${player_name} wins ${points} points with greatest Lords Coalition'), [
+                'playerId' => $player_id,
+                'player_name' => self::getActivePlayerName(),
+                'points' => $points,
+            ]);
+        }
+
+        // pearls
+        foreach ($players as $player_id => $playerDb) {
+            self::notifyAllPlayers('scorePearls', clienttranslate('${player_name} has ${pearls} pearls'), [
+                'playerId' => $player_id,
+                'player_name' => self::getActivePlayerName(),
+                'pearls' => intval($playerDb['pearls']),
+            ]);
+        }
+
+        // pearl master
+        $pearlMaster = intval(self::getGameStateValue('masterPearlsPlayer'));
+        $playerDb = array_values(array_filter($players, function($player) use ($pearlMaster) { return intval($player['id']) == $pearlMaster; }))[0];
+
+        self::DbQuery("UPDATE player SET player_score = player_score + 5 WHERE player_id = $pearlMaster");
+
+        self::notifyAllPlayers('scorePearlMaster', clienttranslate('${player_name} is the Pearl Master and wins 5 points'), [
+            'playerId' => $pearlMaster,
+            'player_name' => self::getActivePlayerName()
+        ]);
+
         $this->gamestate->nextState('endGame');
     }
 

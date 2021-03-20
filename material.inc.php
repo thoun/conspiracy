@@ -48,12 +48,12 @@ $this->LOCATIONS_UNIQUE = [
     6 => new LocationCard(0, 0, null, PP_GOLD_KEYS),
     7 => new LocationCard(0, 0, null, PP_PEARLS),
     8 => new LocationCard(0, 0, null, PP_LOCATIONS),
-    9 => new LocationCard(0, 0, AP_FIRST_LORD),
-    10 => new LocationCard(0, 0, AP_FIRST_LORDS),
+    9 => new LocationCard(0, 0, AP_FIRST_LORD), // TODO
+    10 => new LocationCard(0, 0, AP_FIRST_LORDS), // TODO
     11 => new LocationCard(0, 0, AP_DISCARD_LORDS),
     12 => new LocationCard(0, 0, AP_DISCARD_LOCATIONS),
     13 => new LocationCard(0, 0, AP_KEYS),
-    14 => new LocationCard(0, 0, AP_DECK_LOCATION),
+    14 => new LocationCard(0, 0, AP_DECK_LOCATION), // TODO
 ];
 $this->LOCATIONS_GUILD = [
     100 => new LocationCard(0, 0, PP_LORD_MAX),
