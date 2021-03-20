@@ -244,11 +244,12 @@ var AbstractStacks = /** @class */ (function () {
     };
     AbstractStacks.prototype.setPick = function (showPick, pickSelectable, collection) {
         var _this = this;
-        console.log(this.pickStock);
         this.pickDiv.style.display = showPick ? 'block' : 'none';
         this.pickSelectable = pickSelectable;
-        collection === null || collection === void 0 ? void 0 : collection.forEach(function (item) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(item), "" + item.id); });
-        collection === null || collection === void 0 ? void 0 : collection.forEach(function (item) { return console.log(_this.getCardUniqueId(item), "" + item.id); });
+        if (collection) {
+            this.pickStock.removeAll();
+            collection.forEach(function (item) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(item), "" + item.id); });
+        }
     };
     AbstractStacks.prototype.setPickStockClick = function () {
         dojo.connect(this.pickStock, 'onChangeSelection', this, 'pickClick');
@@ -380,8 +381,6 @@ var LocationsStacks = /** @class */ (function (_super) {
         _this.setPickStockClick();
         setupLocationCards([_this.visibleLocationsStock, _this.pickStock]);
         visibleLocations.forEach(function (location) { return _this.visibleLocationsStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
-        pickLocations === null || pickLocations === void 0 ? void 0 : pickLocations.forEach(function (item) { return console.log(_this.getCardUniqueId(item), "" + item.id); });
-        console.log('pickStock', _this.pickStock);
         pickLocations.forEach(function (location) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
         return _this;
     }
@@ -438,19 +437,25 @@ var LocationsStacks = /** @class */ (function (_super) {
             id: item_id
         });
     };
+    LocationsStacks.prototype.removeLocation = function (location) {
+        this.visibleLocationsStock.removeFromStockById("" + location.id);
+    };
     return LocationsStacks;
 }(AbstractStacks));
 var PlayerTableSpotStock = /** @class */ (function () {
-    function PlayerTableSpotStock(game, player, spot, spotNumber, readonly) {
-        if (readonly === void 0) { readonly = true; }
+    function PlayerTableSpotStock(game, playerTable, player, spot, spotNumber) {
         var _a;
         this.game = game;
+        this.playerTable = playerTable;
+        this.spot = spot;
         this.spotNumber = spotNumber;
-        this.readonly = readonly;
         this.playerId = Number(player.id);
         dojo.place("<div id=\"player-table-" + this.playerId + "-spot" + spotNumber + "\" class=\"player-table-spot spot" + spotNumber + "\">\n                <div id=\"player" + this.playerId + "-spot" + spotNumber + "-lord-stock\"></div>\n                <div id=\"player" + this.playerId + "-spot" + spotNumber + "-location-stock\" class=\"player-table-spot-location\"></div>\n        </div>", "player-table-" + this.playerId);
         this.lordsStock = new ebg.stock();
         this.lordsStock.create(this.game, $("player" + this.playerId + "-spot" + spotNumber + "-lord-stock"), LORD_WIDTH, LORD_HEIGHT);
+        this.lordsStock.setSelectionMode(0);
+        this.lordsStock.setSelectionAppearance('class');
+        dojo.connect(this.lordsStock, 'onChangeSelection', this, 'onLordSelection');
         setupLordCards([this.lordsStock]);
         var lord = spot.lord;
         if (lord) {
@@ -458,6 +463,7 @@ var PlayerTableSpotStock = /** @class */ (function () {
         }
         this.locationsStock = new ebg.stock();
         this.locationsStock.create(this.game, $("player" + this.playerId + "-spot" + spotNumber + "-location-stock"), LOCATION_WIDTH, LOCATION_HEIGHT);
+        this.locationsStock.setSelectionMode(0);
         setupLocationCards([this.locationsStock]);
         var location = spot.location;
         if (location) {
@@ -465,28 +471,59 @@ var PlayerTableSpotStock = /** @class */ (function () {
         }
     }
     PlayerTableSpotStock.prototype.setLord = function (lord) {
+        if (this.spot.lord) {
+            this.lordsStock.removeFromStockById("" + this.spot.lord.id);
+        }
         this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), "" + lord.id);
+        this.spot.lord = lord;
     };
     PlayerTableSpotStock.prototype.setLocation = function (location) {
         var _a;
+        if (this.spot.location) {
+            this.locationsStock.removeFromStockById("" + this.spot.location.id);
+        }
         this.locationsStock.addToStockWithId(getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id);
+        this.spot.location = location;
+    };
+    PlayerTableSpotStock.prototype.setSelectableForSwitch = function (selectable) {
+        if (!this.spot.lord) {
+            return;
+        }
+        if (this.spot.lord.key) { // can't switch
+            dojo.toggleClass("player" + this.playerId + "-spot" + this.spotNumber + "-lord-stock_item_" + this.spot.lord.id, 'disabled', selectable);
+        }
+        else { // can switch
+            this.lordsStock.setSelectionMode(selectable ? 2 : 0);
+            dojo.toggleClass("player" + this.playerId + "-spot" + this.spotNumber + "-lord-stock_item_" + this.spot.lord.id, 'selectable', selectable);
+            if (!selectable) {
+                this.lordsStock.unselectAll();
+            }
+        }
+    };
+    PlayerTableSpotStock.prototype.onLordSelection = function () {
+        var items = this.lordsStock.getSelectedItems();
+        if (items.length == 1) {
+            this.playerTable.addSelectedSpot(this.spotNumber);
+        }
+        else if (items.length == 0) {
+            this.playerTable.removeSelectedSpot(this.spotNumber);
+        }
     };
     return PlayerTableSpotStock;
 }());
 var SPOTS_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 var PlayerTable = /** @class */ (function () {
-    function PlayerTable(game, player, spots, readonly) {
+    function PlayerTable(game, player, spots) {
         var _this = this;
-        if (readonly === void 0) { readonly = true; }
         this.game = game;
-        this.readonly = readonly;
         //private lordsStock: Stock;
         //private locationsStock: Stock;
         this.spotsStock = [];
+        this.switchSpots = [];
         this.playerId = Number(player.id);
         dojo.place("<div class=\"whiteblock\">\n            <div class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</div>\n            <div id=\"player-table-" + this.playerId + "\" class=\"player-table\"></div>\n        </div>", 'players-tables');
         SPOTS_NUMBERS.forEach(function (spotNumber) {
-            _this.spotsStock[spotNumber] = new PlayerTableSpotStock(game, player, spots[spotNumber], spotNumber, readonly);
+            _this.spotsStock[spotNumber] = new PlayerTableSpotStock(game, _this, player, spots[spotNumber], spotNumber);
         });
     }
     PlayerTable.prototype.addLord = function (spot, lord) {
@@ -495,12 +532,37 @@ var PlayerTable = /** @class */ (function () {
     PlayerTable.prototype.addLocation = function (spot, location) {
         this.spotsStock[spot].setLocation(location);
     };
+    PlayerTable.prototype.setSelectableForSwitch = function (selectable) {
+        var _this = this;
+        SPOTS_NUMBERS.forEach(function (spotNumber) { return _this.spotsStock[spotNumber].setSelectableForSwitch(selectable); });
+    };
+    PlayerTable.prototype.removeSelectedSpot = function (spot) {
+        var index = this.switchSpots.indexOf(spot);
+        if (index !== -1) {
+            this.switchSpots.splice(index, 1);
+            this.setCanSwitch();
+        }
+    };
+    PlayerTable.prototype.addSelectedSpot = function (spot) {
+        if (!this.switchSpots.some(function (val) { return val === spot; })) {
+            this.switchSpots.push(spot);
+            this.setCanSwitch();
+        }
+    };
+    PlayerTable.prototype.setCanSwitch = function () {
+        this.game.setCanSwitch(this.switchSpots);
+    };
+    PlayerTable.prototype.moveTopLordToken = function () {
+        // TODO place/move top lord token
+        //throw new Error("Method not implemented.");
+    };
     return PlayerTable;
 }());
 var Conspiracy = /** @class */ (function () {
     function Conspiracy() {
         this.playersTables = [];
         this.pearlCounters = [];
+        this.switchSpots = [];
     }
     /*
         setup:
@@ -515,25 +577,13 @@ var Conspiracy = /** @class */ (function () {
         "gamedatas" argument contains all datas retrieved by your "getAllDatas" PHP method.
     */
     Conspiracy.prototype.setup = function (gamedatas) {
-        var _this = this;
         console.log("Starting game setup");
         this.gamedatas = gamedatas;
-        console.log(gamedatas);
-        Object.values(gamedatas.players).forEach(function (player) {
-            var playerId = Number(player.id);
-            // TODO add color indicators
-            dojo.place("<div class=\"pearl-counter\">\n                <div class=\"token pearl\"></div> \n                <span id=\"pearl-counter-" + player.id + "\"></span>\n            </div>", "player_board_" + player.id);
-            var counter = new ebg.counter();
-            counter.create("pearl-counter-" + player.id);
-            counter.setValue(player.pearls);
-            _this.pearlCounters[playerId] = counter;
-            if (gamedatas.masterPearlsPlayer === playerId) {
-                _this.placePearlMasterToken(gamedatas.masterPearlsPlayer);
-            }
-        });
+        console.log('gamedatas', gamedatas);
+        this.createPlayerPanels(gamedatas);
         this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords, gamedatas.pickLords);
         this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations, gamedatas.pickLocations);
-        Object.keys(gamedatas.players).forEach(function (playerId) { return _this.playersTables[playerId] = new PlayerTable(_this, gamedatas.players[playerId], gamedatas.playersTables[playerId]); });
+        this.createPlayerTables(gamedatas);
         this.setupNotifications();
         console.log("Ending game setup");
     };
@@ -546,20 +596,23 @@ var Conspiracy = /** @class */ (function () {
         console.log('Entering state: ' + stateName, args.args);
         switch (stateName) {
             case 'lordStackSelection':
-                this.onEnteringLordStackSelection(args.args);
+                this.onEnteringLordStackSelection();
                 break;
             case 'lordSelection':
                 this.onEnteringLordSelection(args.args);
                 break;
+            case 'lordSwitch':
+                this.onEnteringLordSwitch();
+                break;
             case 'locationStackSelection':
-                this.onEnteringLocationStackSelection(args.args);
+                this.onEnteringLocationStackSelection();
                 break;
             case 'locationSelection':
                 this.onEnteringLocationSelection(args.args);
                 break;
         }
     };
-    Conspiracy.prototype.onEnteringLordStackSelection = function (args) {
+    Conspiracy.prototype.onEnteringLordStackSelection = function () {
         if (this.isCurrentPlayerActive()) {
             this.lordsStacks.setSelectable(true);
         }
@@ -567,7 +620,12 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.onEnteringLordSelection = function (args) {
         this.lordsStacks.setPick(true, this.isCurrentPlayerActive(), args.lords);
     };
-    Conspiracy.prototype.onEnteringLocationStackSelection = function (args) {
+    Conspiracy.prototype.onEnteringLordSwitch = function () {
+        if (this.isCurrentPlayerActive()) {
+            this.playersTables[this.player_id].setSelectableForSwitch(true);
+        }
+    };
+    Conspiracy.prototype.onEnteringLocationStackSelection = function () {
         if (this.isCurrentPlayerActive()) {
             this.locationsStacks.setSelectable(true);
         }
@@ -587,6 +645,9 @@ var Conspiracy = /** @class */ (function () {
             case 'lordSelection':
                 this.onLeavingLordSelection();
                 break;
+            case 'lordSwitch':
+                this.onLeavingLordSwitch();
+                break;
             case 'locationStackSelection':
                 this.onLeavingLocationStackSelection();
                 break;
@@ -601,6 +662,11 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.onLeavingLordSelection = function () {
         this.lordsStacks.setPick(false, false);
     };
+    Conspiracy.prototype.onLeavingLordSwitch = function () {
+        if (this.isCurrentPlayerActive()) {
+            this.playersTables[this.player_id].setSelectableForSwitch(false);
+        }
+    };
     Conspiracy.prototype.onLeavingLocationStackSelection = function () {
         this.locationsStacks.setSelectable(false);
     };
@@ -614,7 +680,6 @@ var Conspiracy = /** @class */ (function () {
         if (this.isCurrentPlayerActive()) {
             switch (stateName) {
                 case 'lordSwitch':
-                    this.addActionButton('switch_button', _("TODO switch"), 'onSwitch');
                     this.addActionButton('dontSwitch_button', _("Don't switch"), 'onDontSwitch');
                     break;
             }
@@ -623,6 +688,35 @@ var Conspiracy = /** @class */ (function () {
     ///////////////////////////////////////////////////
     //// Utility methods
     ///////////////////////////////////////////////////
+    Conspiracy.prototype.createPlayerPanels = function (gamedatas) {
+        var _this = this;
+        Object.values(gamedatas.players).forEach(function (player) {
+            var playerId = Number(player.id);
+            var html = "<div class=\"top-lord-tokens\">";
+            GUILD_IDS.forEach(function (guild) { return html += "<div class=\"token guild" + guild + "\" id=\"top-lord-token-" + guild + "-" + player.id + "\"></div>"; });
+            html += "</div>";
+            dojo.place(html, "player_board_" + player.id);
+            // TODO add color indicators
+            dojo.place("<div class=\"pearl-counter\">\n                <div class=\"token pearl\"></div> \n                <span id=\"pearl-counter-" + player.id + "\"></span>\n            </div>", "player_board_" + player.id);
+            var counter = new ebg.counter();
+            counter.create("pearl-counter-" + player.id);
+            counter.setValue(player.pearls);
+            _this.pearlCounters[playerId] = counter;
+            if (gamedatas.masterPearlsPlayer === playerId) {
+                _this.placePearlMasterToken(gamedatas.masterPearlsPlayer);
+            }
+        });
+    };
+    Conspiracy.prototype.createPlayerTables = function (gamedatas) {
+        var _this = this;
+        this.createPlayerTable(gamedatas, Number(this.player_id));
+        Object.values(gamedatas.players).filter(function (player) { return Number(player.id) !== Number(_this.player_id); }).forEach(function (player) {
+            return _this.createPlayerTable(gamedatas, Number(player.id));
+        });
+    };
+    Conspiracy.prototype.createPlayerTable = function (gamedatas, playerId) {
+        this.playersTables[playerId] = new PlayerTable(this, gamedatas.players[playerId], gamedatas.playersTables[playerId]);
+    };
     Conspiracy.prototype.lordPick = function (id) {
         if (!this.checkAction('addLord')) {
             return;
@@ -632,7 +726,6 @@ var Conspiracy = /** @class */ (function () {
         });
     };
     Conspiracy.prototype.lordStockPick = function (guild) {
-        console.log(guild);
         if (!this.checkAction('chooseVisibleStack')) {
             return;
         }
@@ -670,18 +763,25 @@ var Conspiracy = /** @class */ (function () {
             dojo.place('<div id="pearlMasterToken" class="token"></div>', "player_board_" + playerId);
         }
     };
-    Conspiracy.prototype.onSwitch = function (spots) {
-        if (!this.checkAction('nextPlayer')) {
+    Conspiracy.prototype.setCanSwitch = function (switchSpots) {
+        if (this.switchSpots.length !== 2 && switchSpots.length === 2) {
+            this.addActionButton('switch_button', _("Switch"), 'onSwitch');
+        }
+        else if (this.switchSpots.length === 2 && switchSpots.length !== 2) {
+            dojo.destroy('switch_button');
+        }
+        this.switchSpots = switchSpots.slice();
+    };
+    Conspiracy.prototype.onSwitch = function () {
+        if (!this.checkAction('next')) {
             return;
         }
-        // TODO remove
-        spots = [1, 2];
-        this.takeAction('switch', { spots: spots.join(',') });
+        this.takeAction('switch', { spots: this.switchSpots.join(',') });
     };
     Conspiracy.prototype.onDontSwitch = function () {
-        if (!this.checkAction('nextPlayer')) {
+        /*if(!(this as any).checkAction('next')) {
             return;
-        }
+        }*/
         this.takeAction('dontSwitch');
     };
     ///////////////////////////////////////////////////
@@ -719,7 +819,7 @@ var Conspiracy = /** @class */ (function () {
         var _a;
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);
         if (notif.args.points) {
-            // TODO place/move top lord token
+            this.playersTables[notif.args.playerId].moveTopLordToken();
         }
         this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
@@ -733,6 +833,7 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.notif_locationPlayed = function (notif) {
         var _a;
         this.playersTables[notif.args.playerId].addLocation(notif.args.spot, notif.args.location);
+        this.locationsStacks.removeLocation(notif.args.location);
         this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         if ((_a = notif.args.discardedLocations) === null || _a === void 0 ? void 0 : _a.length) {

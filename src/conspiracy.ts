@@ -13,6 +13,7 @@ class Conspiracy implements ConspiracyGame {
     private locationsStacks: LocationsStacks;
     private playersTables: PlayerTable[] = [];
     private pearlCounters: Counter[] = [];
+    private switchSpots: number[] = [];
 
     constructor() {
     }
@@ -36,30 +37,14 @@ class Conspiracy implements ConspiracyGame {
         
         this.gamedatas = gamedatas;
 
-        console.log(gamedatas);
+        console.log('gamedatas', gamedatas);
 
-        Object.values(gamedatas.players).forEach(player => {
-            const playerId = Number(player.id);
-            // TODO add color indicators
-            dojo.place(`<div class="pearl-counter">
-                <div class="token pearl"></div> 
-                <span id="pearl-counter-${player.id}"></span>
-            </div>`, `player_board_${player.id}` );
-
-            const counter = new ebg.counter();
-            counter.create(`pearl-counter-${player.id}`);
-            counter.setValue((player as any).pearls);
-            this.pearlCounters[playerId] = counter;
-
-            if (gamedatas.masterPearlsPlayer === playerId) {
-                this.placePearlMasterToken(gamedatas.masterPearlsPlayer);
-            }
-        });
+        this.createPlayerPanels(gamedatas);
 
         this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords, gamedatas.pickLords);
         this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations, gamedatas.pickLocations);
 
-        Object.keys(gamedatas.players).forEach((playerId) => this.playersTables[playerId] = new PlayerTable(this, gamedatas.players[playerId], gamedatas.playersTables[playerId]));
+        this.createPlayerTables(gamedatas);
 
         this.setupNotifications();
 
@@ -77,14 +62,17 @@ class Conspiracy implements ConspiracyGame {
 
         switch (stateName) {
             case 'lordStackSelection':
-                this.onEnteringLordStackSelection(args.args);
+                this.onEnteringLordStackSelection();
                 break;
             case 'lordSelection':
                 this.onEnteringLordSelection(args.args);
                 break;
+            case 'lordSwitch':
+                this.onEnteringLordSwitch();
+                break;
 
             case 'locationStackSelection':
-                this.onEnteringLocationStackSelection(args.args);
+                this.onEnteringLocationStackSelection();
                 break;
 
             case 'locationSelection':
@@ -93,7 +81,7 @@ class Conspiracy implements ConspiracyGame {
         }
     }
 
-    onEnteringLordStackSelection(args: EnteringLordStackSelectionArgs) {
+    onEnteringLordStackSelection() {
         if ((this as any).isCurrentPlayerActive()) {
             this.lordsStacks.setSelectable(true);
         }
@@ -103,7 +91,13 @@ class Conspiracy implements ConspiracyGame {
         this.lordsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.lords);
     }
 
-    onEnteringLocationStackSelection(args: EnteringLocationStackSelectionArgs) {
+    onEnteringLordSwitch() {        
+        if ((this as any).isCurrentPlayerActive()) {
+            this.playersTables[(this as any).player_id].setSelectableForSwitch(true);
+        }
+    }
+
+    onEnteringLocationStackSelection() {
         if ((this as any).isCurrentPlayerActive()) {
             this.locationsStacks.setSelectable(true);
         }
@@ -126,6 +120,9 @@ class Conspiracy implements ConspiracyGame {
             case 'lordSelection':
                 this.onLeavingLordSelection();
                 break;
+            case 'lordSwitch':
+                this.onLeavingLordSwitch();
+                break;
 
             case 'locationStackSelection':
                 this.onLeavingLocationStackSelection();
@@ -145,6 +142,12 @@ class Conspiracy implements ConspiracyGame {
         this.lordsStacks.setPick(false, false);
     }
 
+    onLeavingLordSwitch() {        
+        if ((this as any).isCurrentPlayerActive()) {
+            this.playersTables[(this as any).player_id].setSelectableForSwitch(false);
+        }
+    }
+
     onLeavingLocationStackSelection() {
         this.locationsStacks.setSelectable(false);
     }
@@ -160,7 +163,6 @@ class Conspiracy implements ConspiracyGame {
         if((this as any).isCurrentPlayerActive()) {
             switch (stateName) {
                 case 'lordSwitch':
-                (this as any).addActionButton( 'switch_button', _("TODO switch"), 'onSwitch' );
                 (this as any).addActionButton( 'dontSwitch_button', _("Don't switch"), 'onDontSwitch' );
                 break;
             }
@@ -175,6 +177,43 @@ class Conspiracy implements ConspiracyGame {
 
     ///////////////////////////////////////////////////
 
+    private createPlayerPanels(gamedatas: ConspiracyGamedatas) {
+        Object.values(gamedatas.players).forEach(player => {
+            const playerId = Number(player.id);
+
+            let html = `<div class="top-lord-tokens">`;
+            GUILD_IDS.forEach(guild => html += `<div class="token guild${guild}" id="top-lord-token-${guild}-${player.id}"></div>`);
+            html += `</div>`;
+            dojo.place(html, `player_board_${player.id}`);
+
+            // TODO add color indicators
+            dojo.place(`<div class="pearl-counter">
+                <div class="token pearl"></div> 
+                <span id="pearl-counter-${player.id}"></span>
+            </div>`, `player_board_${player.id}`);
+
+            const counter = new ebg.counter();
+            counter.create(`pearl-counter-${player.id}`);
+            counter.setValue((player as any).pearls);
+            this.pearlCounters[playerId] = counter;
+
+            if (gamedatas.masterPearlsPlayer === playerId) {
+                this.placePearlMasterToken(gamedatas.masterPearlsPlayer);
+            }
+        });
+    }
+
+    private createPlayerTables(gamedatas: ConspiracyGamedatas) {
+        this.createPlayerTable(gamedatas, Number((this as any).player_id));
+        Object.values(gamedatas.players).filter(player => Number(player.id) !== Number((this as any).player_id)).forEach(player => 
+            this.createPlayerTable(gamedatas, Number(player.id))
+        );
+    }
+
+    private createPlayerTable(gamedatas: ConspiracyGamedatas, playerId: number) {
+        this.playersTables[playerId] = new PlayerTable(this, gamedatas.players[playerId], gamedatas.playersTables[playerId]);
+    }
+
     public lordPick(id: number) {
         if(!(this as any).checkAction('addLord')) {
             return;
@@ -186,7 +225,6 @@ class Conspiracy implements ConspiracyGame {
     }
 
     public lordStockPick(guild: number) {
-        console.log(guild);
         if(!(this as any).checkAction('chooseVisibleStack')) {
             return;
         }
@@ -229,20 +267,27 @@ class Conspiracy implements ConspiracyGame {
         }
     }
 
-    public onSwitch(spots: number[]) {
-        if(!(this as any).checkAction('nextPlayer')) {
+    public setCanSwitch(switchSpots: number[]) {
+        if (this.switchSpots.length !== 2 && switchSpots.length === 2) {
+            (this as any).addActionButton( 'switch_button', _("Switch"), 'onSwitch' );
+        } else if (this.switchSpots.length === 2 && switchSpots.length !== 2) {
+            dojo.destroy('switch_button');
+        }
+        this.switchSpots = switchSpots.slice();
+    }
+
+    public onSwitch() {
+        if(!(this as any).checkAction('next')) {
             return;
         }
-        // TODO remove
-        spots = [1,2];
      
-        this.takeAction('switch', { spots: spots.join(',') });
+        this.takeAction('switch', { spots: this.switchSpots.join(',') });
     }
 
     public onDontSwitch() {
-        if(!(this as any).checkAction('nextPlayer')) {
+        /*if(!(this as any).checkAction('next')) {
             return;
-        }
+        }*/
      
         this.takeAction('dontSwitch');
     }
@@ -287,7 +332,7 @@ class Conspiracy implements ConspiracyGame {
     notif_lordPlayed(notif: Notif<NotifLordPlayedArgs>) {
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);
         if (notif.args.points) {
-            // TODO place/move top lord token
+            this.playersTables[notif.args.playerId].moveTopLordToken();
         }
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
@@ -302,6 +347,7 @@ class Conspiracy implements ConspiracyGame {
 
     notif_locationPlayed(notif: Notif<NotifLocationPlayedArgs>) {
         this.playersTables[notif.args.playerId].addLocation(notif.args.spot, notif.args.location);
+        this.locationsStacks.removeLocation(notif.args.location);
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         if (notif.args.discardedLocations?.length) {

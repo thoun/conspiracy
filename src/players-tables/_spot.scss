@@ -36,6 +36,22 @@
         left: $lord-width * 2;
     }
 
+    
+    .stockitem {
+        &.disabled {
+            cursor:not-allowed;
+            opacity:0.5 !important;
+
+            &:hover {
+                cursor:not-allowed;
+            }
+        }
+
+        &.selectable {
+            border: 3px dashed white;
+        }
+    }
+
     .player-table-spot-location {
         position: absolute;
         top: $lord-height - $location-height;

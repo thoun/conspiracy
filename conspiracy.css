@@ -147,6 +147,16 @@
   top: 828px;
   left: 414.52px;
 }
+.player-table-spot .stockitem.disabled {
+  cursor: not-allowed;
+  opacity: 0.5 !important;
+}
+.player-table-spot .stockitem.disabled:hover {
+  cursor: not-allowed;
+}
+.player-table-spot .stockitem.selectable {
+  border: 3px dashed white;
+}
 .player-table-spot .player-table-spot-location {
   position: absolute;
   top: 83px;
@@ -181,6 +191,14 @@
 }
 .token.guild5 {
   background-position: 100% 100%;
+}
+
+.top-lord-tokens {
+  display: flex;
+  align-items: center;
+}
+.top-lord-tokens div {
+  margin-right: 10px;
 }
 
 .pearl-counter {

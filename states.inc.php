@@ -151,7 +151,7 @@ $lordGameStates = [
         "descriptionmyturn" => clienttranslate('${you} must select lords to switch'),
         "type" => "activeplayer",
         // "action" => "stPlayerLordSwitch",
-        "possibleactions" => array( "nextPlayer" ),
+        "possibleactions" => array( "next" ),
         "transitions" => array( 
             "next" => ST_END_LORD
         )

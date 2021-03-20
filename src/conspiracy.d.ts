@@ -52,18 +52,12 @@ interface ConspiracyGame extends Game {
     takeAction: (action: string, data?: any) => void;
     lordPick: (id: number) => void;
     lordStockPick: (guild: number) => void;
+    setCanSwitch(switchSpots: number[]);
     locationPick: (id: number) => void;
 }
 
-interface EnteringLordStackSelectionArgs {
-    // TODO
-}
 interface EnteringLordSelectionArgs {
     lords: Lord[];
-}
-
-interface EnteringLocationStackSelectionArgs {
-    // TODO
 }
 
 interface EnteringLocationSelectionArgs {

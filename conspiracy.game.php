@@ -337,7 +337,7 @@ class Conspiracy extends Table
     }
 
     function switch($spotsStr) {
-        self::debug('[GBA] switch');
+        self::checkAction('next'); 
 
         $spots = explode(',', $spotsStr);
         $spot1 = intval($spots[0]);
@@ -349,6 +349,8 @@ class Conspiracy extends Table
     }
 
     function dontSwitch() {
+        self::checkAction('next'); 
+
         $this->gamestate->nextState('next');
     }
 
@@ -425,6 +427,13 @@ class Conspiracy extends Table
             return 0;
         }
     }
+
+    function canSwitch($player_id): bool {
+        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id"));
+        $switchableLords = array_values(array_filter($lords, function($lord) { return !$lord->key; }));
+
+        return count($switchableLords) >= 2;
+    }
     
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state arguments
@@ -499,10 +508,12 @@ class Conspiracy extends Table
 
         $this->checkPearlMaster($player_id);
 
-        if ($lord->switch && $this->lords->countCardInLocation("player${player_id}") >= 2) {
+        if ($lord->switch && $this->canSwitch($player_id)) {
             $this->gamestate->nextState('switch');
+            self::giveExtraTime($player_id);
         } else if ($lord->key && $this->canConstructWithNewKey($player_id, $lord->key)) {
             $this->gamestate->nextState('addLocation');
+            self::giveExtraTime($player_id);
         } else {
             $this->gamestate->nextState('next');
         }
@@ -555,10 +566,11 @@ class Conspiracy extends Table
     function stEndLord() {
 
         if ($this->lords->countCardInLocation('lord_selection') > 0) { 
-            $player_id = self::activeNextPlayer();
-            $playerdords = $this->lords->countCardInLocation("player$player_id");
+            $player_id = self::getActivePlayerId();
+            $playedLords = $this->lords->countCardInLocation("player$player_id");
 
             if ($playedLords < 15) {
+                self::giveExtraTime($player_id);
                 $this->gamestate->nextState('nextLord');
             } else {
                 $this->placeRemainingLordSelectionToTable();
@@ -571,7 +583,7 @@ class Conspiracy extends Table
 
     function stNextPlayer() {
         if (self::getGameStateValue('endTurn') == 0) {            
-            $player_id = self::activeNextPlayer();
+            $player_id = self::getActivePlayerId();
             $playedLords = $this->lords->countCardInLocation("player$player_id");
 
             if ($playedLords == 15) {
