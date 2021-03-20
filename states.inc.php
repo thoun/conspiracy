@@ -77,7 +77,7 @@ $basicGameStates = [
       "name" => "showScore",
       "description" => "",
       "type" => "game",
-      // "action" => "stShowScore",
+      "action" => "stShowScore",
       "transitions" => array( "endGame" => ST_END_GAME )
     ),
    

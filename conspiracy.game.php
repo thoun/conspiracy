@@ -526,7 +526,7 @@ class Conspiracy extends Table
         self::debug('[GBA] stAddLocation location '.json_encode($location));
         $player_id = intval(self::getActivePlayerId());
 
-        $spot = $this->lords->countCardInLocation("player${player_id}") + 1;
+        $spot = $this->lords->countCardInLocation("player${player_id}");
         $this->locations->moveCard($location->id, "player${player_id}", $spot);
 
         $remainingLocations = $this->getLocationsFromDb($this->locations->getCardsInLocation('location_sel'));
@@ -588,6 +588,11 @@ class Conspiracy extends Table
 
             if ($playedLords == 15) {
                 self::setGameStateValue('endTurn', $player_id);
+
+                self::notifyAllPlayers('lastTurn', clienttranslate('${player_name} has completed the pyramid, starting last turn !'), [
+                    'playerId' => $player_id,
+                    'player_name' => self::getActivePlayerName()
+                ]);
             }
         }
 
@@ -599,6 +604,11 @@ class Conspiracy extends Table
         } else {
             $this->gamestate->nextState('nextPlayer');
         }
+    }
+
+    function stShowScore() {
+        // TODO NOTIFS
+        $this->gamestate->nextState('endGame');
     }
 
 //////////////////////////////////////////////////////////////////////////////
