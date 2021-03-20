@@ -57,4 +57,16 @@
         top: $lord-height - $location-height;
         left: 0;
     }
+
+    .player-table-spot-token {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+
+        .token {
+            width: 48px;
+            height: 48px;
+            filter: drop-shadow(0 0 5px white);
+        }
+    }
 }

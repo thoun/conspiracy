@@ -162,6 +162,16 @@
   top: 83px;
   left: 0;
 }
+.player-table-spot .player-table-spot-token {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+.player-table-spot .player-table-spot-token .token {
+  width: 48px;
+  height: 48px;
+  filter: drop-shadow(0 0 5px white);
+}
 
 .token {
   display: inline-block;
@@ -178,19 +188,19 @@
   background-position: 100% 0%;
 }
 .token.guild1 {
-  background-position: 0% 100%;
-}
-.token.guild2 {
-  background-position: 25% 100%;
-}
-.token.guild3 {
   background-position: 50% 100%;
 }
-.token.guild4 {
+.token.guild2 {
+  background-position: 100% 100%;
+}
+.token.guild3 {
   background-position: 75% 100%;
 }
+.token.guild4 {
+  background-position: 25% 100%;
+}
 .token.guild5 {
-  background-position: 100% 100%;
+  background-position: 0% 100%;
 }
 
 .top-lord-tokens {

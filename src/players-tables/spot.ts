@@ -15,6 +15,7 @@ class PlayerTableSpotStock {
         dojo.place(`<div id="player-table-${this.playerId}-spot${spotNumber}" class="player-table-spot spot${spotNumber}">
                 <div id="player${this.playerId}-spot${spotNumber}-lord-stock"></div>
                 <div id="player${this.playerId}-spot${spotNumber}-location-stock" class="player-table-spot-location"></div>
+                <div id="player${this.playerId}-spot${spotNumber}-token" class="player-table-spot-token"></div>
         </div>`, `player-table-${this.playerId}`);
 
         this.lordsStock = new ebg.stock() as Stock;
@@ -39,6 +40,10 @@ class PlayerTableSpotStock {
         if (location) {
             this.locationsStock.addToStockWithId(getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`);
         }
+    }
+
+    public getLord(): Lord {
+        return this.spot.lord;
     }
     
     public setLord(lord: Lord) {
@@ -82,5 +87,12 @@ class PlayerTableSpotStock {
         } else if (items.length == 0) {
             this.playerTable.removeSelectedSpot(this.spotNumber);
         }
+    }
+
+    public placeTopLordToken() {
+        const tokenWrapper = document.getElementById(`player${this.playerId}-spot${this.spotNumber}-token`);
+        const guild = this.spot.lord.guild;
+        const tokenDiv = document.getElementById(`top-lord-token-${guild}-${this.playerId}`);
+        tokenWrapper.appendChild(tokenDiv);
     }
 }

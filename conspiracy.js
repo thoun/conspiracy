@@ -450,7 +450,7 @@ var PlayerTableSpotStock = /** @class */ (function () {
         this.spot = spot;
         this.spotNumber = spotNumber;
         this.playerId = Number(player.id);
-        dojo.place("<div id=\"player-table-" + this.playerId + "-spot" + spotNumber + "\" class=\"player-table-spot spot" + spotNumber + "\">\n                <div id=\"player" + this.playerId + "-spot" + spotNumber + "-lord-stock\"></div>\n                <div id=\"player" + this.playerId + "-spot" + spotNumber + "-location-stock\" class=\"player-table-spot-location\"></div>\n        </div>", "player-table-" + this.playerId);
+        dojo.place("<div id=\"player-table-" + this.playerId + "-spot" + spotNumber + "\" class=\"player-table-spot spot" + spotNumber + "\">\n                <div id=\"player" + this.playerId + "-spot" + spotNumber + "-lord-stock\"></div>\n                <div id=\"player" + this.playerId + "-spot" + spotNumber + "-location-stock\" class=\"player-table-spot-location\"></div>\n                <div id=\"player" + this.playerId + "-spot" + spotNumber + "-token\" class=\"player-table-spot-token\"></div>\n        </div>", "player-table-" + this.playerId);
         this.lordsStock = new ebg.stock();
         this.lordsStock.create(this.game, $("player" + this.playerId + "-spot" + spotNumber + "-lord-stock"), LORD_WIDTH, LORD_HEIGHT);
         this.lordsStock.setSelectionMode(0);
@@ -470,6 +470,9 @@ var PlayerTableSpotStock = /** @class */ (function () {
             this.locationsStock.addToStockWithId(getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id);
         }
     }
+    PlayerTableSpotStock.prototype.getLord = function () {
+        return this.spot.lord;
+    };
     PlayerTableSpotStock.prototype.setLord = function (lord) {
         if (this.spot.lord) {
             this.lordsStock.removeFromStockById("" + this.spot.lord.id);
@@ -509,6 +512,12 @@ var PlayerTableSpotStock = /** @class */ (function () {
             this.playerTable.removeSelectedSpot(this.spotNumber);
         }
     };
+    PlayerTableSpotStock.prototype.placeTopLordToken = function () {
+        var tokenWrapper = document.getElementById("player" + this.playerId + "-spot" + this.spotNumber + "-token");
+        var guild = this.spot.lord.guild;
+        var tokenDiv = document.getElementById("top-lord-token-" + guild + "-" + this.playerId);
+        tokenWrapper.appendChild(tokenDiv);
+    };
     return PlayerTableSpotStock;
 }());
 var SPOTS_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
@@ -525,9 +534,25 @@ var PlayerTable = /** @class */ (function () {
         SPOTS_NUMBERS.forEach(function (spotNumber) {
             _this.spotsStock[spotNumber] = new PlayerTableSpotStock(game, _this, player, spots[spotNumber], spotNumber);
         });
+        this.checkTopLordToken();
     }
+    PlayerTable.prototype.checkTopLordToken = function () {
+        var lordsSpots = this.spotsStock.filter(function (spotStock) { return spotStock.getLord(); });
+        var guilds = new Set(lordsSpots.map(function (spotStock) { return spotStock.getLord().guild; }));
+        guilds.forEach(function (guild) {
+            var guildLordsSpots = lordsSpots.filter(function (spotStock) { return spotStock.getLord().guild === guild; });
+            var topLordSpot = guildLordsSpots[0];
+            guildLordsSpots.forEach(function (spot) {
+                if (spot.getLord().points > topLordSpot.getLord().points) {
+                    topLordSpot = spot;
+                }
+            });
+            topLordSpot.placeTopLordToken();
+        });
+    };
     PlayerTable.prototype.addLord = function (spot, lord) {
         this.spotsStock[spot].setLord(lord);
+        this.checkTopLordToken();
     };
     PlayerTable.prototype.addLocation = function (spot, location) {
         this.spotsStock[spot].setLocation(location);

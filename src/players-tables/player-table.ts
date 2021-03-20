@@ -23,10 +23,30 @@ class PlayerTable {
         SPOTS_NUMBERS.forEach(spotNumber => {
             this.spotsStock[spotNumber] = new PlayerTableSpotStock(game, this, player, spots[spotNumber], spotNumber);
         });
+
+        this.checkTopLordToken();
+    }
+
+    private checkTopLordToken() {
+
+        const lordsSpots = this.spotsStock.filter(spotStock => spotStock.getLord());
+        const guilds = new Set(lordsSpots.map(spotStock => spotStock.getLord().guild));
+        guilds.forEach(guild => {
+            const guildLordsSpots = lordsSpots.filter(spotStock => spotStock.getLord().guild === guild);
+            let topLordSpot = guildLordsSpots[0];
+            guildLordsSpots.forEach(spot => {
+                if (spot.getLord().points > topLordSpot.getLord().points) {
+                    topLordSpot = spot;
+                }
+            });
+
+            topLordSpot.placeTopLordToken();
+        });
     }
     
     public addLord(spot: number, lord: Lord) {
         this.spotsStock[spot].setLord(lord);
+        this.checkTopLordToken();
     }
 
     public addLocation(spot: number, location: Location) {
