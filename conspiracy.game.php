@@ -194,9 +194,9 @@ class Conspiracy extends Table
         $result['masterPearlsPlayer'] = intval(self::getGameStateValue('masterPearlsPlayer'));
 
         $stateName = $this->gamestate->state()['name']; 
-        $isEnd = $stateName === 'showScore' || $stateName === 'showScore';
+        $isEnd = $stateName === 'showScore' || $stateName === 'gameEnd';
 
-        foreach( $result['players'] as $player_id => $playerDb ) {
+        foreach ($result['players'] as $player_id => $playerDb) {
             $detailedScore = new stdClass();
             if ($isEnd) {
                 $detailedScore->lords = intval($playerDb['lords']);
@@ -206,7 +206,7 @@ class Conspiracy extends Table
                 $detailedScore->pearlMaster = $result['masterPearlsPlayer'] == $player_id ? 5 : 0;
             }
 
-            $result['players']['detailedScore'] = $detailedScore;
+            $result['players'][$player_id]['detailedScore'] = $detailedScore;
         }
   
         return $result;

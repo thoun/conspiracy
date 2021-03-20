@@ -169,9 +169,10 @@ class LordStock {
     }
 
     private updateSize() {
-        this.div.style.width = `${LORD_WIDTH + (Math.max(this.visibleLords.length - 1, 0) * LORD_OVERLAP_WIDTH)}px`;
-        this.div.style.height = `${LORD_HEIGHT + (Math.max(this.visibleLords.length - 1, 0) * LORD_OVERLAP_HEIGHT)}px`;
-        this.div.style.display = this.visibleLords.length ? 'inline-block' : 'none';
+        const size = this.stock.items.length;
+        this.div.style.width = `${LORD_WIDTH + (Math.max(size - 1, 0) * LORD_OVERLAP_WIDTH)}px`;
+        this.div.style.height = `${LORD_HEIGHT + (Math.max(size - 1, 0) * LORD_OVERLAP_HEIGHT)}px`;
+        this.div.style.display = size ? 'inline-block' : 'none';
     }
 
     get div() {
