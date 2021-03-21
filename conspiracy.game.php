@@ -675,6 +675,7 @@ class Conspiracy extends Table
             'discardedLords' => $remainingLords,
             'points' => $points,
             'pearls' => $pearls,
+            'guild' => $lord->guild,
             'guild_name' => $this->getGuildName($lord->guild)
         ]);
 
@@ -683,6 +684,7 @@ class Conspiracy extends Table
 
             self::notifyAllPlayers('extraLordRevealed', clienttranslate('A ${guild_name} lord is added in the discard pile'), [
                 'lord' => $extraLord,
+                'guild' => $extraLord->guild,
                 'guild_name' => $this->getGuildName($extraLord->guild),
             ]);
         }

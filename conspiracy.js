@@ -750,6 +750,13 @@ var PlayerTable = /** @class */ (function () {
     return PlayerTable;
 }());
 var SCORE_MS = 1500;
+// TODO find official colors
+var GUILD_COLOR = [];
+GUILD_COLOR[1] = 'yellow';
+GUILD_COLOR[2] = 'red';
+GUILD_COLOR[3] = 'green';
+GUILD_COLOR[4] = 'blue';
+GUILD_COLOR[5] = 'purple';
 var Conspiracy = /** @class */ (function () {
     function Conspiracy() {
         this.playersTables = [];
@@ -1081,8 +1088,24 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.notif_scoreTotal = function (notif) {
         this.setScore(notif.args.playerId, 5, notif.args.points);
     };
+    /* This enable to inject translatable styled things to logs or action bar */
+    /* @Override */
+    Conspiracy.prototype.format_string_recursive = function (log, args) {
+        try {
+            if (log && args && !args.processed) {
+                // Representation of the color of a card
+                if (args.guild !== undefined && args.guild_name !== undefined && args.guild_name[0] !== '<') {
+                    args.guild_name = "<span class='log-guild-name' style='color: " + GUILD_COLOR[args.guild] + "'>" + args.guild_name + "</span>";
+                }
+            }
+        }
+        catch (e) {
+            console.error(log, args, "Exception thrown", e.stack);
+        }
+        return this.inherited(arguments);
+    };
     return Conspiracy;
-}());
+}()); // TODO add animations
 define([
     "dojo", "dojo/_base/declare",
     "ebg/core/gamegui",

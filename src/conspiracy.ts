@@ -9,6 +9,14 @@ declare const board: HTMLDivElement;
 
 const SCORE_MS = 1500;
 
+// TODO find official colors
+const GUILD_COLOR = [];
+GUILD_COLOR[1] = 'yellow';
+GUILD_COLOR[2] = 'red';
+GUILD_COLOR[3] = 'green';
+GUILD_COLOR[4] = 'blue';
+GUILD_COLOR[5] = 'purple';
+
 class Conspiracy implements ConspiracyGame {
     private gamedatas: ConspiracyGamedatas;
     private lordsStacks: LordsStacks;
@@ -422,4 +430,20 @@ class Conspiracy implements ConspiracyGame {
     notif_scoreTotal(notif: Notif<NotifScorePointArgs>) {
         this.setScore(notif.args.playerId, 5, notif.args.points);
     }
-}
+
+    /* This enable to inject translatable styled things to logs or action bar */
+    /* @Override */
+    public format_string_recursive(log: string, args: any) {
+        try {
+            if (log && args && !args.processed) {
+                // Representation of the color of a card
+                if (args.guild !== undefined && args.guild_name !== undefined && args.guild_name[0] !== '<') {
+                    args.guild_name = `<span class='log-guild-name' style='color: ${GUILD_COLOR[args.guild]}'>${args.guild_name}</span>`;
+                }
+            }
+        } catch (e) {
+            console.error(log,args,"Exception thrown", e.stack);
+        }
+        return (this as any).inherited(arguments);
+    }
+} // TODO add animations
