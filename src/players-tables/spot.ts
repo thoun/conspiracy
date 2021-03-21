@@ -22,6 +22,7 @@ class PlayerTableSpotStock {
         this.lordsStock.create( this.game, $(`player${this.playerId}-spot${spotNumber}-lord-stock`), LORD_WIDTH, LORD_HEIGHT );
         this.lordsStock.setSelectionMode(0);
         this.lordsStock.setSelectionAppearance('class');
+        this.lordsStock.onItemCreate = dojo.hitch(this, 'setupNewLordCard'); 
         dojo.connect(this.lordsStock, 'onChangeSelection', this, 'onLordSelection');
         setupLordCards([this.lordsStock]);
 
@@ -33,6 +34,7 @@ class PlayerTableSpotStock {
         this.locationsStock = new ebg.stock() as Stock;
         this.locationsStock.create( this.game, $(`player${this.playerId}-spot${spotNumber}-location-stock`), LOCATION_WIDTH, LOCATION_HEIGHT );
         this.locationsStock.setSelectionMode(0);
+        this.locationsStock.onItemCreate = dojo.hitch(this, 'setupNewLocationCard'); 
         setupLocationCards([this.locationsStock]);
 
         
@@ -94,5 +96,21 @@ class PlayerTableSpotStock {
         const guild = this.spot.lord.guild;
         const tokenDiv = document.getElementById(`top-lord-token-${guild}-${this.playerId}`);
         tokenWrapper.appendChild(tokenDiv);
+    }
+
+    public setupNewLordCard(card_div: HTMLDivElement, card_type_id: number, card_id: string) {
+        let message = getLordTooltip(card_type_id);
+
+        if (message) {
+            (this.game as any).addTooltip(card_div.id, message, '');
+        }
+    }
+
+    public setupNewLocationCard(card_div: HTMLDivElement, card_type_id: number, card_id: string) {
+        let message = getLocationTooltip(card_type_id);
+
+        if (message) {
+            (this.game as any).addTooltip(card_div.id, message, '');
+        }
     }
 }

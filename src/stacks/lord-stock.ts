@@ -147,6 +147,7 @@ class LordStock {
         this.stock = new ebg.stock() as Stock;
         this.stock.create(this.lordsStacks.game, this.div, LORD_WIDTH, LORD_HEIGHT );
         this.stock.setSelectionMode(0);
+        this.stock.onItemCreate = dojo.hitch( this, 'setupNewLordCard' ); 
         this.stock.updateDisplay = (from: string) => updateDisplay.apply(this.stock, [from]);
         setupLordCards([this.stock]);
 
@@ -190,5 +191,13 @@ class LordStock {
             return;
         }
         this.lordsStacks.game.lordStockPick(this.guild);
+    }
+
+    public setupNewLordCard(card_div: HTMLDivElement, card_type_id: number, card_id: string) {
+        let message = getLordTooltip(card_type_id);
+
+        if (message) {
+            (this.lordsStacks.game as any).addTooltip(card_div.id, message, '');
+        }
     }
 }

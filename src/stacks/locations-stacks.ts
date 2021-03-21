@@ -16,6 +16,7 @@ class LocationsStacks extends AbstractStacks<Location> {
         this.pickStock = new ebg.stock() as Stock;
         this.pickStock.create( this.game, this.pickDiv.children[0], LOCATION_WIDTH, LOCATION_HEIGHT );
         this.pickStock.centerItems = true;
+        this.pickStock.onItemCreate = dojo.hitch( this, 'setupNewLocationCard' ); 
         this.setPickStockClick();
 
         setupLocationCards([this.visibleLocationsStock, this.pickStock]);        
@@ -51,7 +52,11 @@ class LocationsStacks extends AbstractStacks<Location> {
     }
 
     public setupNewLocationCard( card_div: HTMLDivElement, card_type_id: number, card_id: string ) {
-        // TODO (this as any).addTooltip( card_div.id, this.mowCards.getTooltip(card_type_id), '' );
+        let message = getLocationTooltip(card_type_id);
+
+        if (message) {
+            (this.game as any).addTooltip(card_div.id, message, '');
+        }
     }
 
     public onHiddenLocationClick(event: MouseEvent) {

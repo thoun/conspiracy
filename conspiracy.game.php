@@ -473,12 +473,14 @@ class Conspiracy extends Table
         return $points;
     }
 
-    function getScoreLocations($player_id, $pearls): int {
+    function getScoreLocations($player_id, $pearls): int { 
         $points = 0;
 
         $locations = $this->getLocationsFromDb($this->locations->getCardsInLocation("player$player_id"));
 
         foreach($locations as $location) {
+            self::debug('location points before '.$location->type.' : ' . $points . '.');
+
             $points += $location->points;
 
             if ($location->passivePower === PP_SILVER_KEYS) {
@@ -506,6 +508,8 @@ class Conspiracy extends Table
                 $guild = $location->passivePowerGuild;
                 $points += count(array_values(array_filter($lords, function($lord) use ($guild) { return $lord->guild == $guild; })));
             }
+
+            self::debug('location points after '.$location->type.' : ' . $points . '.'); // TODO find bugs
         }
 
         return $points;
@@ -607,15 +611,15 @@ class Conspiracy extends Table
         $pearls = $lord->pearls;
         self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_aux = player_score_aux + $pearls WHERE player_id = $player_id");
         
-        self::notifyAllPlayers('lordPlayed', clienttranslate('${player_name} plays lord ${card_name}'), [
+        self::notifyAllPlayers('lordPlayed', clienttranslate('${player_name} plays ${points} point(s) ${guild_name} lord'), [
             'playerId' => $player_id,
             'player_name' => self::getActivePlayerName(),
-            'card_name' => 'TODO',
             'lord' => $lord,
             'spot' => $spot,
             'discardedLords' => $remainingLords,
             'points' => $points,
             'pearls' => $pearls,
+            'guild_name' => 'TODO'
         ]);
 
         if ($lord->showExtraLord) {
@@ -658,10 +662,9 @@ class Conspiracy extends Table
         $pearls = $location->pearls;
         self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_aux = player_score_aux + $pearls WHERE player_id = $player_id");
         
-        self::notifyAllPlayers('locationPlayed', clienttranslate('${player_name} plays location ${card_name}'), [
+        self::notifyAllPlayers('locationPlayed', clienttranslate('${player_name} plays ${points} point(s) location'), [
             'playerId' => $player_id,
             'player_name' => self::getActivePlayerName(),
-            'card_name' => 'TODO',
             'location' => $location,
             'spot' => $spot,
             'discardedLocations' => $remainingLocations,
