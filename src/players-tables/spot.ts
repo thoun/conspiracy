@@ -59,6 +59,7 @@ class PlayerTableSpotStock {
         this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), `${lord.id}`);
         this.spot.lord = lord;
         
+        dojo.style(`player-table-${this.playerId}-spot${this.spotNumber}`, 'background', 'none');
     }
 
     public setLocation(location: Location) {

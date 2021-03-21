@@ -24,6 +24,11 @@
             display: flex;
             cursor: pointer;
         }
+
+        .button.hidden {
+            visibility: hidden;
+            pointer-events: none;
+        }
     }
 }
 

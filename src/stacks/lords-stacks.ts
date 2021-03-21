@@ -34,10 +34,12 @@ class LordsStacks extends AbstractStacks<Lord> {
         guilds.forEach(guild => this.lordsStocks[guild].addLords(lords.filter(lord => lord.guild === guild)));
     }
 
-    public setSelectable(selectable: boolean) {
+    public setSelectable(selectable: boolean, limitToHidden: number) {
         super.setSelectable(selectable);
 
-        this.lordsStocks.forEach(lordStock => lordStock.setSelectable(selectable));
+        if (!selectable || !limitToHidden) {
+            this.lordsStocks.forEach(lordStock => lordStock.setSelectable(selectable));
+        }
     }
 
     public discardPick(lords: Lord[]) {
@@ -54,7 +56,7 @@ class LordsStacks extends AbstractStacks<Lord> {
     }
 
     protected pickClick(control_name: string, item_id: string) {
-        // removeAllTo => lordsStocks
+        // TODO removeAllTo => lordsStocks
         this.game.lordPick(Number(item_id));
         super.pickClick(control_name, item_id);
     }

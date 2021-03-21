@@ -10,10 +10,20 @@ abstract class AbstractStacks<T extends Card> {
     protected abstract get pickDiv(): HTMLDivElement;
     protected abstract getCardUniqueId(card: T): number;
 
-    public setSelectable(selectable: boolean) {
+    public setSelectable(selectable: boolean, limitToHidden?: number) {
         this.selectable = selectable;
         const action = selectable ? 'add' : 'remove';
         this.pileDiv.classList[action]('selectable');
+
+        if (limitToHidden) {
+            const buttons = Array.from(this.pileDiv.getElementsByClassName('button'));
+            if (selectable) {
+                buttons.filter((button: HTMLDivElement) => parseInt(button.dataset.number) !== limitToHidden)
+                    .forEach(button => button.classList.add('hidden'));
+            } else {
+                buttons.forEach(button => button.classList.remove('hidden'));
+            }
+        }
     }
 
     public setPick(showPick: boolean, pickSelectable: boolean, collection?: T[]) {

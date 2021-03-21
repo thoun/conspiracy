@@ -23,6 +23,10 @@
   display: flex;
   cursor: pointer;
 }
+.stacks .hidden-pile .button.hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
 
 #lord-pick, #location-pick {
   display: none;
@@ -75,8 +79,11 @@
 
 .player-table-spot {
   position: absolute;
-  min-width: 210px;
   display: inline-block;
+  width: 207.26px;
+  background: #76cee160;
+  height: 212px;
+  border-radius: 10px;
 }
 .player-table-spot.spot1 {
   top: 0;

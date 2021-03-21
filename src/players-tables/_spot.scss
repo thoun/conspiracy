@@ -1,7 +1,10 @@
 .player-table-spot {
     position: absolute;
-    min-width: 210px;
     display: inline-block;
+    width: 207.26px;
+    background: #76cee160;
+    height: 212px;
+    border-radius: 10px;
 
     @for $i from 1 through 5 {
         &.spot#{$i} {

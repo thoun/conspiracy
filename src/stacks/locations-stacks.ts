@@ -46,7 +46,8 @@ class LocationsStacks extends AbstractStacks<Location> {
     }
 
     protected pickClick(control_name: string, item_id: string) {
-        // removeAllTo => lordsStocks
+        console.log('pickClick', item_id, this.pickStock);
+        // TODO removeAllTo => locationsStocks
         this.game.locationPick(Number(item_id));
         super.pickClick(control_name, item_id);
     }

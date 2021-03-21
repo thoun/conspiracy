@@ -52,7 +52,7 @@ interface ConspiracyGamedatas {
     pickLords: Lord[];
     visibleLocations: Location[];
     pickLocations: Location[];
-    masterPearlsPlayer: number;
+    pearlMasterPlayer: number;
     playersTables: { [playerId: number]: PlayerTableSpot[] };
 }
 
@@ -64,8 +64,16 @@ interface ConspiracyGame extends Game {
     locationPick: (id: number) => void;
 }
 
+interface EnteringLordStackSelectionArgs {
+    limitToHidden: number;
+}
+
 interface EnteringLordSelectionArgs {
     lords: Lord[];
+}
+
+interface EnteringLocationStackSelectionArgs {
+    allHidden: boolean;
 }
 
 interface EnteringLocationSelectionArgs {

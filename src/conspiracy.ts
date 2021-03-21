@@ -68,7 +68,7 @@ class Conspiracy implements ConspiracyGame {
 
         switch (stateName) {
             case 'lordStackSelection':
-                this.onEnteringLordStackSelection();
+                this.onEnteringLordStackSelection(args.args);
                 break;
             case 'lordSelection':
                 this.onEnteringLordSelection(args.args);
@@ -78,7 +78,7 @@ class Conspiracy implements ConspiracyGame {
                 break;
 
             case 'locationStackSelection':
-                this.onEnteringLocationStackSelection();
+                this.onEnteringLocationStackSelection(args.args);
                 break;
             case 'locationSelection':
                 this.onEnteringLocationSelection(args.args);
@@ -90,9 +90,9 @@ class Conspiracy implements ConspiracyGame {
         }
     }
 
-    onEnteringLordStackSelection() {
+    onEnteringLordStackSelection(args: EnteringLordStackSelectionArgs) { // TODO
         if ((this as any).isCurrentPlayerActive()) {
-            this.lordsStacks.setSelectable(true);
+            this.lordsStacks.setSelectable(true, args.limitToHidden);
         }
     }
 
@@ -106,13 +106,13 @@ class Conspiracy implements ConspiracyGame {
         }
     }
 
-    onEnteringLocationStackSelection() {
+    onEnteringLocationStackSelection(args: EnteringLocationStackSelectionArgs) { // TODO
         if ((this as any).isCurrentPlayerActive()) {
             this.locationsStacks.setSelectable(true);
         }
     } 
 
-    onEnteringLocationSelection(args: EnteringLocationSelectionArgs) {
+    onEnteringLocationSelection(args: EnteringLocationSelectionArgs) {console.log(args.locations);
         this.locationsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.locations);
     }   
 
@@ -161,7 +161,7 @@ class Conspiracy implements ConspiracyGame {
     }
 
     onLeavingLordStackSelection() {
-        this.lordsStacks.setSelectable(false);
+        this.lordsStacks.setSelectable(false, null);
     }
 
     onLeavingLordSelection() {
@@ -222,8 +222,8 @@ class Conspiracy implements ConspiracyGame {
             counter.setValue((player as any).pearls);
             this.pearlCounters[playerId] = counter;
 
-            if (gamedatas.masterPearlsPlayer === playerId) {
-                this.placePearlMasterToken(gamedatas.masterPearlsPlayer);
+            if (gamedatas.pearlMasterPlayer === playerId) {
+                this.placePearlMasterToken(gamedatas.pearlMasterPlayer);
             }
         });
     }
@@ -381,7 +381,7 @@ class Conspiracy implements ConspiracyGame {
         this.lordsStacks.addLords([notif.args.lord]);
     }
 
-    notif_locationPlayed(notif: Notif<NotifLocationPlayedArgs>) {
+    notif_locationPlayed(notif: Notif<NotifLocationPlayedArgs>) {console.log(notif.args.location);
         this.playersTables[notif.args.playerId].addLocation(notif.args.spot, notif.args.location);
         this.locationsStacks.removeLocation(notif.args.location);
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
