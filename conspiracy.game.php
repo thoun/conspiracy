@@ -423,10 +423,11 @@ class Conspiracy extends Table
         // check Master pearls
         $masterPearlsPlayer = self::getGameStateValue('masterPearlsPlayer');
         if ($masterPearlsPlayer !== $player_id) {
-            $newPearlMasterPlayer = intval(self::getUniqueValueFromDB( "SELECT player_id FROM `player` order by player_score_aux desc, player_id = $masterPearlsPlayer limit 1"));
+            $masterPearlPearls = intval(self::getUniqueValueFromDB( "SELECT player_score_aux FROM `player` WHERE player_id = $masterPearlsPlayer"));
+            $currentPlayerPearls = intval(self::getUniqueValueFromDB( "SELECT player_score_aux FROM `player` WHERE player_id = $player_id"));
             
-            if ($newPearlMasterPlayer != $masterPearlsPlayer) {
-                self::setGameStateValue('masterPearlsPlayer', $newPearlMasterPlayer);
+            if ($currentPlayerPearls >= $masterPearlPearls) {
+                self::setGameStateValue('masterPearlsPlayer', $player_id);
                 self::notifyAllPlayers('newPearlMaster', clienttranslate('${player_name} becomes the new Pearl Master'), [
                     'playerId' => $player_id,
                     'player_name' => self::getActivePlayerName()
@@ -726,7 +727,7 @@ class Conspiracy extends Table
     }
 
     function stShowScore() {
-        $sql = "SELECT player_id id, player_name, player_score_aux pearls FROM player ORDER BY player_no DESC";
+        $sql = "SELECT player_id id, player_name, player_score_aux pearls FROM player ORDER BY player_no ASC";
         $players = self::getCollectionFromDb($sql);
 
         // we reinit points as we gave points for lords & locations
