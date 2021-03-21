@@ -143,29 +143,28 @@ class LordStock {
     private stock: Stock;
     protected selectable: boolean;
 
-    constructor(private lordsStacks: LordsStacks, private guild: number, private visibleLords: Lord[]) {
+    constructor(private lordsStacks: LordsStacks, private guild: number, visibleLords: Lord[]) {
         this.stock = new ebg.stock() as Stock;
-        this.stock.create(this.lordsStacks.game, this.div, LORD_WIDTH, LORD_HEIGHT );
+        this.stock.create(this.lordsStacks.game, this.div, LORD_WIDTH, LORD_HEIGHT);
         this.stock.setSelectionMode(0);
-        this.stock.onItemCreate = dojo.hitch( this, 'setupNewLordCard' ); 
+        this.stock.onItemCreate = dojo.hitch(this, 'setupNewLordCard'); 
         this.stock.updateDisplay = (from: string) => updateDisplay.apply(this.stock, [from]);
+        dojo.connect(this.stock, 'onChangeSelection', this, 'click');
         setupLordCards([this.stock]);
 
         visibleLords.forEach(lord => this.stock.addToStockWithId(this.lordsStacks.getCardUniqueId(lord), `${lord.id}`));
         this.updateSize();
 
-        this.div.getElementsByClassName('overlay')[0].addEventListener('click', () => this.click());
+        this.div.addEventListener('click', () => this.click());
     }
 
     addLords(lords: Lord[]): void {
-        this.visibleLords.push(...lords);
         lords.forEach(lord => this.stock.addToStockWithId(this.lordsStacks.getCardUniqueId(lord), `${lord.id}`));
         this.updateSize();
     }
 
     removeLords() {
-        this.visibleLords = [];
-        this.stock.items.forEach(item => this.stock.removeFromStockById(item.id));
+        this.stock.removeAll();
         this.updateSize();
     }
 
@@ -184,6 +183,7 @@ class LordStock {
         this.selectable = selectable;
         const action = selectable ? 'add' : 'remove';
         this.div.classList[action]('selectable');
+        this.stock.setSelectionMode(selectable ? 2 : 0);
     }
 
     private click() {

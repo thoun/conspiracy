@@ -7,16 +7,16 @@ class LocationsStacks extends AbstractStacks<Location> {
         this.pileDiv.addEventListener('click', e => this.onHiddenLocationClick(e));
 
         this.visibleLocationsStock = new ebg.stock() as Stock;
-        this.visibleLocationsStock.create( this.game, $('location-visible-stock'), LOCATION_WIDTH, LOCATION_HEIGHT );
+        this.visibleLocationsStock.create(this.game, $('location-visible-stock'), LOCATION_WIDTH, LOCATION_HEIGHT);
         this.visibleLocationsStock.setSelectionMode(1);            
         this.visibleLocationsStock.setSelectionAppearance('class');
         this.visibleLocationsStock.onItemCreate = dojo.hitch( this, 'setupNewLocationCard' ); 
-        dojo.connect( this.visibleLocationsStock, 'onChangeSelection', this, 'onVisibleLocationClick' );
+        dojo.connect(this.visibleLocationsStock, 'onChangeSelection', this, 'onVisibleLocationClick');
         
         this.pickStock = new ebg.stock() as Stock;
-        this.pickStock.create( this.game, this.pickDiv.children[0], LOCATION_WIDTH, LOCATION_HEIGHT );
+        this.pickStock.create(this.game, this.pickDiv.children[0], LOCATION_WIDTH, LOCATION_HEIGHT);
         this.pickStock.centerItems = true;
-        this.pickStock.onItemCreate = dojo.hitch( this, 'setupNewLocationCard' ); 
+        this.pickStock.onItemCreate = dojo.hitch(this, 'setupNewLocationCard'); 
         this.setPickStockClick();
 
         setupLocationCards([this.visibleLocationsStock, this.pickStock]);        

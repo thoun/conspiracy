@@ -20,21 +20,11 @@
             <div class="button" data-number="3">3</div>
         </div>
         <div id="lord-visible-stocks">
-            <div id="lord-visible-stock1">
-                <div class="overlay"></div>
-            </div>
-            <div id="lord-visible-stock2">
-                <div class="overlay"></div>
-            </div>
-            <div id="lord-visible-stock3">
-                <div class="overlay"></div>
-            </div>
-            <div id="lord-visible-stock4">
-                <div class="overlay"></div>
-            </div>
-            <div id="lord-visible-stock5">
-                <div class="overlay"></div>
-            </div>
+            <div id="lord-visible-stock1"></div>
+            <div id="lord-visible-stock2"></div>
+            <div id="lord-visible-stock3"></div>
+            <div id="lord-visible-stock4"></div>
+            <div id="lord-visible-stock5"></div>
         </div>
     </div>
     <div id="lord-pick" class="whiteblock">

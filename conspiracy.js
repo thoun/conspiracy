@@ -267,28 +267,24 @@ var LordStock = /** @class */ (function () {
         var _this = this;
         this.lordsStacks = lordsStacks;
         this.guild = guild;
-        this.visibleLords = visibleLords;
         this.stock = new ebg.stock();
         this.stock.create(this.lordsStacks.game, this.div, LORD_WIDTH, LORD_HEIGHT);
         this.stock.setSelectionMode(0);
         this.stock.onItemCreate = dojo.hitch(this, 'setupNewLordCard');
         this.stock.updateDisplay = function (from) { return updateDisplay.apply(_this.stock, [from]); };
+        dojo.connect(this.stock, 'onChangeSelection', this, 'click');
         setupLordCards([this.stock]);
         visibleLords.forEach(function (lord) { return _this.stock.addToStockWithId(_this.lordsStacks.getCardUniqueId(lord), "" + lord.id); });
         this.updateSize();
-        this.div.getElementsByClassName('overlay')[0].addEventListener('click', function () { return _this.click(); });
+        this.div.addEventListener('click', function () { return _this.click(); });
     }
     LordStock.prototype.addLords = function (lords) {
-        var _a;
         var _this = this;
-        (_a = this.visibleLords).push.apply(_a, lords);
         lords.forEach(function (lord) { return _this.stock.addToStockWithId(_this.lordsStacks.getCardUniqueId(lord), "" + lord.id); });
         this.updateSize();
     };
     LordStock.prototype.removeLords = function () {
-        var _this = this;
-        this.visibleLords = [];
-        this.stock.items.forEach(function (item) { return _this.stock.removeFromStockById(item.id); });
+        this.stock.removeAll();
         this.updateSize();
     };
     LordStock.prototype.updateSize = function () {
@@ -308,6 +304,7 @@ var LordStock = /** @class */ (function () {
         this.selectable = selectable;
         var action = selectable ? 'add' : 'remove';
         this.div.classList[action]('selectable');
+        this.stock.setSelectionMode(selectable ? 2 : 0);
     };
     LordStock.prototype.click = function () {
         if (!this.selectable) {
