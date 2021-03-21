@@ -80,7 +80,17 @@ class PlayerTable {
         const lordSpot1 = this.spotsStock[args.spot1].getLord();
         const lordSpot2 = this.spotsStock[args.spot2].getLord();
 
+        const tokenSpot1 = this.spotsStock[args.spot1].getTokenDiv();
+        const tokenSpot2 = this.spotsStock[args.spot2].getTokenDiv();
+
         this.spotsStock[args.spot1].setLord(lordSpot2);
         this.spotsStock[args.spot2].setLord(lordSpot1);
+
+        if (tokenSpot2) {
+            this.spotsStock[args.spot1].addTokenDiv(tokenSpot2);
+        }
+        if (tokenSpot1) {
+            this.spotsStock[args.spot2].addTokenDiv(tokenSpot1);
+        }
     }
 }

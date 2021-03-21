@@ -11,6 +11,7 @@ class LordsStacks extends AbstractStacks<Lord> {
         this.pickStock = new ebg.stock() as Stock;
         this.pickStock.create( this.game, this.pickDiv.children[0], LORD_WIDTH, LORD_HEIGHT );
         this.pickStock.centerItems = true;
+        this.pickStock.onItemCreate = dojo.hitch(this, 'setupNewLordCard'); 
         setupLordCards([this.pickStock]);
         this.setPickStockClick();
         pickLords.forEach(lord => this.pickStock.addToStockWithId(this.getCardUniqueId(lord), `${lord.id}`));
@@ -72,5 +73,13 @@ class LordsStacks extends AbstractStacks<Lord> {
         this.game.takeAction('chooseLordDeckStack', {
             number
         });
+    }
+
+    public setupNewLordCard(card_div: HTMLDivElement, card_type_id: number, card_id: string) {
+        let message = getLordTooltip(card_type_id);
+
+        if (message) {
+            (this.game as any).addTooltip(card_div.id, message, '');
+        }
     }
 }

@@ -44,6 +44,10 @@ class PlayerTableSpotStock {
         }
     }
 
+    private get tokenWrapper(): HTMLDivElement {
+       return document.getElementById(`player${this.playerId}-spot${this.spotNumber}-token`) as HTMLDivElement;
+    }
+
     public getLord(): Lord {
         return this.spot.lord;
     }
@@ -92,10 +96,9 @@ class PlayerTableSpotStock {
     }
 
     public placeTopLordToken() {
-        const tokenWrapper = document.getElementById(`player${this.playerId}-spot${this.spotNumber}-token`);
         const guild = this.spot.lord.guild;
-        const tokenDiv = document.getElementById(`top-lord-token-${guild}-${this.playerId}`);
-        tokenWrapper.appendChild(tokenDiv);
+        const tokenDiv = document.getElementById(`top-lord-token-${guild}-${this.playerId}`) as HTMLDivElement;
+        this.addTokenDiv(tokenDiv);
     }
 
     public setupNewLordCard(card_div: HTMLDivElement, card_type_id: number, card_id: string) {
@@ -112,5 +115,12 @@ class PlayerTableSpotStock {
         if (message) {
             (this.game as any).addTooltip(card_div.id, message, '');
         }
+    }
+
+    public addTokenDiv(tokenDiv: HTMLDivElement) {
+        this.tokenWrapper.appendChild(tokenDiv);
+    }
+    public getTokenDiv(): HTMLDivElement | undefined {
+        return this.tokenWrapper.getElementsByTagName('div')[0] as HTMLDivElement;
     }
 }

@@ -371,6 +371,7 @@ var LordsStacks = /** @class */ (function (_super) {
         _this.pickStock = new ebg.stock();
         _this.pickStock.create(_this.game, _this.pickDiv.children[0], LORD_WIDTH, LORD_HEIGHT);
         _this.pickStock.centerItems = true;
+        _this.pickStock.onItemCreate = dojo.hitch(_this, 'setupNewLordCard');
         setupLordCards([_this.pickStock]);
         _this.setPickStockClick();
         pickLords.forEach(function (lord) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(lord), "" + lord.id); });
@@ -430,6 +431,12 @@ var LordsStacks = /** @class */ (function (_super) {
         this.game.takeAction('chooseLordDeckStack', {
             number: number
         });
+    };
+    LordsStacks.prototype.setupNewLordCard = function (card_div, card_type_id, card_id) {
+        var message = getLordTooltip(card_type_id);
+        if (message) {
+            this.game.addTooltip(card_div.id, message, '');
+        }
     };
     return LordsStacks;
 }(AbstractStacks));
@@ -546,6 +553,13 @@ var PlayerTableSpotStock = /** @class */ (function () {
             this.locationsStock.addToStockWithId(getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id);
         }
     }
+    Object.defineProperty(PlayerTableSpotStock.prototype, "tokenWrapper", {
+        get: function () {
+            return document.getElementById("player" + this.playerId + "-spot" + this.spotNumber + "-token");
+        },
+        enumerable: false,
+        configurable: true
+    });
     PlayerTableSpotStock.prototype.getLord = function () {
         return this.spot.lord;
     };
@@ -589,10 +603,9 @@ var PlayerTableSpotStock = /** @class */ (function () {
         }
     };
     PlayerTableSpotStock.prototype.placeTopLordToken = function () {
-        var tokenWrapper = document.getElementById("player" + this.playerId + "-spot" + this.spotNumber + "-token");
         var guild = this.spot.lord.guild;
         var tokenDiv = document.getElementById("top-lord-token-" + guild + "-" + this.playerId);
-        tokenWrapper.appendChild(tokenDiv);
+        this.addTokenDiv(tokenDiv);
     };
     PlayerTableSpotStock.prototype.setupNewLordCard = function (card_div, card_type_id, card_id) {
         var message = getLordTooltip(card_type_id);
@@ -605,6 +618,12 @@ var PlayerTableSpotStock = /** @class */ (function () {
         if (message) {
             this.game.addTooltip(card_div.id, message, '');
         }
+    };
+    PlayerTableSpotStock.prototype.addTokenDiv = function (tokenDiv) {
+        this.tokenWrapper.appendChild(tokenDiv);
+    };
+    PlayerTableSpotStock.prototype.getTokenDiv = function () {
+        return this.tokenWrapper.getElementsByTagName('div')[0];
     };
     return PlayerTableSpotStock;
 }());
@@ -668,8 +687,16 @@ var PlayerTable = /** @class */ (function () {
     PlayerTable.prototype.lordSwitched = function (args) {
         var lordSpot1 = this.spotsStock[args.spot1].getLord();
         var lordSpot2 = this.spotsStock[args.spot2].getLord();
+        var tokenSpot1 = this.spotsStock[args.spot1].getTokenDiv();
+        var tokenSpot2 = this.spotsStock[args.spot2].getTokenDiv();
         this.spotsStock[args.spot1].setLord(lordSpot2);
         this.spotsStock[args.spot2].setLord(lordSpot1);
+        if (tokenSpot2) {
+            this.spotsStock[args.spot1].addTokenDiv(tokenSpot2);
+        }
+        if (tokenSpot1) {
+            this.spotsStock[args.spot2].addTokenDiv(tokenSpot1);
+        }
     };
     return PlayerTable;
 }());
