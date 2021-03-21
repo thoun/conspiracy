@@ -9,13 +9,12 @@ declare const board: HTMLDivElement;
 
 const SCORE_MS = 1500;
 
-// TODO find official colors
 const GUILD_COLOR = [];
-GUILD_COLOR[1] = 'yellow';
-GUILD_COLOR[2] = 'red';
-GUILD_COLOR[3] = 'green';
-GUILD_COLOR[4] = 'blue';
-GUILD_COLOR[5] = 'purple';
+GUILD_COLOR[1] = '#c1950b';
+GUILD_COLOR[2] = '#770405';
+GUILD_COLOR[3] = '#097138';
+GUILD_COLOR[4] = '#011d4d';
+GUILD_COLOR[5] = '#522886';
 
 class Conspiracy implements ConspiracyGame {
     private gamedatas: ConspiracyGamedatas;
@@ -72,7 +71,7 @@ class Conspiracy implements ConspiracyGame {
     //                  You can use this method to perform some user interface changes at this moment.
     //
     public onEnteringState(stateName: string, args: any) {
-        console.log( 'Entering state: '+stateName, args.args );
+        console.log( 'Entering state: '+stateName /*, args.args*/ );
 
         switch (stateName) {
             case 'lordStackSelection':

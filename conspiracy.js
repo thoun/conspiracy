@@ -750,13 +750,12 @@ var PlayerTable = /** @class */ (function () {
     return PlayerTable;
 }());
 var SCORE_MS = 1500;
-// TODO find official colors
 var GUILD_COLOR = [];
-GUILD_COLOR[1] = 'yellow';
-GUILD_COLOR[2] = 'red';
-GUILD_COLOR[3] = 'green';
-GUILD_COLOR[4] = 'blue';
-GUILD_COLOR[5] = 'purple';
+GUILD_COLOR[1] = '#c1950b';
+GUILD_COLOR[2] = '#770405';
+GUILD_COLOR[3] = '#097138';
+GUILD_COLOR[4] = '#011d4d';
+GUILD_COLOR[5] = '#522886';
 var Conspiracy = /** @class */ (function () {
     function Conspiracy() {
         this.playersTables = [];
@@ -795,7 +794,7 @@ var Conspiracy = /** @class */ (function () {
     //                  You can use this method to perform some user interface changes at this moment.
     //
     Conspiracy.prototype.onEnteringState = function (stateName, args) {
-        console.log('Entering state: ' + stateName, args.args);
+        console.log('Entering state: ' + stateName /*, args.args*/);
         switch (stateName) {
             case 'lordStackSelection':
                 this.onEnteringLordStackSelection(args.args);
