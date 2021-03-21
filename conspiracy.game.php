@@ -520,12 +520,17 @@ class Conspiracy extends Table
 
         $neighbours = $this->NEIGHBOURS[$currentSpot];
         $filteredNeigbours = array_filter($neighbours, function($neighbour) use ($neighbours) {
-            return (array_search($neighbour, $neighbours) === false) && 
-                ($coalition->guild === $this->getLordInSpot($player_id, $neighbour)->guild);
+            // we ignore neighbours already counted
+            if (array_search($neighbour, $neighbours) !== false) {
+                return false;
+            }
+            // we only take lords having same guild
+            $lord = $this->getLordInSpot($player_id, $neighbour);
+            return !!$lord && $coalition->guild === $lord->guild;
         });
 
-        foreach ($filteredNeigbour as $n) {
-            $coalition->size += $this->getCoalitionSize($player_id, $coalition, $n);
+        foreach ($filteredNeigbours as $filteredNeigbour) {
+            $coalition->size += $this->getCoalitionSize($player_id, $coalition, $filteredNeigbour);
         }
     }
 
@@ -536,7 +541,7 @@ class Conspiracy extends Table
             $coalition = new stdClass();
             $coalition->spot = $spot;
             $coalition->size = 0;
-            $coalition->$guild = $this->getLordInSpot($player_id, $spot)->guild;
+            $coalition->guild = $this->getLordInSpot($player_id, $spot)->guild;
             $coalition->alreadyCounted = [];
             $this->getCoalitionSize($player_id, $coalition, $spot);
             
@@ -721,7 +726,7 @@ class Conspiracy extends Table
     }
 
     function stShowScore() {
-        $sql = "SELECT player_id id, player_name, player_score_aux pearls FROM player";
+        $sql = "SELECT player_id id, player_name, player_score_aux pearls FROM player ORDER BY player_no DESC";
         $players = self::getCollectionFromDb($sql);
 
         // we reinit points as we gave points for lords & locations
