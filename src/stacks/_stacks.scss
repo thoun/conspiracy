@@ -25,9 +25,10 @@
             cursor: pointer;
         }
 
-        .button.hidden {
+        &.selectable .button.hidden {
             visibility: hidden;
             pointer-events: none;
+            cursor: default;
         }
     }
 }

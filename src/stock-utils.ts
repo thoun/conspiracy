@@ -68,8 +68,21 @@ function setupLocationCards(locationStocks: Stock[]) {
     });
 }
 
+function getGuildName(guild: number) {
+    let guildName = null;
+    switch (guild) {
+        case 1: guildName = _('Farmer'); break;
+        case 2: guildName = _('Military'); break;
+        case 3: guildName = _('Merchant'); break;
+        case 4: guildName = _('Politician'); break;
+        case 5: guildName = _('Mage'); break;
+    }
+    return guildName;
+}
+
 function getLocationTooltip(typeWithGuild: number) {
     const type = Math.floor(typeWithGuild / 10);
+    const guild = typeWithGuild % 10;
     let message = null;
     switch (type) {
         case 1: message = _("At the end of the game, this Location is worth 7 IP."); break;
@@ -87,8 +100,8 @@ function getLocationTooltip(typeWithGuild: number) {
         case 13: message = _("Until the end of the game, to take control of a Location, only 2 keys are needed, irrespective of their type. At the end of the game, this Location is worth 3 IP."); break;
         case 14: message = _("Until the end of the game, when you take control of a Location, you choose this location from the Location deck (No longer from the available Locations). The deck is then reshuffled. At the end of the game, this Location is worth 3 IP."); break;
 
-        case 100: message = _("At the end of the game, this Location is worth as many IP as your most influential Lord of the indicated color."); break;
-        case 101: message = _("At the end of the game, this Location is worth 1 IP + a bonus of 1 IP per Lord of the indicated color present in your Senate Chamber."); break;
+        case 100: message = dojo.string.substitute(_("At the end of the game, this Location is worth as many IP as your most influential ${guild_name} Lord."), { guild_name: getGuildName(guild) }); break;
+        case 101: message = dojo.string.substitute(_("At the end of the game, this Location is worth 1 IP + a bonus of 1 IP per ${guild_name} Lord present in your Senate Chamber."), { guild_name: getGuildName(guild) }); break;
     }
     return message;
 }

@@ -10,19 +10,27 @@ abstract class AbstractStacks<T extends Card> {
     protected abstract get pickDiv(): HTMLDivElement;
     protected abstract getCardUniqueId(card: T): number;
 
-    public setSelectable(selectable: boolean, limitToHidden?: number) {
+    public setSelectable(selectable: boolean, limitToHidden?: number, allHidden?: boolean) {
         this.selectable = selectable;
         const action = selectable ? 'add' : 'remove';
         this.pileDiv.classList[action]('selectable');
 
+        const buttons = Array.from(this.pileDiv.getElementsByClassName('button'));
+
         if (limitToHidden) {
-            const buttons = Array.from(this.pileDiv.getElementsByClassName('button'));
             if (selectable) {
                 buttons.filter((button: HTMLDivElement) => parseInt(button.dataset.number) !== limitToHidden)
                     .forEach(button => button.classList.add('hidden'));
-            } else {
-                buttons.forEach(button => button.classList.remove('hidden'));
             }
+        }
+
+        if (!selectable) {
+            buttons.forEach(button => button.classList.remove('hidden'));
+        }
+
+        // if player has all hidden location, we replace the 3 buttons by one special for the rest of the game
+        if (allHidden && buttons.length > 1) {
+            document.getElementById('location-hidden-pile').innerHTML = '<div class="button" data-number="0">*</div>';
         }
     }
 

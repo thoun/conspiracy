@@ -3,8 +3,9 @@
     display: inline-block;
     width: 207.26px;
     background: #76cee160;
-    height: 212px;
+    height: 209px;
     border-radius: 10px;
+    box-shadow: 1px 1px 3px rgb(0 0 0 / 50%);
 
     @for $i from 1 through 5 {
         &.spot#{$i} {

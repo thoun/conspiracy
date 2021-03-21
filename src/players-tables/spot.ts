@@ -29,6 +29,7 @@ class PlayerTableSpotStock {
         const lord = spot.lord;
         if (lord) {
             this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), `${lord.id}`);
+            this.hidePlaceholder();
         }
 
         this.locationsStock = new ebg.stock() as Stock;
@@ -58,8 +59,12 @@ class PlayerTableSpotStock {
         }
         this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), `${lord.id}`);
         this.spot.lord = lord;
-        
+        this.hidePlaceholder();
+    }
+
+    private hidePlaceholder() {
         dojo.style(`player-table-${this.playerId}-spot${this.spotNumber}`, 'background', 'none');
+        dojo.style(`player-table-${this.playerId}-spot${this.spotNumber}`, 'box-shadow', 'none');
     }
 
     public setLocation(location: Location) {

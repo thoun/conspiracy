@@ -8,7 +8,7 @@ class LocationsStacks extends AbstractStacks<Location> {
 
         this.visibleLocationsStock = new ebg.stock() as Stock;
         this.visibleLocationsStock.create(this.game, $('location-visible-stock'), LOCATION_WIDTH, LOCATION_HEIGHT);
-        this.visibleLocationsStock.setSelectionMode(1);            
+        this.visibleLocationsStock.setSelectionMode(0);
         this.visibleLocationsStock.setSelectionAppearance('class');
         this.visibleLocationsStock.onItemCreate = dojo.hitch( this, 'setupNewLocationCard' ); 
         dojo.connect(this.visibleLocationsStock, 'onChangeSelection', this, 'onVisibleLocationClick');
@@ -31,6 +31,12 @@ class LocationsStacks extends AbstractStacks<Location> {
 
     get pickDiv(): HTMLDivElement {
         return document.getElementById('location-pick') as HTMLDivElement;
+    }
+
+    public setSelectable(selectable: boolean, limitToHidden?: number, allHidden?: boolean) {
+        super.setSelectable(selectable, limitToHidden, allHidden);
+
+        this.visibleLocationsStock.setSelectionMode(selectable && !allHidden ? 1 : 0); 
     }
 
     public discardVisible() {

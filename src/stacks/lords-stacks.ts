@@ -34,8 +34,8 @@ class LordsStacks extends AbstractStacks<Lord> {
         guilds.forEach(guild => this.lordsStocks[guild].addLords(lords.filter(lord => lord.guild === guild)));
     }
 
-    public setSelectable(selectable: boolean, limitToHidden: number) {
-        super.setSelectable(selectable);
+    public setSelectable(selectable: boolean, limitToHidden: number, allHidden?: boolean) {
+        super.setSelectable(selectable, limitToHidden, allHidden);
 
         if (!selectable || !limitToHidden) {
             this.lordsStocks.forEach(lordStock => lordStock.setSelectable(selectable));

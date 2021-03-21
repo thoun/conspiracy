@@ -325,13 +325,12 @@ class Conspiracy extends Table
 
         $this->lords->moveAllCardsInLocation('table', $number == 1 ? 'lord_pick' : 'lord_selection', $guild);
         
-        $message = $number > 1 ?
-            clienttranslate('${player_name} chooses to take visible lords from the deck') :
-            clienttranslate('${player_name} chooses to take visible lord from the deck');
+        $message = clienttranslate('${player_name} chooses to take all visible ${guild_name} lords');
         self::notifyAllPlayers('lordVisiblePile', $message, [
             'player_name' => self::getActivePlayerName(),
             'guild' => $guild,
-            'number' => $number
+            'guild_name' => $this->getGuildName($guild),
+            'number' => $number,
         ]);
 
         self::setGameStateValue('stackSelection', 0);
@@ -387,7 +386,7 @@ class Conspiracy extends Table
 
         $fromHidden = self::getGameStateValue('AP_DECK_LOCATION') == self::getActivePlayerId();
 
-        if ($fromHidden && $number !== -1) {
+        if ($fromHidden && $number !== 0) {
             throw new Error('You must look all locations');
         } else if (!$fromHidden && ($number < 1 || $number > 3)) {
             throw new Error('You must look 1 to 3 locations');
@@ -532,7 +531,8 @@ class Conspiracy extends Table
     }
 
     function getLordInSpot(int $player_id, int $spot) {
-        return $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id", $spot))[0];
+        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id", $spot));
+        return count($lords) > 0 ? $lords[0] : null;
     }
 
     function getCoalitionSize(int $player_id, $coalition, int $currentSpot) {
@@ -559,21 +559,37 @@ class Conspiracy extends Table
         $topCoalition = null;
 
         for ($spot = 1; $spot <= SPOT_NUMBER; $spot++) {
-            $coalition = new stdClass();
-            $coalition->spot = $spot;
-            $coalition->size = 0;
-            $coalition->guild = $this->getLordInSpot($player_id, $spot)->guild;
-            $coalition->alreadyCounted = [];
-            $this->getCoalitionSize($player_id, $coalition, $spot);
-            
-            if (!$topCoalition || $coalition->size > $topCoalition->size) {
-                $topCoalition = $coalition;
+            $lordInSpot = $this->getLordInSpot($player_id, $spot);
+
+            if ($lordInSpot) {
+                $coalition = new stdClass();
+                $coalition->spot = $spot;
+                $coalition->size = 0;
+                $coalition->guild = $lordInSpot->guild;
+                $coalition->alreadyCounted = [];
+                $this->getCoalitionSize($player_id, $coalition, $spot);
+                
+                if (!$topCoalition || $coalition->size > $topCoalition->size) {
+                    $topCoalition = $coalition;
+                }
             }
         }
 
         self::debug('[GBA]coalition='.json_encode($topCoalition));
 
         return $topCoalition;
+    }
+
+    function getGuildName(int $guild) {
+        $guildName = null;
+        switch ($guild) {
+            case 1: $guildName = clienttranslate('Farmer'); break;
+            case 2: $guildName = clienttranslate('Military'); break;
+            case 3: $guildName = clienttranslate('Merchant'); break;
+            case 4: $guildName = clienttranslate('Politician'); break;
+            case 5: $guildName = clienttranslate('Mage'); break;
+        }
+        return $guildName;
     }
     
 //////////////////////////////////////////////////////////////////////////////
@@ -641,7 +657,17 @@ class Conspiracy extends Table
         $pearls = $lord->pearls;
         self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_aux = player_score_aux + $pearls WHERE player_id = $player_id");
         
-        self::notifyAllPlayers('lordPlayed', clienttranslate('${player_name} plays ${points} point(s) ${guild_name} lord'), [
+        $message = null;
+        switch ($lord->type) {
+            case 1: $message = clienttranslate('${player_name} plays 0 point ${guild_name} lord with swap power'); break;
+            case 2: $message = clienttranslate('${player_name} plays 1 point ${guild_name} lord with silver key'); break;
+            case 3: $message = clienttranslate('${player_name} plays 2 points ${guild_name} lord with gold key'); break;
+            case 4: $message = clienttranslate('${player_name} plays 3 points ${guild_name} lord and gets 2 pearls'); break;
+            case 5: $message = clienttranslate('${player_name} plays 4 points ${guild_name} lord and get 1 pearl'); break;
+            case 6: $message = clienttranslate('${player_name} plays 6 points ${guild_name} lord and reveal a lord from the deck'); break;
+        }
+
+        self::notifyAllPlayers('lordPlayed', $message, [
             'playerId' => $player_id,
             'player_name' => self::getActivePlayerName(),
             'lord' => $lord,
@@ -649,14 +675,15 @@ class Conspiracy extends Table
             'discardedLords' => $remainingLords,
             'points' => $points,
             'pearls' => $pearls,
-            'guild_name' => 'TODO'
+            'guild_name' => $this->getGuildName($lord->guild)
         ]);
 
         if ($lord->showExtraLord) {
             $extraLord = $this->addExtraLord();
 
-            self::notifyAllPlayers('extraLordRevealed', clienttranslate('A lord is added in the discard pile'), [
-                'lord' => $extraLord
+            self::notifyAllPlayers('extraLordRevealed', clienttranslate('A ${guild_name} lord is added in the discard pile'), [
+                'lord' => $extraLord,
+                'guild_name' => $this->getGuildName($extraLord->guild),
             ]);
         }
 
@@ -699,7 +726,7 @@ class Conspiracy extends Table
             'player_name' => self::getActivePlayerName(),
             'location' => $location,
             'spot' => $spot,
-            'discardedLocations' => $remainingLocations,
+            'discardedLocations' => $fromHidden ? [] : $remainingLocations,
             'points' => $points,
             'pearls' => $pearls,
         ]);

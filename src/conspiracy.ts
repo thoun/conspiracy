@@ -90,7 +90,7 @@ class Conspiracy implements ConspiracyGame {
         }
     }
 
-    onEnteringLordStackSelection(args: EnteringLordStackSelectionArgs) { // TODO
+    onEnteringLordStackSelection(args: EnteringLordStackSelectionArgs) {
         if ((this as any).isCurrentPlayerActive()) {
             this.lordsStacks.setSelectable(true, args.limitToHidden);
         }
@@ -106,9 +106,9 @@ class Conspiracy implements ConspiracyGame {
         }
     }
 
-    onEnteringLocationStackSelection(args: EnteringLocationStackSelectionArgs) { // TODO
+    onEnteringLocationStackSelection(args: EnteringLocationStackSelectionArgs) {
         if ((this as any).isCurrentPlayerActive()) {
-            this.locationsStacks.setSelectable(true);
+            this.locationsStacks.setSelectable(true, null, args.allHidden);
         }
     } 
 

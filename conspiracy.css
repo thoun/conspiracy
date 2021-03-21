@@ -23,9 +23,10 @@
   display: flex;
   cursor: pointer;
 }
-.stacks .hidden-pile .button.hidden {
+.stacks .hidden-pile.selectable .button.hidden {
   visibility: hidden;
   pointer-events: none;
+  cursor: default;
 }
 
 #lord-pick, #location-pick {
@@ -82,8 +83,9 @@
   display: inline-block;
   width: 207.26px;
   background: #76cee160;
-  height: 212px;
+  height: 209px;
   border-radius: 10px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 .player-table-spot.spot1 {
   top: 0;
