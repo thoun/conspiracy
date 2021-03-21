@@ -7,7 +7,7 @@ declare const g_gamethemeurl;
 
 declare const board: HTMLDivElement;
 
-const SCORE_MS = 2000;
+const SCORE_MS = 1500;
 
 class Conspiracy implements ConspiracyGame {
     private gamedatas: ConspiracyGamedatas;
@@ -318,7 +318,7 @@ class Conspiracy implements ConspiracyGame {
     }
 
     private setScore(playerId: number | string, column: number, score: number) { // column 1 for lord ... 5 for pearl master
-        (document.getElementById(`score${playerId}`).childNodes[column] as HTMLTableDataCellElement).innerHTML = `${score}`;
+        (document.getElementById(`score${playerId}`).getElementsByTagName('td')[column] as HTMLTableDataCellElement).innerHTML = `${score}`;
     }
 
     ///////////////////////////////////////////////////
@@ -348,8 +348,8 @@ class Conspiracy implements ConspiracyGame {
             ['scoreLords', SCORE_MS],
             ['scoreLocations', SCORE_MS],
             ['scoreCoalition', SCORE_MS],
-            ['scorePearls', SCORE_MS],
             ['scorePearlMaster', SCORE_MS],
+            ['scoreTotal', SCORE_MS],
         ];
     
         notifs.forEach((notif) => {
@@ -415,11 +415,11 @@ class Conspiracy implements ConspiracyGame {
         this.setScore(notif.args.playerId, 3, notif.args.points);
     }
 
-    notif_scorePearls(notif: Notif<NotifScorePearlsArgs>) {
-        this.setScore(notif.args.playerId, 4, notif.args.pearls);
+    notif_scorePearlMaster(notif: Notif<NotifScorePearlMasterArgs>) {
+        Object.keys(this.gamedatas.players).forEach(playerId => this.setScore(playerId, 4, notif.args.playerId == Number(playerId) ? 5 : 0));
     }
 
-    notif_scorePearlMaster(notif: Notif<NotifScorePearlMasterArgs>) {
-        Object.keys(this.gamedatas.players).forEach(playerId => this.setScore(playerId, 5, notif.args.playerId == Number(playerId) ? 5 : 0));
+    notif_scoreTotal(notif: Notif<NotifScorePointArgs>) {
+        this.setScore(notif.args.playerId, 5, notif.args.points);
     }
 }

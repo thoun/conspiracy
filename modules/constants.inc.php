@@ -1,6 +1,6 @@
 <?php
 
-define('DICES_PER_PLAYER', 8);
+define('SPOT_NUMBER', 15);
 
 /*
  * State constants

@@ -120,11 +120,6 @@ interface NotifScorePointArgs {
     };
 }
 
-interface NotifScorePearlsArgs {
-    playerId: number;
-    pearls: number;
-}
-
 interface NotifScorePearlMasterArgs {
     playerId: number;
 }

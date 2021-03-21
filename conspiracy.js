@@ -571,7 +571,7 @@ var PlayerTable = /** @class */ (function () {
     };
     return PlayerTable;
 }());
-var SCORE_MS = 2000;
+var SCORE_MS = 1500;
 var Conspiracy = /** @class */ (function () {
     function Conspiracy() {
         this.playersTables = [];
@@ -812,7 +812,7 @@ var Conspiracy = /** @class */ (function () {
         this.takeAction('dontSwitch');
     };
     Conspiracy.prototype.setScore = function (playerId, column, score) {
-        document.getElementById("score" + playerId).childNodes[column].innerHTML = "" + score;
+        document.getElementById("score" + playerId).getElementsByTagName('td')[column].innerHTML = "" + score;
     };
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
@@ -840,8 +840,8 @@ var Conspiracy = /** @class */ (function () {
             ['scoreLords', SCORE_MS],
             ['scoreLocations', SCORE_MS],
             ['scoreCoalition', SCORE_MS],
-            ['scorePearls', SCORE_MS],
             ['scorePearlMaster', SCORE_MS],
+            ['scoreTotal', SCORE_MS],
         ];
         notifs.forEach(function (notif) {
             dojo.subscribe(notif[0], _this, "notif_" + notif[0]);
@@ -894,12 +894,12 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.notif_scoreCoalition = function (notif) {
         this.setScore(notif.args.playerId, 3, notif.args.points);
     };
-    Conspiracy.prototype.notif_scorePearls = function (notif) {
-        this.setScore(notif.args.playerId, 4, notif.args.pearls);
-    };
     Conspiracy.prototype.notif_scorePearlMaster = function (notif) {
         var _this = this;
-        Object.keys(this.gamedatas.players).forEach(function (playerId) { return _this.setScore(playerId, 5, notif.args.playerId == Number(playerId) ? 5 : 0); });
+        Object.keys(this.gamedatas.players).forEach(function (playerId) { return _this.setScore(playerId, 4, notif.args.playerId == Number(playerId) ? 5 : 0); });
+    };
+    Conspiracy.prototype.notif_scoreTotal = function (notif) {
+        this.setScore(notif.args.playerId, 5, notif.args.points);
     };
     return Conspiracy;
 }());
