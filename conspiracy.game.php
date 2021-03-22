@@ -536,17 +536,16 @@ class Conspiracy extends Table
     }
 
     function getCoalitionSize(int $player_id, $coalition, int $currentSpot) {
+        // we check we don't count twice the same spot
+        if (array_search($currentSpot, $coalition->alreadyCounted) !== false) {
+            return;
+        }
+
         $coalition->size++;
         $coalition->alreadyCounted = array_merge($coalition->alreadyCounted, [$currentSpot]);
-        $alreadyCounted = $coalition->alreadyCounted;
 
-        $neighbours = $this->NEIGHBOURS[$currentSpot];
-        $filteredNeigbours = array_filter($neighbours, function($neighbour) use ($alreadyCounted, $player_id, $coalition) {
-            // we ignore neighbours already counted
-            if (array_search($neighbour, $alreadyCounted) !== false) {
-                return false;
-            }
-            // we only take lords having same guild
+        // we only take lords having same guild
+        $filteredNeigbours = array_filter($this->NEIGHBOURS[$currentSpot], function($neighbour) use ($player_id, $coalition) {
             $lord = $this->getLordInSpot($player_id, $neighbour);
             return !!$lord && $coalition->guild === $lord->guild;
         });
