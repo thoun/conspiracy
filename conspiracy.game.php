@@ -191,9 +191,6 @@ class Conspiracy extends Table
             }
         }
 
-        // TODO TEMP
-        $result['DEBUG'] = $this->getLocationsFromDb($this->locations->getCardsInLocation("deck"));
-
         $result['pearlMasterPlayer'] = intval(self::getGameStateValue('pearlMasterPlayer'));
 
         $stateName = $this->gamestate->state()['name']; 
@@ -497,9 +494,6 @@ class Conspiracy extends Table
         $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id"));
 
         foreach($locations as $location) {
-            self::debug('location points before '.$location->type.' : ' . $points . '.');
-            self::debug('location passivePower ' . $location->passivePower . ', passivePowerGuild ' . $location->passivePowerGuild . '.');
-
             $points += $location->points;
 
             if ($location->passivePower == PP_SILVER_KEYS) {
@@ -520,16 +514,14 @@ class Conspiracy extends Table
 
             if ($location->passivePower == PP_LORD_MAX) {
                 $points += $this->getTopLordPoints($player_id, $location->passivePowerGuild);
-                self::debug('top lord points : '.$this->getTopLordPoints($player_id, $location->passivePowerGuild));
             }
 
             if ($location->passivePower == PP_LORD_COUNT) {
                 $guild = $location->passivePowerGuild;
-                self::debug('lord count : '.count(array_values(array_filter($lords, function($lord) use ($guild) { return $lord->guild == $guild; }))));
                 $points += count(array_values(array_filter($lords, function($lord) use ($guild) { return $lord->guild == $guild; })));
             }
 
-            self::debug('location points after '.$location->type.' : ' . $points . '.'); // TODO find bugs
+            self::debug('location points after '.$location->type.' : ' . $points . '.');
         }
 
         return $points;
@@ -752,11 +744,11 @@ class Conspiracy extends Table
         }
         if ($location->activePower == AP_FIRST_LORD) {
             self::setGameStateValue('AP_FIRST_LORD', $player_id);
-            self::setGameStateValue('AP_FIRST_LORDS', 0); // TODO confirm with publisher
+            self::setGameStateValue('AP_FIRST_LORDS', 0);
         }
         if ($location->activePower == AP_FIRST_LORDS) {
             self::setGameStateValue('AP_FIRST_LORDS', $player_id);
-            self::setGameStateValue('AP_FIRST_LORD', 0); // TODO confirm with publisher
+            self::setGameStateValue('AP_FIRST_LORD', 0);
         }
         if ($location->activePower == AP_DECK_LOCATION) {
             self::setGameStateValue('AP_DECK_LOCATION', $player_id);
