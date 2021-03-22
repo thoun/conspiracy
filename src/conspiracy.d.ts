@@ -31,8 +31,8 @@ interface DetailedScore {
     lords: number;
     locations: number;
     coalition: number;
-    pearls: number;
     pearlMaster: number;
+    total: number;
 }
 
 interface ConspiracyGamedatas {

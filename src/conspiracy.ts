@@ -135,8 +135,8 @@ class Conspiracy implements ConspiracyGame {
                 <td>${detailedScore?.lords !== undefined ? detailedScore.lords : ''}</td>
                 <td>${detailedScore?.locations !== undefined ? detailedScore.locations : ''}</td>
                 <td>${detailedScore?.coalition !== undefined ? detailedScore.coalition : ''}</td>
-                <td>${detailedScore?.pearls !== undefined ? detailedScore.pearls : ''}</td>
                 <td>${detailedScore?.pearlMaster !== undefined ? detailedScore.pearlMaster : ''}</td>
+                <td class="total">${detailedScore?.total !== undefined ? detailedScore.total : ''}</td>
             </tr>`, 'score-table-body');
         });
     }

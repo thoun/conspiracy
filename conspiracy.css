@@ -245,6 +245,9 @@
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
   word-break: break-all;
 }
+#score table tr td.total {
+  font-weight: bold;
+}
 
 html {
   background: url("img/background.jpg");
