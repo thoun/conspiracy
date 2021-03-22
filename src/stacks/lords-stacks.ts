@@ -9,6 +9,8 @@ class LordsStacks extends AbstractStacks<Lord> {
         GUILD_IDS.forEach(guild => this.lordsStocks[guild] = new LordStock(this, guild, visibleLords[guild]));
 
         this.pickStock = new ebg.stock() as Stock;
+        this.pickStock.setSelectionAppearance('class');
+        this.pickStock.selectionClass = 'no-visible-selection';
         this.pickStock.create( this.game, this.pickDiv.children[0], LORD_WIDTH, LORD_HEIGHT );
         this.pickStock.centerItems = true;
         this.pickStock.onItemCreate = dojo.hitch(this, 'setupNewLordCard'); 

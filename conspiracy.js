@@ -290,6 +290,8 @@ var LordStock = /** @class */ (function () {
         this.lordsStacks = lordsStacks;
         this.guild = guild;
         this.stock = new ebg.stock();
+        this.stock.setSelectionAppearance('class');
+        this.stock.selectionClass = 'no-visible-selection';
         this.stock.create(this.lordsStacks.game, this.div, LORD_WIDTH, LORD_HEIGHT);
         this.stock.setSelectionMode(0);
         this.stock.onItemCreate = dojo.hitch(this, 'setupNewLordCard');
@@ -405,6 +407,8 @@ var LordsStacks = /** @class */ (function (_super) {
         _this.pileDiv.addEventListener('click', function (e) { return _this.onHiddenLordsClick(e); });
         GUILD_IDS.forEach(function (guild) { return _this.lordsStocks[guild] = new LordStock(_this, guild, visibleLords[guild]); });
         _this.pickStock = new ebg.stock();
+        _this.pickStock.setSelectionAppearance('class');
+        _this.pickStock.selectionClass = 'no-visible-selection';
         _this.pickStock.create(_this.game, _this.pickDiv.children[0], LORD_WIDTH, LORD_HEIGHT);
         _this.pickStock.centerItems = true;
         _this.pickStock.onItemCreate = dojo.hitch(_this, 'setupNewLordCard');
@@ -485,12 +489,15 @@ var LocationsStacks = /** @class */ (function (_super) {
         _this.game = game;
         _this.pileDiv.addEventListener('click', function (e) { return _this.onHiddenLocationClick(e); });
         _this.visibleLocationsStock = new ebg.stock();
+        _this.visibleLocationsStock.setSelectionAppearance('class');
+        _this.visibleLocationsStock.selectionClass = 'no-visible-selection';
         _this.visibleLocationsStock.create(_this.game, $('location-visible-stock'), LOCATION_WIDTH, LOCATION_HEIGHT);
         _this.visibleLocationsStock.setSelectionMode(0);
-        _this.visibleLocationsStock.setSelectionAppearance('class');
         _this.visibleLocationsStock.onItemCreate = dojo.hitch(_this, 'setupNewLocationCard');
         dojo.connect(_this.visibleLocationsStock, 'onChangeSelection', _this, 'onVisibleLocationClick');
         _this.pickStock = new ebg.stock();
+        _this.pickStock.setSelectionAppearance('class');
+        _this.pickStock.selectionClass = 'no-visible-selection';
         _this.pickStock.create(_this.game, _this.pickDiv.children[0], LOCATION_WIDTH, LOCATION_HEIGHT);
         _this.pickStock.centerItems = true;
         _this.pickStock.onItemCreate = dojo.hitch(_this, 'setupNewLocationCard');

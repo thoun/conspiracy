@@ -13,6 +13,7 @@ interface StockItemType {
 interface Stock {
     items: StockItems[];
     item_type: { [cardUniqueId: number]: StockItemType };
+    selectionClass: string;
 
     create: (game: Game, $div: any, cardwidth: number, cardheight: number) => void;
     setSelectionMode: (selectionMode: number) => void;            

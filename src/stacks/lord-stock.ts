@@ -145,6 +145,8 @@ class LordStock {
 
     constructor(private lordsStacks: LordsStacks, private guild: number, visibleLords: Lord[]) {
         this.stock = new ebg.stock() as Stock;
+        this.stock.setSelectionAppearance('class');
+        this.stock.selectionClass = 'no-visible-selection';
         this.stock.create(this.lordsStacks.game, this.div, LORD_WIDTH, LORD_HEIGHT);
         this.stock.setSelectionMode(0);
         this.stock.onItemCreate = dojo.hitch(this, 'setupNewLordCard'); 
