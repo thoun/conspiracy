@@ -494,6 +494,7 @@ class Conspiracy extends Table
         $points = 0;
 
         $locations = $this->getLocationsFromDb($this->locations->getCardsInLocation("player$player_id"));
+        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id"));
 
         foreach($locations as $location) {
             self::debug('location points before '.$location->type.' : ' . $points . '.');
@@ -502,11 +503,11 @@ class Conspiracy extends Table
             $points += $location->points;
 
             if ($location->passivePower == PP_SILVER_KEYS) {
-                $points += count(array_values(array_filter($locations, function($loc) { return $loc->key === 1; })));
+                $points += count(array_values(array_filter($lords, function($lord) { return $lord->key === 1; })));
             }
 
             if ($location->passivePower == PP_GOLD_KEYS) {
-                $points += count(array_values(array_filter($locations, function($loc) { return $loc->key === 2; }))) * 2;
+                $points += count(array_values(array_filter($lords, function($lord) { return $lord->key === 2; }))) * 2;
             }
 
             if ($location->passivePower == PP_PEARLS) {
@@ -523,7 +524,6 @@ class Conspiracy extends Table
             }
 
             if ($location->passivePower == PP_LORD_COUNT) {
-                $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id"));
                 $guild = $location->passivePowerGuild;
                 self::debug('lord count : '.count(array_values(array_filter($lords, function($lord) use ($guild) { return $lord->guild == $guild; }))));
                 $points += count(array_values(array_filter($lords, function($lord) use ($guild) { return $lord->guild == $guild; })));
