@@ -538,11 +538,12 @@ class Conspiracy extends Table
     function getCoalitionSize(int $player_id, $coalition, int $currentSpot) {
         $coalition->size++;
         $coalition->alreadyCounted = array_merge($coalition->alreadyCounted, [$currentSpot]);
+        $alreadyCounted = $coalition->alreadyCounted;
 
         $neighbours = $this->NEIGHBOURS[$currentSpot];
-        $filteredNeigbours = array_filter($neighbours, function($neighbour) use ($neighbours) {
+        $filteredNeigbours = array_filter($neighbours, function($neighbour) use ($alreadyCounted, $player_id, $coalition) {
             // we ignore neighbours already counted
-            if (array_search($neighbour, $neighbours) !== false) {
+            if (array_search($neighbour, $alreadyCounted) !== false) {
                 return false;
             }
             // we only take lords having same guild
@@ -574,8 +575,6 @@ class Conspiracy extends Table
                 }
             }
         }
-
-        self::debug('[GBA]coalition='.json_encode($topCoalition));
 
         return $topCoalition;
     }
@@ -745,9 +744,11 @@ class Conspiracy extends Table
         }
         if ($location->activePower == AP_FIRST_LORD) {
             self::setGameStateValue('AP_FIRST_LORD', $player_id);
+            self::setGameStateValue('AP_FIRST_LORDS', 0); // TODO confirm with publisher
         }
         if ($location->activePower == AP_FIRST_LORDS) {
             self::setGameStateValue('AP_FIRST_LORDS', $player_id);
+            self::setGameStateValue('AP_FIRST_LORD', 0); // TODO confirm with publisher
         }
         if ($location->activePower == AP_DECK_LOCATION) {
             self::setGameStateValue('AP_DECK_LOCATION', $player_id);

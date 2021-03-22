@@ -361,7 +361,7 @@ var AbstractStacks = /** @class */ (function () {
         }
         // if player has all hidden location, we replace the 3 buttons by one special for the rest of the game
         if (allHidden && buttons.length > 1) {
-            document.getElementById('location-hidden-pile').innerHTML = '<div class="button" data-number="0">*</div>';
+            document.getElementById('location-hidden-pile').innerHTML = '<div class="button" data-number="0">&#x1F441;</div>';
         }
     };
     AbstractStacks.prototype.setPick = function (showPick, pickSelectable, collection) {
