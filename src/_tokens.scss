@@ -10,6 +10,10 @@
     background-position: 0% 0%;
   }
 
+  &.lord {
+    background-position: 50% 0%;
+  }
+
   &#pearlMasterToken {
     background-position: 100% 0%;
   }
@@ -40,11 +44,17 @@
     }
 }
 
-.pearl-counter {
+.counters {
+  display: flex;
+  align-items: center;
+
+  .lord-counter, .pearl-counter {
+    flex: 1;
     display: flex;
     align-items: center;
 
     span {
-        margin-left: 10px;
+      margin-left: 10px;
     }
+  }
 }

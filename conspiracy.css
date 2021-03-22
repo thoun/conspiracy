@@ -19,6 +19,9 @@
   align-items: center;
   text-shadow: 2px 2px 2px black;
 }
+.stacks .hidden-pile .button.eye {
+  background: url("img/eye-shadow.png") center no-repeat;
+}
 .stacks .hidden-pile.selectable .button {
   display: flex;
   cursor: pointer;
@@ -184,6 +187,9 @@
 .token.pearl {
   background-position: 0% 0%;
 }
+.token.lord {
+  background-position: 50% 0%;
+}
 .token#pearlMasterToken {
   background-position: 100% 0%;
 }
@@ -211,11 +217,16 @@
   margin-right: 10px;
 }
 
-.pearl-counter {
+.counters {
   display: flex;
   align-items: center;
 }
-.pearl-counter span {
+.counters .lord-counter, .counters .pearl-counter {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+.counters .lord-counter span, .counters .pearl-counter span {
   margin-left: 10px;
 }
 

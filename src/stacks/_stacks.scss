@@ -18,6 +18,10 @@
             justify-content: center;
             align-items: center;
             text-shadow: 2px 2px 2px black;
+
+            &.eye {
+                background: url('img/eye-shadow.png') center no-repeat;;
+            }
         }
 
         &.selectable .button {

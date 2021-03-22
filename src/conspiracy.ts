@@ -21,6 +21,7 @@ class Conspiracy implements ConspiracyGame {
     private lordsStacks: LordsStacks;
     private locationsStacks: LocationsStacks;
     private playersTables: PlayerTable[] = [];
+    private lordCounters: Counter[] = [];
     private pearlCounters: Counter[] = [];
     private switchSpots: number[] = [];
 
@@ -214,25 +215,47 @@ class Conspiracy implements ConspiracyGame {
         Object.values(gamedatas.players).forEach(player => {
             const playerId = Number(player.id);
 
+            // Lord & pearl counters
+
+            dojo.place(`<div class="counters">
+                <div class="lord-counter">
+                    <div class="token lord"></div> 
+                    <span id="lord-counter-${player.id}"></span>&nbsp;/&nbsp;15
+                </div>
+                <div class="pearl-counter">
+                    <div class="token pearl"></div> 
+                    <span id="pearl-counter-${player.id}"></span>
+                </div>
+            </div>`, `player_board_${player.id}`);
+
+            const lordCounter = new ebg.counter();
+            lordCounter.create(`lord-counter-${player.id}`);
+            console.log(gamedatas.playersTables, gamedatas.playersTables[playerId])
+            lordCounter.setValue(Object.values(gamedatas.playersTables[playerId]).filter((spot: PlayerTableSpot) => !!spot.lord).length);
+            this.lordCounters[playerId] = lordCounter;
+
+            const pearlCounter = new ebg.counter();
+            pearlCounter.create(`pearl-counter-${player.id}`);
+            pearlCounter.setValue((player as any).pearls);
+            this.pearlCounters[playerId] = pearlCounter;
+
+            // top lord tokens
+
             let html = `<div class="top-lord-tokens">`;
-            GUILD_IDS.forEach(guild => html += `<div class="token guild${guild}" id="top-lord-token-${guild}-${player.id}"></div>`);
+            GUILD_IDS.forEach(guild => html += `<div class="token guild${guild} token-guild${guild}" id="top-lord-token-${guild}-${player.id}"></div>`);
             html += `</div>`;
             dojo.place(html, `player_board_${player.id}`);
 
-            dojo.place(`<div class="pearl-counter">
-                <div class="token pearl"></div> 
-                <span id="pearl-counter-${player.id}"></span>
-            </div>`, `player_board_${player.id}`);
-
-            const counter = new ebg.counter();
-            counter.create(`pearl-counter-${player.id}`);
-            counter.setValue((player as any).pearls);
-            this.pearlCounters[playerId] = counter;
+            // pearl master token
 
             if (gamedatas.pearlMasterPlayer === playerId) {
                 this.placePearlMasterToken(gamedatas.pearlMasterPlayer);
             }
         });
+
+        (this as any).addTooltipToClass('lord-counter', _("TODO lords help"), '');
+        (this as any).addTooltipToClass('pearl-counter', _("TODO pearls help"), '');
+        GUILD_IDS.forEach(guild => (this as any).addTooltipToClass(`token-guild${guild}`, _("TODO coat of arms help"), ''));
     }
 
     private createPlayerTables(gamedatas: ConspiracyGamedatas) {
@@ -296,6 +319,8 @@ class Conspiracy implements ConspiracyGame {
             animation.play();
         } else {
             dojo.place('<div id="pearlMasterToken" class="token"></div>', `player_board_${playerId}`);
+
+            (this as any).addTooltip('pearlMasterToken', _("TODO pearlMasterToken help"), '');
         }
     }
 
@@ -374,7 +399,9 @@ class Conspiracy implements ConspiracyGame {
     notif_lordPlayed(notif: Notif<NotifLordPlayedArgs>) {
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
+        this.lordCounters[notif.args.playerId].incValue(1);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
+
         if (notif.args.stackSelection) {
             this.lordsStacks.discardPick(notif.args.discardedLords);
             this.lordsStacks.setPick(false, false);
@@ -396,6 +423,7 @@ class Conspiracy implements ConspiracyGame {
         this.locationsStacks.removeLocation(notif.args.location);
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
+
         if (notif.args.discardedLocations?.length) {
             this.locationsStacks.discardPick(notif.args.discardedLocations);
         }

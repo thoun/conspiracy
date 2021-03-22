@@ -363,7 +363,7 @@ var AbstractStacks = /** @class */ (function () {
         }
         // if player has all hidden location, we replace the 3 buttons by one special for the rest of the game
         if (allHidden && buttons.length > 1) {
-            document.getElementById('location-hidden-pile').innerHTML = '<div class="button" data-number="0">&#x1F441;</div>';
+            document.getElementById('location-hidden-pile').innerHTML = '<div class="button eye" data-number="0"></div>';
         }
     };
     AbstractStacks.prototype.setPick = function (showPick, pickSelectable, collection) {
@@ -765,6 +765,7 @@ GUILD_COLOR[5] = '#522886';
 var Conspiracy = /** @class */ (function () {
     function Conspiracy() {
         this.playersTables = [];
+        this.lordCounters = [];
         this.pearlCounters = [];
         this.switchSpots = [];
     }
@@ -911,19 +912,30 @@ var Conspiracy = /** @class */ (function () {
         var _this = this;
         Object.values(gamedatas.players).forEach(function (player) {
             var playerId = Number(player.id);
+            // Lord & pearl counters
+            dojo.place("<div class=\"counters\">\n                <div class=\"lord-counter\">\n                    <div class=\"token lord\"></div> \n                    <span id=\"lord-counter-" + player.id + "\"></span>&nbsp;/&nbsp;15\n                </div>\n                <div class=\"pearl-counter\">\n                    <div class=\"token pearl\"></div> \n                    <span id=\"pearl-counter-" + player.id + "\"></span>\n                </div>\n            </div>", "player_board_" + player.id);
+            var lordCounter = new ebg.counter();
+            lordCounter.create("lord-counter-" + player.id);
+            console.log(gamedatas.playersTables, gamedatas.playersTables[playerId]);
+            lordCounter.setValue(Object.values(gamedatas.playersTables[playerId]).filter(function (spot) { return !!spot.lord; }).length);
+            _this.lordCounters[playerId] = lordCounter;
+            var pearlCounter = new ebg.counter();
+            pearlCounter.create("pearl-counter-" + player.id);
+            pearlCounter.setValue(player.pearls);
+            _this.pearlCounters[playerId] = pearlCounter;
+            // top lord tokens
             var html = "<div class=\"top-lord-tokens\">";
-            GUILD_IDS.forEach(function (guild) { return html += "<div class=\"token guild" + guild + "\" id=\"top-lord-token-" + guild + "-" + player.id + "\"></div>"; });
+            GUILD_IDS.forEach(function (guild) { return html += "<div class=\"token guild" + guild + " token-guild" + guild + "\" id=\"top-lord-token-" + guild + "-" + player.id + "\"></div>"; });
             html += "</div>";
             dojo.place(html, "player_board_" + player.id);
-            dojo.place("<div class=\"pearl-counter\">\n                <div class=\"token pearl\"></div> \n                <span id=\"pearl-counter-" + player.id + "\"></span>\n            </div>", "player_board_" + player.id);
-            var counter = new ebg.counter();
-            counter.create("pearl-counter-" + player.id);
-            counter.setValue(player.pearls);
-            _this.pearlCounters[playerId] = counter;
+            // pearl master token
             if (gamedatas.pearlMasterPlayer === playerId) {
                 _this.placePearlMasterToken(gamedatas.pearlMasterPlayer);
             }
         });
+        this.addTooltipToClass('lord-counter', _("TODO lords help"), '');
+        this.addTooltipToClass('pearl-counter', _("TODO pearls help"), '');
+        GUILD_IDS.forEach(function (guild) { return _this.addTooltipToClass("token-guild" + guild, _("TODO coat of arms help"), ''); });
     };
     Conspiracy.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;
@@ -979,6 +991,7 @@ var Conspiracy = /** @class */ (function () {
         }
         else {
             dojo.place('<div id="pearlMasterToken" class="token"></div>', "player_board_" + playerId);
+            this.addTooltip('pearlMasterToken', _("TODO pearlMasterToken help"), '');
         }
     };
     Conspiracy.prototype.setCanSwitch = function (switchSpots) {
@@ -1045,6 +1058,7 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.notif_lordPlayed = function (notif) {
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);
         this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
+        this.lordCounters[notif.args.playerId].incValue(1);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         if (notif.args.stackSelection) {
             this.lordsStacks.discardPick(notif.args.discardedLords);
