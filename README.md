@@ -6,6 +6,8 @@ You can play here : https://boardgamearena.com
  - Licence-wise, can we use pictures (score board, player mat, rulebook) not included in game art, but present on official website.
  - When a player plays the "Limit to first lord for this turn" location, and another player plays "Limit to first 2 lords for this turn" location, does it override the first location ? If not, how to react ? (for now, override has been implemented, last of the 2 card is taken into account, no matter the order).
 
+ TODO : try mat & resizable like draftosorus
+
 # How to install the auto-build stack
 
 ## Install builders

@@ -324,14 +324,9 @@ var LordStock = /** @class */ (function () {
     LordStock.prototype.addLords = function (lords) {
         var _this = this;
         lords.forEach(function (lord) { return _this.stock.addToStockWithId(_this.lordsStacks.getCardUniqueId(lord), "" + lord.id); });
-        //this.updateSize();
     };
     LordStock.prototype.removeAllTo = function (to) {
         this.stock.removeAllTo(to);
-    };
-    LordStock.prototype.removeLords = function () {
-        // TODO ? this.stock.removeAll();
-        //this.updateSize();
     };
     LordStock.prototype.updateSize = function () {
         var size = this.stock.items.length;
@@ -500,9 +495,6 @@ var LordsStacks = /** @class */ (function (_super) {
             });
         });
     };
-    LordsStacks.prototype.discardVisibleLordPile = function (guild) {
-        this.lordsStocks[guild].removeLords();
-    };
     LordsStacks.prototype.getCardUniqueId = function (lord) {
         return getUniqueId(lord.type, lord.guild);
     };
@@ -623,9 +615,6 @@ var LocationsStacks = /** @class */ (function (_super) {
         this.game.takeAction('chooseVisibleLocation', {
             id: item_id
         });
-    };
-    LocationsStacks.prototype.removeLocation = function (location) {
-        // TODO ? this.visibleLocationsStock.removeFromStockById(`${location.id}`);
     };
     return LocationsStacks;
 }(AbstractStacks));
@@ -822,7 +811,7 @@ var PlayerTable = /** @class */ (function () {
     };
     return PlayerTable;
 }());
-var ANIMATION_MS = 1500;
+var ANIMATION_MS = 500;
 var SCORE_MS = 1500;
 var GUILD_COLOR = [];
 GUILD_COLOR[1] = '#c1950b';
@@ -1138,7 +1127,6 @@ var Conspiracy = /** @class */ (function () {
         var _a;
         var from = this.locationsStacks.getStockContaining("" + notif.args.location.id);
         this.playersTables[notif.args.playerId].addLocation(notif.args.spot, notif.args.location, from);
-        this.locationsStacks.removeLocation(notif.args.location);
         this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         // TODO when location played, pick disapear before slide, discardPick should be called every time and shouls hide pick, not before
@@ -1160,17 +1148,28 @@ var Conspiracy = /** @class */ (function () {
         this.placePearlMasterToken(notif.args.playerId);
     };
     Conspiracy.prototype.notif_scoreLords = function (notif) {
-        this.setScore(notif.args.playerId, 1, notif.args.points);
+        this.setScore(notif.args.playerId, 1, notif.args.points); // TODO highlight
     };
     Conspiracy.prototype.notif_scoreLocations = function (notif) {
-        this.setScore(notif.args.playerId, 2, notif.args.points);
+        this.setScore(notif.args.playerId, 2, notif.args.points); // TODO highlight
     };
     Conspiracy.prototype.notif_scoreCoalition = function (notif) {
-        this.setScore(notif.args.playerId, 3, notif.args.points);
+        this.setScore(notif.args.playerId, 3, notif.args.points); // TODO highlight
     };
     Conspiracy.prototype.notif_scorePearlMaster = function (notif) {
         var _this = this;
         Object.keys(this.gamedatas.players).forEach(function (playerId) { return _this.setScore(playerId, 4, notif.args.playerId == Number(playerId) ? 5 : 0); });
+        // TODO highlight
+        /*
+        .target-highlight {
+   animation: target-fade 1.5s 1;
+}
+
+@keyframes target-fade {
+   0% { background-color: rgba(255,255,153,0); }
+   50% { background-color: rgba(255,255,153,.8); }
+   100% { background-color: rgba(255,255,153,0); }
+}*/
     };
     Conspiracy.prototype.notif_scoreTotal = function (notif) {
         this.setScore(notif.args.playerId, 5, notif.args.points);

@@ -70,10 +70,6 @@ class LordsStacks extends AbstractStacks<Lord> {
         );
     }
 
-    public discardVisibleLordPile(guild: number) {
-        this.lordsStocks[guild].removeLords();
-    }
-
     public getCardUniqueId(lord: Lord) {
         return getUniqueId(lord.type, lord.guild);
     }

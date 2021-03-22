@@ -100,9 +100,5 @@ class LocationsStacks extends AbstractStacks<Location> {
             id: item_id
         });
     }
-    
-    public removeLocation(location: Location) {
-        // TODO ? this.visibleLocationsStock.removeFromStockById(`${location.id}`);
-    }
 
 }

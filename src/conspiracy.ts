@@ -7,7 +7,7 @@ declare const g_gamethemeurl;
 
 declare const board: HTMLDivElement;
 
-const ANIMATION_MS = 1500;
+const ANIMATION_MS = 500;
 const SCORE_MS = 1500;
 
 const GUILD_COLOR = [];
@@ -415,7 +415,6 @@ class Conspiracy implements ConspiracyGame {
         const from = this.locationsStacks.getStockContaining(`${notif.args.location.id}`);
 
         this.playersTables[notif.args.playerId].addLocation(notif.args.spot, notif.args.location, from);
-        this.locationsStacks.removeLocation(notif.args.location);
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
 
@@ -443,19 +442,31 @@ class Conspiracy implements ConspiracyGame {
     }
 
     notif_scoreLords(notif: Notif<NotifScorePointArgs>) {
-        this.setScore(notif.args.playerId, 1, notif.args.points);
+        this.setScore(notif.args.playerId, 1, notif.args.points); // TODO highlight
     }
 
     notif_scoreLocations(notif: Notif<NotifScorePointArgs>) {
-        this.setScore(notif.args.playerId, 2, notif.args.points);
+        this.setScore(notif.args.playerId, 2, notif.args.points); // TODO highlight
     }
 
     notif_scoreCoalition(notif: Notif<NotifScorePointArgs>) {
-        this.setScore(notif.args.playerId, 3, notif.args.points);
+        this.setScore(notif.args.playerId, 3, notif.args.points); // TODO highlight
     }
 
     notif_scorePearlMaster(notif: Notif<NotifScorePearlMasterArgs>) {
         Object.keys(this.gamedatas.players).forEach(playerId => this.setScore(playerId, 4, notif.args.playerId == Number(playerId) ? 5 : 0));
+         // TODO highlight
+
+         /*
+         .target-highlight {
+    animation: target-fade 1.5s 1;
+}
+
+@keyframes target-fade {
+    0% { background-color: rgba(255,255,153,0); }
+    50% { background-color: rgba(255,255,153,.8); }
+    100% { background-color: rgba(255,255,153,0); }
+}*/
     }
 
     notif_scoreTotal(notif: Notif<NotifScorePointArgs>) {

@@ -169,16 +169,10 @@ class LordStock {
 
     addLords(lords: Lord[]): void {
         lords.forEach(lord => this.stock.addToStockWithId(this.lordsStacks.getCardUniqueId(lord), `${lord.id}`));
-        //this.updateSize();
     }
 
     removeAllTo(to: string): void {
         this.stock.removeAllTo(to);
-    }
-
-    removeLords() {
-        // TODO ? this.stock.removeAll();
-        //this.updateSize();
     }
 
     private updateSize() {
