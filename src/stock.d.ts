@@ -14,6 +14,7 @@ interface Stock {
     items: StockItems[];
     item_type: { [cardUniqueId: number]: StockItemType };
     selectionClass: string;
+    container_div: HTMLDivElement;
 
     create: (game: Game, $div: any, cardwidth: number, cardheight: number) => void;
     setSelectionMode: (selectionMode: number) => void;            

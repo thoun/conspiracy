@@ -36,6 +36,15 @@ class LocationsStacks extends AbstractStacks<Location> {
         return document.getElementById('location-pick') as HTMLDivElement;
     }
 
+    public getStockContaining(locationId: string): Stock {
+        if (this.pickStock.items.some(item => item.id === locationId)) {
+            return this.pickStock;
+        } else if (this.visibleLocationsStock.items.some(item => item.id === locationId)) {
+            return this.visibleLocationsStock;
+        }
+        return null;
+    }
+
     public setSelectable(selectable: boolean, limitToHidden?: number, allHidden?: boolean) {
         super.setSelectable(selectable, limitToHidden, allHidden);
 
@@ -43,11 +52,11 @@ class LocationsStacks extends AbstractStacks<Location> {
     }
 
     public discardVisible() {
-        this.visibleLocationsStock.removeAll();
+        this.visibleLocationsStock.removeAllTo('location-hidden-pile');
     }
 
     public discardPick(locations: Location[]) {
-        locations.forEach(location => this.visibleLocationsStock.addToStockWithId(this.getCardUniqueId(location), `${location.id}`));
+        locations.forEach(location => moveToAnotherStock(this.pickStock, this.visibleLocationsStock, this.getCardUniqueId(location), `${location.id}`));
     }
 
     protected getCardUniqueId(location: Location) {
@@ -56,8 +65,6 @@ class LocationsStacks extends AbstractStacks<Location> {
 
     protected pickClick(control_name: string, item_id: string) {
         this.game.locationPick(Number(item_id));
-        // TODO removeAllTo => locationsStocks
-        this.pickStock.removeAll();
     }
 
     public setupNewLocationCard( card_div: HTMLDivElement, card_type_id: number, card_id: string ) {
@@ -95,7 +102,7 @@ class LocationsStacks extends AbstractStacks<Location> {
     }
     
     public removeLocation(location: Location) {
-        this.visibleLocationsStock.removeFromStockById(`${location.id}`);
+        // TODO ? this.visibleLocationsStock.removeFromStockById(`${location.id}`);
     }
 
 }

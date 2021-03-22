@@ -105,7 +105,7 @@ class Conspiracy implements ConspiracyGame {
     }
 
     onEnteringLordSelection(args: EnteringLordSelectionArgs) {
-        this.lordsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.lords);
+        this.lordsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.fromVisibleGuild ?? 'lord-hidden-pile', args.lords);
     }
 
     onEnteringLordSwitch() {        
@@ -120,8 +120,8 @@ class Conspiracy implements ConspiracyGame {
         }
     } 
 
-    onEnteringLocationSelection(args: EnteringLocationSelectionArgs) {console.log(args.locations);
-        this.locationsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.locations);
+    onEnteringLocationSelection(args: EnteringLocationSelectionArgs) {
+        this.locationsStacks.setPick(true, (this as any).isCurrentPlayerActive(), 'location-hidden-pile', args.locations);
     }   
 
     onEnteringShowScore() {
@@ -230,7 +230,6 @@ class Conspiracy implements ConspiracyGame {
 
             const lordCounter = new ebg.counter();
             lordCounter.create(`lord-counter-${player.id}`);
-            console.log(gamedatas.playersTables, gamedatas.playersTables[playerId])
             lordCounter.setValue(Object.values(gamedatas.playersTables[playerId]).filter((spot: PlayerTableSpot) => !!spot.lord).length);
             this.lordCounters[playerId] = lordCounter;
 
@@ -369,7 +368,7 @@ class Conspiracy implements ConspiracyGame {
         //console.log( 'notifications subscriptions setup' );
 
         const notifs = [
-            ['lordVisiblePile', 1],
+            //['lordVisiblePile', 1],
             ['lordPlayed', 1],
             ['lordSwitched', 1],
             ['extraLordRevealed', 1],
@@ -391,13 +390,15 @@ class Conspiracy implements ConspiracyGame {
     }
 
 
-    notif_lordVisiblePile(notif: Notif<NotifLordVisiblePileArgs>) {
-        this.lordsStacks.discardVisibleLordPile(notif.args.guild);
-    }
+   /*notif_lordVisiblePile(notif: Notif<NotifLordVisiblePileArgs>) {
+        this.lordsStacks.discardVisibleLordPile(notif.args.guild); // TODO useful ?
+    }*/
     
 
     notif_lordPlayed(notif: Notif<NotifLordPlayedArgs>) {
-        this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);
+        const from = this.lordsStacks.getStockContaining(`${notif.args.lord.id}`);
+
+        this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord, from);
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.lordCounters[notif.args.playerId].incValue(1);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
@@ -418,8 +419,10 @@ class Conspiracy implements ConspiracyGame {
         this.lordsStacks.addLords([notif.args.lord]);
     }
 
-    notif_locationPlayed(notif: Notif<NotifLocationPlayedArgs>) {console.log(notif.args.location);
-        this.playersTables[notif.args.playerId].addLocation(notif.args.spot, notif.args.location);
+    notif_locationPlayed(notif: Notif<NotifLocationPlayedArgs>) {
+        const from = this.locationsStacks.getStockContaining(`${notif.args.location.id}`);
+
+        this.playersTables[notif.args.playerId].addLocation(notif.args.spot, notif.args.location, from);
         this.locationsStacks.removeLocation(notif.args.location);
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);

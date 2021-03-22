@@ -609,7 +609,10 @@ class Conspiracy extends Table
     
     function argLordSelection() {
         $lords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));    
-        return [ 'lords' => $lords ];
+        return [ 
+            'lords' => $lords,
+            'fromVisibleGuild' => self::getGameStateValue('stackSelection') == 0 ? $lords[0]->guild : null,
+        ];
     }
     
     function argLocationStackSelection() {

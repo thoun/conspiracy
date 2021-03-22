@@ -45,6 +45,10 @@ class PlayerTableSpotStock {
         }
     }
 
+    public getLordStock(): Stock {
+        return this.lordsStock;
+    }
+
     private get tokenWrapper(): HTMLDivElement {
        return document.getElementById(`player${this.playerId}-spot${this.spotNumber}-token`) as HTMLDivElement;
     }
@@ -53,11 +57,12 @@ class PlayerTableSpotStock {
         return this.spot.lord;
     }
     
-    public setLord(lord: Lord) {
-        if (this.spot.lord) {
+    public setLord(lord: Lord, fromStock: Stock) {
+        /* TODO if (this.spot.lord) {
             this.lordsStock.removeFromStockById(`${this.spot.lord.id}`);
-        }
-        this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), `${lord.id}`);
+        }*/
+        moveToAnotherStock(fromStock, this.lordsStock, getUniqueId(lord.type, lord.guild), `${lord.id}`);
+        //this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), `${lord.id}`);
         this.spot.lord = lord;
         this.hidePlaceholder();
     }
@@ -67,11 +72,9 @@ class PlayerTableSpotStock {
         dojo.style(`player-table-${this.playerId}-spot${this.spotNumber}`, 'box-shadow', 'none');
     }
 
-    public setLocation(location: Location) {
-        if (this.spot.location) {
-            this.locationsStock.removeFromStockById(`${this.spot.location.id}`);
-        }
-        this.locationsStock.addToStockWithId(getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`);
+    public setLocation(location: Location, fromStock: Stock) {
+        moveToAnotherStock(fromStock, this.lordsStock, getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`);
+        //this.locationsStock.addToStockWithId(getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`);
         this.spot.location = location;
     }
 

@@ -2,7 +2,8 @@
     display: flex;
     position: relative;
 
-    .hidden-pile {    
+    .hidden-pile {
+        position: relative;   
         display: flex;
         border-radius: 10px;
         box-shadow: 1px 1px 3px black;
@@ -33,6 +34,16 @@
             visibility: hidden;
             pointer-events: none;
             cursor: default;
+        }
+    }
+
+    .pick-stock {
+        &.selectable {
+            border: 3px dashed white;
+
+            .stockitem {
+                cursor: pointer;
+            }
         }
     }
 }

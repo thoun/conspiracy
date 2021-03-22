@@ -27,7 +27,7 @@
             <div id="lord-visible-stock5"></div>
         </div>
     </div>
-    <div id="lord-pick" class="whiteblock">
+    <div id="lord-pick" class="pick-stock whiteblock">
         <div id="lord-pick-stock"></div>
     </div>
 
@@ -39,7 +39,7 @@
         </div>
         <div id="location-visible-stock"></div>
     </div>
-    <div id="location-pick" class="whiteblock">
+    <div id="location-pick" class="pick-stock whiteblock">
         <div id="location-pick-stock"></div>
     </div>
 </div>

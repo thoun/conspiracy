@@ -26,9 +26,21 @@ class LordsStacks extends AbstractStacks<Lord> {
     get pickDiv(): HTMLDivElement {
         return document.getElementById('lord-pick') as HTMLDivElement;
     }
+    
+    public getStockContaining(lordId: string): Stock {
+        if (this.pickStock.items.some(item => item.id === lordId)) {
+            return this.pickStock;
+        } else {
+            const guild = GUILD_IDS.find(guild => this.lordsStocks[guild].getStock().items.some(item => item.id === lordId));
+            if (guild) {
+                return this.lordsStocks[guild].getStock();
+            }
+        }
+        return null;
+    }
 
     public discardVisible() {
-        GUILD_IDS.forEach(guild => this.lordsStocks[guild].removeLords());
+        GUILD_IDS.forEach(guild => this.lordsStocks[guild].removeAllTo('lord-hidden-pile'));
     }
 
     public addLords(lords: Lord[]) {
@@ -50,9 +62,12 @@ class LordsStacks extends AbstractStacks<Lord> {
 
     public discardPick(lords: Lord[]) {
         const guilds = new Set(lords.map(lord => lord.guild));
-        guilds.forEach(guild => this.lordsStocks[guild].addLords(lords.filter(lord => lord.guild === guild)));
-        // TODO removeAllTo => lordsStocks
-        this.pickStock.removeAll();
+
+        guilds.forEach(guild => 
+            lords.filter(lord => lord.guild === guild).forEach(lord => 
+                moveToAnotherStock(this.pickStock, this.lordsStocks[guild].getStock(), this.getCardUniqueId(lord), `${lord.id}`)
+            )
+        );
     }
 
     public discardVisibleLordPile(guild: number) {
@@ -89,5 +104,9 @@ class LordsStacks extends AbstractStacks<Lord> {
         if (message) {
             (this.game as any).addTooltip(card_div.id, message, '');
         }
+    }
+
+    protected getGuildStock(guild: number): Stock {
+        return this.lordsStocks[guild].getStock();
     }
 }

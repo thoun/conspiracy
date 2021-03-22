@@ -44,13 +44,13 @@ class PlayerTable {
         });
     }
     
-    public addLord(spot: number, lord: Lord) {
-        this.spotsStock[spot].setLord(lord);
+    public addLord(spot: number, lord: Lord, fromStock: Stock) {
+        this.spotsStock[spot].setLord(lord, fromStock);
         this.checkTopLordToken();
     }
 
-    public addLocation(spot: number, location: Location) {
-        this.spotsStock[spot].setLocation(location);
+    public addLocation(spot: number, location: Location, fromStock: Stock) {
+        this.spotsStock[spot].setLocation(location, fromStock);
     }
 
     public setSelectableForSwitch(selectable: boolean) {
@@ -83,8 +83,8 @@ class PlayerTable {
         const tokenSpot1 = this.spotsStock[args.spot1].getTokenDiv();
         const tokenSpot2 = this.spotsStock[args.spot2].getTokenDiv();
 
-        this.spotsStock[args.spot1].setLord(lordSpot2);
-        this.spotsStock[args.spot2].setLord(lordSpot1);
+        this.spotsStock[args.spot1].setLord(lordSpot2, this.spotsStock[args.spot2].getLordStock());
+        this.spotsStock[args.spot2].setLord(lordSpot1, this.spotsStock[args.spot1].getLordStock());
 
         if (tokenSpot2) {
             this.spotsStock[args.spot1].addTokenDiv(tokenSpot2);

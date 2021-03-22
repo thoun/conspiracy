@@ -150,24 +150,35 @@ class LordStock {
         this.stock.create(this.lordsStacks.game, this.div, LORD_WIDTH, LORD_HEIGHT);
         this.stock.setSelectionMode(0);
         this.stock.onItemCreate = dojo.hitch(this, 'setupNewLordCard'); 
-        this.stock.updateDisplay = (from: string) => updateDisplay.apply(this.stock, [from]);
+        this.stock.updateDisplay = (from: string) => {
+            updateDisplay.apply(this.stock, [from]);
+            this.updateSize();
+        }
         dojo.connect(this.stock, 'onChangeSelection', this, 'click');
         setupLordCards([this.stock]);
 
         visibleLords.forEach(lord => this.stock.addToStockWithId(this.lordsStacks.getCardUniqueId(lord), `${lord.id}`));
-        this.updateSize();
+        //this.updateSize();
 
         this.div.addEventListener('click', () => this.click());
     }
 
+    getStock(): Stock {
+        return this.stock;
+    }
+
     addLords(lords: Lord[]): void {
         lords.forEach(lord => this.stock.addToStockWithId(this.lordsStacks.getCardUniqueId(lord), `${lord.id}`));
-        this.updateSize();
+        //this.updateSize();
+    }
+
+    removeAllTo(to: string): void {
+        this.stock.removeAllTo(to);
     }
 
     removeLords() {
-        this.stock.removeAll();
-        this.updateSize();
+        // TODO ? this.stock.removeAll();
+        //this.updateSize();
     }
 
     private updateSize() {

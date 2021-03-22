@@ -69,6 +69,7 @@ interface EnteringLordStackSelectionArgs {
 }
 
 interface EnteringLordSelectionArgs {
+    fromVisibleGuild: number;
     lords: Lord[];
 }
 
@@ -79,11 +80,11 @@ interface EnteringLocationStackSelectionArgs {
 interface EnteringLocationSelectionArgs {
     locations: Location[];
 }
-
+/*
 interface NotifLordVisiblePileArgs {
     guild: number;
     number: number;
-}
+}*/
 
 interface NotifLordPlayedArgs {
     playerId: number;

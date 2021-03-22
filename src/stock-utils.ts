@@ -119,3 +119,13 @@ function getLordTooltip(typeWithGuild: number) {
     }
     return message;
 }
+
+function moveToAnotherStock(sourceStock: Stock, destinationStock: Stock, uniqueId: number, cardId: string) {
+    if (document.getElementById(`${sourceStock.container_div.id}_item_${cardId}`)) {
+        destinationStock.addToStockWithId(uniqueId, cardId, `${sourceStock.container_div.id}_item_${cardId}`);
+        sourceStock.removeFromStockById(cardId);
+    } else {
+        console.warn(`${sourceStock.container_div.id}_item_${cardId} not found in `, sourceStock);
+        destinationStock.addToStockWithId(uniqueId, cardId, sourceStock.container_div.id);
+    }
+}
