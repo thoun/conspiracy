@@ -9,6 +9,7 @@ abstract class AbstractStacks<T extends Card> {
     protected abstract get pileDiv(): HTMLDivElement;
     protected abstract get pickDiv(): HTMLDivElement;
     protected abstract getCardUniqueId(card: T): number;
+    protected abstract pickClick(control_name: string, item_id: string);
 
     public setSelectable(selectable: boolean, limitToHidden?: number, allHidden?: boolean) {
         this.selectable = selectable;
@@ -45,9 +46,5 @@ abstract class AbstractStacks<T extends Card> {
 
     protected setPickStockClick() {
         dojo.connect(this.pickStock, 'onChangeSelection', this, 'pickClick' );
-    }
-
-    protected pickClick(control_name: string, item_id: string) {
-        this.pickStock.removeAll();
     }
 }

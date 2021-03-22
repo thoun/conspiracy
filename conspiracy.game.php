@@ -647,9 +647,12 @@ class Conspiracy extends Table
         $spot = $this->lords->countCardInLocation("player${player_id}") + 1;
         $this->lords->moveCard($lord->id, "player${player_id}", $spot);
 
+        $stackSelection = self::getGameStateValue('stackSelection') == 1;
         $remainingLords = [];
-        if (self::getGameStateValue('stackSelection') == 1) {
+        if ($stackSelection) {
             $remainingLords = $this->placeRemainingLordSelectionToTable();
+        } else {
+            $remainingLords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
         }
 
         self::debug('[GBA] points '.$topLordPoints. ' '.$lord->points);
@@ -675,11 +678,12 @@ class Conspiracy extends Table
             'player_name' => self::getActivePlayerName(),
             'lord' => $lord,
             'spot' => $spot,
+            'stackSelection' => $stackSelection,
             'discardedLords' => $remainingLords,
             'points' => $points,
             'pearls' => $pearls,
             'guild' => $lord->guild,
-            'guild_name' => $this->getGuildName($lord->guild)
+            'guild_name' => $this->getGuildName($lord->guild),
         ]);
 
         if ($lord->showExtraLord) {

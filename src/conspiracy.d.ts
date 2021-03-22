@@ -89,6 +89,7 @@ interface NotifLordPlayedArgs {
     playerId: number;
     lord: Lord;
     spot: number;
+    stackSelection: boolean;
     discardedLords: Lord[];
     points: number;
     pearls: number;

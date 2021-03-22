@@ -172,7 +172,7 @@ class Conspiracy implements ConspiracyGame {
     }
 
     onLeavingLordSelection() {
-        this.lordsStacks.setPick(false, false);
+        this.lordsStacks.setPick(this.lordsStacks.hasPickCards(), false);
     }
 
     onLeavingLordSwitch() {        
@@ -375,8 +375,11 @@ class Conspiracy implements ConspiracyGame {
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
-        if (notif.args.discardedLords?.length) {
+        if (notif.args.stackSelection) {
             this.lordsStacks.discardPick(notif.args.discardedLords);
+            this.lordsStacks.setPick(false, false);
+        } else if (!notif.args.discardedLords.length) {
+            this.lordsStacks.setPick(false, false);
         }
     }
 

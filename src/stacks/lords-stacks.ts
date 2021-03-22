@@ -44,9 +44,15 @@ class LordsStacks extends AbstractStacks<Lord> {
         }
     }
 
+    public hasPickCards(): boolean {
+        return this.pickStock.items.length > 0;
+    }
+
     public discardPick(lords: Lord[]) {
         const guilds = new Set(lords.map(lord => lord.guild));
         guilds.forEach(guild => this.lordsStocks[guild].addLords(lords.filter(lord => lord.guild === guild)));
+        // TODO removeAllTo => lordsStocks
+        this.pickStock.removeAll();
     }
 
     public discardVisibleLordPile(guild: number) {
@@ -58,9 +64,7 @@ class LordsStacks extends AbstractStacks<Lord> {
     }
 
     protected pickClick(control_name: string, item_id: string) {
-        // TODO removeAllTo => lordsStocks
         this.game.lordPick(Number(item_id));
-        super.pickClick(control_name, item_id);
     }
 
     public onHiddenLordsClick(event: MouseEvent) {
