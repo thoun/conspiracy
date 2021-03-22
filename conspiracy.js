@@ -933,9 +933,9 @@ var Conspiracy = /** @class */ (function () {
                 _this.placePearlMasterToken(gamedatas.pearlMasterPlayer);
             }
         });
-        this.addTooltipToClass('lord-counter', _("TODO lords help"), '');
-        this.addTooltipToClass('pearl-counter', _("TODO pearls help"), '');
-        GUILD_IDS.forEach(function (guild) { return _this.addTooltipToClass("token-guild" + guild, _("TODO coat of arms help"), ''); });
+        this.addTooltipToClass('lord-counter', _("Number of lords in player table"), '');
+        this.addTooltipToClass('pearl-counter', _("Number of pearls"), '');
+        GUILD_IDS.forEach(function (guild) { return _this.addTooltipToClass("token-guild" + guild, _("The Coat of Arms token indicates the most influential Lord of each color."), ''); });
     };
     Conspiracy.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;
@@ -991,7 +991,7 @@ var Conspiracy = /** @class */ (function () {
         }
         else {
             dojo.place('<div id="pearlMasterToken" class="token"></div>', "player_board_" + playerId);
-            this.addTooltip('pearlMasterToken', _("TODO pearlMasterToken help"), '');
+            this.addTooltip('pearlMasterToken', _("Pearl Master token. At the end of the game, the player possessing the Pearl Master token gains a bonus of 5 Influence Points."), '');
         }
     };
     Conspiracy.prototype.setCanSwitch = function (switchSpots) {

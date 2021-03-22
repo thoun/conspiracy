@@ -253,9 +253,9 @@ class Conspiracy implements ConspiracyGame {
             }
         });
 
-        (this as any).addTooltipToClass('lord-counter', _("TODO lords help"), '');
-        (this as any).addTooltipToClass('pearl-counter', _("TODO pearls help"), '');
-        GUILD_IDS.forEach(guild => (this as any).addTooltipToClass(`token-guild${guild}`, _("TODO coat of arms help"), ''));
+        (this as any).addTooltipToClass('lord-counter', _("Number of lords in player table"), '');
+        (this as any).addTooltipToClass('pearl-counter', _("Number of pearls"), '');
+        GUILD_IDS.forEach(guild => (this as any).addTooltipToClass(`token-guild${guild}`, _("The Coat of Arms token indicates the most influential Lord of each color."), ''));
     }
 
     private createPlayerTables(gamedatas: ConspiracyGamedatas) {
@@ -320,7 +320,7 @@ class Conspiracy implements ConspiracyGame {
         } else {
             dojo.place('<div id="pearlMasterToken" class="token"></div>', `player_board_${playerId}`);
 
-            (this as any).addTooltip('pearlMasterToken', _("TODO pearlMasterToken help"), '');
+            (this as any).addTooltip('pearlMasterToken', _("Pearl Master token. At the end of the game, the player possessing the Pearl Master token gains a bonus of 5 Influence Points."), '');
         }
     }
 
