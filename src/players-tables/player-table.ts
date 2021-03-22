@@ -44,12 +44,12 @@ class PlayerTable {
         });
     }
     
-    public addLord(spot: number, lord: Lord, fromStock: Stock) {
+    public addLord(spot: number, lord: Lord, fromStock: Stock | null) {
         this.spotsStock[spot].setLord(lord, fromStock);
-        this.checkTopLordToken();
+        setTimeout(() => this.checkTopLordToken(), 500);
     }
 
-    public addLocation(spot: number, location: Location, fromStock: Stock) {
+    public addLocation(spot: number, location: Location, fromStock: Stock | null) {
         this.spotsStock[spot].setLocation(location, fromStock);
     }
 
@@ -87,10 +87,10 @@ class PlayerTable {
         this.spotsStock[args.spot2].setLord(lordSpot1, this.spotsStock[args.spot1].getLordStock());
 
         if (tokenSpot2) {
-            this.spotsStock[args.spot1].addTokenDiv(tokenSpot2);
+            setTimeout(() => this.spotsStock[args.spot1].addTokenDiv(tokenSpot2), 500);
         }
         if (tokenSpot1) {
-            this.spotsStock[args.spot2].addTokenDiv(tokenSpot1);
+            setTimeout(() => this.spotsStock[args.spot2].addTokenDiv(tokenSpot1), 500);
         }
     }
 }

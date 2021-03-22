@@ -7,6 +7,7 @@ declare const g_gamethemeurl;
 
 declare const board: HTMLDivElement;
 
+const ANIMATION_MS = 1500;
 const SCORE_MS = 1500;
 
 const GUILD_COLOR = [];
@@ -105,7 +106,7 @@ class Conspiracy implements ConspiracyGame {
     }
 
     onEnteringLordSelection(args: EnteringLordSelectionArgs) {
-        this.lordsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.fromVisibleGuild ?? 'lord-hidden-pile', args.lords);
+        this.lordsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.lords);
     }
 
     onEnteringLordSwitch() {        
@@ -121,7 +122,7 @@ class Conspiracy implements ConspiracyGame {
     } 
 
     onEnteringLocationSelection(args: EnteringLocationSelectionArgs) {
-        this.locationsStacks.setPick(true, (this as any).isCurrentPlayerActive(), 'location-hidden-pile', args.locations);
+        this.locationsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.locations);
     }   
 
     onEnteringShowScore() {
@@ -368,14 +369,14 @@ class Conspiracy implements ConspiracyGame {
         //console.log( 'notifications subscriptions setup' );
 
         const notifs = [
-            //['lordVisiblePile', 1],
-            ['lordPlayed', 1],
-            ['lordSwitched', 1],
-            ['extraLordRevealed', 1],
-            ['locationPlayed', 1],
-            ['discardLords', 1],
-            ['discardLocations', 1],
+            ['lordPlayed', ANIMATION_MS],
+            ['lordSwitched', ANIMATION_MS],
+            ['extraLordRevealed', ANIMATION_MS],
+            ['locationPlayed', ANIMATION_MS],
+            ['discardLords', ANIMATION_MS],
+            ['discardLocations', ANIMATION_MS],
             ['newPearlMaster', 1],
+            ['discardLordPick', 1],
             ['scoreLords', SCORE_MS],
             ['scoreLocations', SCORE_MS],
             ['scoreCoalition', SCORE_MS],
@@ -389,12 +390,6 @@ class Conspiracy implements ConspiracyGame {
         });
     }
 
-
-   /*notif_lordVisiblePile(notif: Notif<NotifLordVisiblePileArgs>) {
-        this.lordsStacks.discardVisibleLordPile(notif.args.guild); // TODO useful ?
-    }*/
-    
-
     notif_lordPlayed(notif: Notif<NotifLordPlayedArgs>) {
         const from = this.lordsStacks.getStockContaining(`${notif.args.lord.id}`);
 
@@ -402,11 +397,8 @@ class Conspiracy implements ConspiracyGame {
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.lordCounters[notif.args.playerId].incValue(1);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
-
-        if (notif.args.stackSelection) {
-            this.lordsStacks.discardPick(notif.args.discardedLords);
-            this.lordsStacks.setPick(false, false);
-        } else if (!notif.args.discardedLords.length) {
+        
+        if (notif.args.stackSelection || !notif.args.discardedLords.length) {
             this.lordsStacks.setPick(false, false);
         }
     }
@@ -427,6 +419,7 @@ class Conspiracy implements ConspiracyGame {
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
 
+        // TODO when location played, pick disapear before slide, discardPick should be called every time and shouls hide pick, not before
         if (notif.args.discardedLocations?.length) {
             this.locationsStacks.discardPick(notif.args.discardedLocations);
         }
@@ -434,6 +427,11 @@ class Conspiracy implements ConspiracyGame {
 
     notif_discardLords() {
         this.lordsStacks.discardVisible();
+    }
+
+    notif_discardLordPick(notif: Notif<NotifDiscardLordPickArgs>) {
+        // console.log('notif_discardLordPick', notif.args);
+        this.lordsStacks.discardPick(notif.args.discardedLords);
     }
 
     notif_discardLocations() {
@@ -479,4 +477,4 @@ class Conspiracy implements ConspiracyGame {
         }
         return (this as any).inherited(arguments);
     }
-} // TODO add animations
+}

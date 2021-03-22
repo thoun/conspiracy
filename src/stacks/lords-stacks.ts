@@ -27,7 +27,7 @@ class LordsStacks extends AbstractStacks<Lord> {
         return document.getElementById('lord-pick') as HTMLDivElement;
     }
     
-    public getStockContaining(lordId: string): Stock {
+    public getStockContaining(lordId: string): Stock | null {
         if (this.pickStock.items.some(item => item.id === lordId)) {
             return this.pickStock;
         } else {

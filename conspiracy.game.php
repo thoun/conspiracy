@@ -455,6 +455,11 @@ class Conspiracy extends Table
         foreach($remainingLords as $lord) {
             $this->lords->moveCard($lord->id, 'table', $lord->guild);
         }
+
+        self::notifyAllPlayers('discardLordPick', '', [
+            'discardedLords' => $remainingLords
+        ]);
+
         return $remainingLords;
     } 
 
@@ -608,11 +613,8 @@ class Conspiracy extends Table
     }
     
     function argLordSelection() {
-        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));    
-        return [ 
-            'lords' => $lords,
-            'fromVisibleGuild' => self::getGameStateValue('stackSelection') == 0 ? $lords[0]->guild : null,
-        ];
+        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
+        return [ 'lords' => $lords ];
     }
     
     function argLocationStackSelection() {

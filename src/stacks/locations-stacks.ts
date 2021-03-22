@@ -36,7 +36,7 @@ class LocationsStacks extends AbstractStacks<Location> {
         return document.getElementById('location-pick') as HTMLDivElement;
     }
 
-    public getStockContaining(locationId: string): Stock {
+    public getStockContaining(locationId: string): Stock | null {
         if (this.pickStock.items.some(item => item.id === locationId)) {
             return this.pickStock;
         } else if (this.visibleLocationsStock.items.some(item => item.id === locationId)) {

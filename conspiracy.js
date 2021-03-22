@@ -144,6 +144,9 @@ function getLordTooltip(typeWithGuild) {
     return message;
 }
 function moveToAnotherStock(sourceStock, destinationStock, uniqueId, cardId) {
+    if (sourceStock === destinationStock) {
+        return;
+    }
     if (document.getElementById(sourceStock.container_div.id + "_item_" + cardId)) {
         destinationStock.addToStockWithId(uniqueId, cardId, sourceStock.container_div.id + "_item_" + cardId);
         sourceStock.removeFromStockById(cardId);
@@ -385,22 +388,21 @@ var AbstractStacks = /** @class */ (function () {
             document.getElementById('location-hidden-pile').innerHTML = '<div class="button eye" data-number="0"></div>';
         }
     };
-    AbstractStacks.prototype.setPick = function (showPick, pickSelectable, from, collection) {
+    AbstractStacks.prototype.setPick = function (showPick, pickSelectable, collection) {
         var _this = this;
-        if (from === void 0) { from = null; }
         this.pickDiv.style.display = showPick ? 'block' : 'none';
         var action = pickSelectable ? 'add' : 'remove';
         this.pickDiv.classList[action]('selectable');
         this.pickSelectable = pickSelectable;
-        if (collection) {
-            // TODO ? SHOULD NOT BE NECESSARY this.pickStock.removeAll();
-            if (typeof from === 'number') {
-                collection.forEach(function (item) { return moveToAnotherStock(_this.getGuildStock(from), _this.pickStock, _this.getCardUniqueId(item), "" + item.id); });
+        collection === null || collection === void 0 ? void 0 : collection.forEach(function (item) {
+            var from = _this.getStockContaining("" + item.id);
+            if (from) {
+                moveToAnotherStock(from, _this.pickStock, _this.getCardUniqueId(item), "" + item.id);
             }
             else {
-                collection.forEach(function (item) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(item), "" + item.id, from); });
+                _this.pickStock.addToStockWithId(_this.getCardUniqueId(item), "" + item.id, _this.pileDiv.id);
             }
-        }
+        });
     };
     AbstractStacks.prototype.getGuildStock = function (guild) {
         throw new Error("Must be overriden");
@@ -672,22 +674,28 @@ var PlayerTableSpotStock = /** @class */ (function () {
         return this.spot.lord;
     };
     PlayerTableSpotStock.prototype.setLord = function (lord, fromStock) {
-        /* TODO if (this.spot.lord) {
-            this.lordsStock.removeFromStockById(`${this.spot.lord.id}`);
-        }*/
-        moveToAnotherStock(fromStock, this.lordsStock, getUniqueId(lord.type, lord.guild), "" + lord.id);
-        //this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), `${lord.id}`);
+        var _this = this;
+        if (fromStock) {
+            moveToAnotherStock(fromStock, this.lordsStock, getUniqueId(lord.type, lord.guild), "" + lord.id);
+        }
+        else {
+            this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), "" + lord.id, 'lord-hidden-pile');
+        }
         this.spot.lord = lord;
-        this.hidePlaceholder();
+        setTimeout(function () { return _this.hidePlaceholder(); }, 500);
     };
     PlayerTableSpotStock.prototype.hidePlaceholder = function () {
         dojo.style("player-table-" + this.playerId + "-spot" + this.spotNumber, 'background', 'none');
         dojo.style("player-table-" + this.playerId + "-spot" + this.spotNumber, 'box-shadow', 'none');
     };
     PlayerTableSpotStock.prototype.setLocation = function (location, fromStock) {
-        var _a;
-        moveToAnotherStock(fromStock, this.lordsStock, getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id);
-        //this.locationsStock.addToStockWithId(getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`);
+        var _a, _b;
+        if (fromStock) {
+            moveToAnotherStock(fromStock, this.locationsStock, getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id);
+        }
+        else {
+            this.locationsStock.addToStockWithId(getUniqueId(location.type, (_b = location.passivePowerGuild) !== null && _b !== void 0 ? _b : 0), "" + location.id, 'location-hidden-pile');
+        }
         this.spot.location = location;
     };
     PlayerTableSpotStock.prototype.setSelectableForSwitch = function (selectable) {
@@ -770,8 +778,9 @@ var PlayerTable = /** @class */ (function () {
         });
     };
     PlayerTable.prototype.addLord = function (spot, lord, fromStock) {
+        var _this = this;
         this.spotsStock[spot].setLord(lord, fromStock);
-        this.checkTopLordToken();
+        setTimeout(function () { return _this.checkTopLordToken(); }, 500);
     };
     PlayerTable.prototype.addLocation = function (spot, location, fromStock) {
         this.spotsStock[spot].setLocation(location, fromStock);
@@ -797,6 +806,7 @@ var PlayerTable = /** @class */ (function () {
         this.game.setCanSwitch(this.switchSpots);
     };
     PlayerTable.prototype.lordSwitched = function (args) {
+        var _this = this;
         var lordSpot1 = this.spotsStock[args.spot1].getLord();
         var lordSpot2 = this.spotsStock[args.spot2].getLord();
         var tokenSpot1 = this.spotsStock[args.spot1].getTokenDiv();
@@ -804,14 +814,15 @@ var PlayerTable = /** @class */ (function () {
         this.spotsStock[args.spot1].setLord(lordSpot2, this.spotsStock[args.spot2].getLordStock());
         this.spotsStock[args.spot2].setLord(lordSpot1, this.spotsStock[args.spot1].getLordStock());
         if (tokenSpot2) {
-            this.spotsStock[args.spot1].addTokenDiv(tokenSpot2);
+            setTimeout(function () { return _this.spotsStock[args.spot1].addTokenDiv(tokenSpot2); }, 500);
         }
         if (tokenSpot1) {
-            this.spotsStock[args.spot2].addTokenDiv(tokenSpot1);
+            setTimeout(function () { return _this.spotsStock[args.spot2].addTokenDiv(tokenSpot1); }, 500);
         }
     };
     return PlayerTable;
 }());
+var ANIMATION_MS = 1500;
 var SCORE_MS = 1500;
 var GUILD_COLOR = [];
 GUILD_COLOR[1] = '#c1950b';
@@ -886,8 +897,7 @@ var Conspiracy = /** @class */ (function () {
         }
     };
     Conspiracy.prototype.onEnteringLordSelection = function (args) {
-        var _a;
-        this.lordsStacks.setPick(true, this.isCurrentPlayerActive(), (_a = args.fromVisibleGuild) !== null && _a !== void 0 ? _a : 'lord-hidden-pile', args.lords);
+        this.lordsStacks.setPick(true, this.isCurrentPlayerActive(), args.lords);
     };
     Conspiracy.prototype.onEnteringLordSwitch = function () {
         if (this.isCurrentPlayerActive()) {
@@ -900,7 +910,7 @@ var Conspiracy = /** @class */ (function () {
         }
     };
     Conspiracy.prototype.onEnteringLocationSelection = function (args) {
-        this.locationsStacks.setPick(true, this.isCurrentPlayerActive(), 'location-hidden-pile', args.locations);
+        this.locationsStacks.setPick(true, this.isCurrentPlayerActive(), args.locations);
     };
     Conspiracy.prototype.onEnteringShowScore = function () {
         document.getElementById('stacks').style.display = 'none';
@@ -1089,14 +1099,14 @@ var Conspiracy = /** @class */ (function () {
         //console.log( 'notifications subscriptions setup' );
         var _this = this;
         var notifs = [
-            //['lordVisiblePile', 1],
-            ['lordPlayed', 1],
-            ['lordSwitched', 1],
-            ['extraLordRevealed', 1],
-            ['locationPlayed', 1],
-            ['discardLords', 1],
-            ['discardLocations', 1],
+            ['lordPlayed', ANIMATION_MS],
+            ['lordSwitched', ANIMATION_MS],
+            ['extraLordRevealed', ANIMATION_MS],
+            ['locationPlayed', ANIMATION_MS],
+            ['discardLords', ANIMATION_MS],
+            ['discardLocations', ANIMATION_MS],
             ['newPearlMaster', 1],
+            ['discardLordPick', 1],
             ['scoreLords', SCORE_MS],
             ['scoreLocations', SCORE_MS],
             ['scoreCoalition', SCORE_MS],
@@ -1108,20 +1118,13 @@ var Conspiracy = /** @class */ (function () {
             _this.notifqueue.setSynchronous(notif[0], notif[1]);
         });
     };
-    /*notif_lordVisiblePile(notif: Notif<NotifLordVisiblePileArgs>) {
-         this.lordsStacks.discardVisibleLordPile(notif.args.guild); // TODO useful ?
-     }*/
     Conspiracy.prototype.notif_lordPlayed = function (notif) {
         var from = this.lordsStacks.getStockContaining("" + notif.args.lord.id);
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord, from);
         this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.lordCounters[notif.args.playerId].incValue(1);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
-        if (notif.args.stackSelection) {
-            this.lordsStacks.discardPick(notif.args.discardedLords);
-            this.lordsStacks.setPick(false, false);
-        }
-        else if (!notif.args.discardedLords.length) {
+        if (notif.args.stackSelection || !notif.args.discardedLords.length) {
             this.lordsStacks.setPick(false, false);
         }
     };
@@ -1138,12 +1141,17 @@ var Conspiracy = /** @class */ (function () {
         this.locationsStacks.removeLocation(notif.args.location);
         this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
+        // TODO when location played, pick disapear before slide, discardPick should be called every time and shouls hide pick, not before
         if ((_a = notif.args.discardedLocations) === null || _a === void 0 ? void 0 : _a.length) {
             this.locationsStacks.discardPick(notif.args.discardedLocations);
         }
     };
     Conspiracy.prototype.notif_discardLords = function () {
         this.lordsStacks.discardVisible();
+    };
+    Conspiracy.prototype.notif_discardLordPick = function (notif) {
+        // console.log('notif_discardLordPick', notif.args);
+        this.lordsStacks.discardPick(notif.args.discardedLords);
     };
     Conspiracy.prototype.notif_discardLocations = function () {
         this.locationsStacks.discardVisible();
@@ -1184,7 +1192,7 @@ var Conspiracy = /** @class */ (function () {
         return this.inherited(arguments);
     };
     return Conspiracy;
-}()); // TODO add animations
+}());
 define([
     "dojo", "dojo/_base/declare",
     "ebg/core/gamegui",

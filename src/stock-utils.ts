@@ -121,6 +121,10 @@ function getLordTooltip(typeWithGuild: number) {
 }
 
 function moveToAnotherStock(sourceStock: Stock, destinationStock: Stock, uniqueId: number, cardId: string) {
+    if (sourceStock === destinationStock) {
+        return;
+    }
+    
     if (document.getElementById(`${sourceStock.container_div.id}_item_${cardId}`)) {
         destinationStock.addToStockWithId(uniqueId, cardId, `${sourceStock.container_div.id}_item_${cardId}`);
         sourceStock.removeFromStockById(cardId);
