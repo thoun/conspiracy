@@ -1,8 +1,8 @@
 class LocationsStacks extends AbstractStacks<Location> {
     visibleLocationsStock: Stock;
 
-    constructor(private game: ConspiracyGame, visibleLocations: Location[], pickLocations: Location[]) {
-        super();
+    constructor(game: ConspiracyGame, visibleLocations: Location[], pickLocations: Location[]) {
+        super(game);
 
         this.pileDiv.addEventListener('click', e => this.onHiddenLocationClick(e));
 
@@ -26,6 +26,8 @@ class LocationsStacks extends AbstractStacks<Location> {
 
         visibleLocations.forEach(location => this.visibleLocationsStock.addToStockWithId(this.getCardUniqueId(location), `${location.id}`));
         pickLocations.forEach(location => this.pickStock.addToStockWithId(this.getCardUniqueId(location), `${location.id}`));
+        
+        (this.game as any).addTooltipToClass('location-hidden-pile-tooltip', _("Reveal 1 to 3 hidden locations. Choose one, the others are discarded"), '');
     }
 
     get pileDiv(): HTMLDivElement {

@@ -45,7 +45,7 @@ $bottom-margin: 85px;
             .player-table {
                 position: relative;
                 width: $lord-width * 5 + $lord-margin * 4;
-                height: $lord-height * 5 + $lord-margin * 4/* + $bottom-margin*/;
+                height: $lord-height * 5 + $lord-margin * 4 + 10px /*$bottom-margin*/;
                 margin-top: $top-margin;
             }
         }

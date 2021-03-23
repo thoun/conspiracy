@@ -362,7 +362,8 @@ var LordStock = /** @class */ (function () {
     return LordStock;
 }());
 var AbstractStacks = /** @class */ (function () {
-    function AbstractStacks() {
+    function AbstractStacks(game) {
+        this.game = game;
     }
     AbstractStacks.prototype.setSelectable = function (selectable, limitToHidden, allHidden) {
         this.selectable = selectable;
@@ -380,7 +381,8 @@ var AbstractStacks = /** @class */ (function () {
         }
         // if player has all hidden location, we replace the 3 buttons by one special for the rest of the game
         if (allHidden && buttons.length > 1) {
-            document.getElementById('location-hidden-pile').innerHTML = '<div class="button eye" data-number="0"></div>';
+            document.getElementById('location-hidden-pile').innerHTML = '<div class="button eye location-hidden-pile-eye-tooltip" data-number="0"></div>';
+            this.game.addTooltip('location-hidden-pile-eye-tooltip', _("As you have the See all deck location, you can pick a location from all deck, but you cannot pick visible locations."), '');
         }
     };
     AbstractStacks.prototype.setPick = function (showPick, pickSelectable, collection) {
@@ -425,8 +427,7 @@ var __extends = (this && this.__extends) || (function () {
 var LordsStacks = /** @class */ (function (_super) {
     __extends(LordsStacks, _super);
     function LordsStacks(game, visibleLords, pickLords) {
-        var _this = _super.call(this) || this;
-        _this.game = game;
+        var _this = _super.call(this, game) || this;
         _this.lordsStocks = [];
         _this.pileDiv.addEventListener('click', function (e) { return _this.onHiddenLordsClick(e); });
         GUILD_IDS.forEach(function (guild) { return _this.lordsStocks[guild] = new LordStock(_this, guild, visibleLords[guild]); });
@@ -439,6 +440,7 @@ var LordsStacks = /** @class */ (function (_super) {
         setupLordCards([_this.pickStock]);
         _this.setPickStockClick();
         pickLords.forEach(function (lord) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(lord), "" + lord.id); });
+        _this.game.addTooltipToClass('lord-hidden-pile-tooltip', _("Reveal 1 to 3 hidden lords. Choose one, the others are discarded"), '');
         return _this;
     }
     Object.defineProperty(LordsStacks.prototype, "pileDiv", {
@@ -527,8 +529,7 @@ var LordsStacks = /** @class */ (function (_super) {
 var LocationsStacks = /** @class */ (function (_super) {
     __extends(LocationsStacks, _super);
     function LocationsStacks(game, visibleLocations, pickLocations) {
-        var _this = _super.call(this) || this;
-        _this.game = game;
+        var _this = _super.call(this, game) || this;
         _this.pileDiv.addEventListener('click', function (e) { return _this.onHiddenLocationClick(e); });
         _this.visibleLocationsStock = new ebg.stock();
         _this.visibleLocationsStock.setSelectionAppearance('class');
@@ -547,6 +548,7 @@ var LocationsStacks = /** @class */ (function (_super) {
         setupLocationCards([_this.visibleLocationsStock, _this.pickStock]);
         visibleLocations.forEach(function (location) { return _this.visibleLocationsStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
         pickLocations.forEach(function (location) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
+        _this.game.addTooltipToClass('location-hidden-pile-tooltip', _("Reveal 1 to 3 hidden locations. Choose one, the others are discarded"), '');
         return _this;
     }
     Object.defineProperty(LocationsStacks.prototype, "pileDiv", {

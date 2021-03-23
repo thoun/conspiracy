@@ -1,8 +1,8 @@
 class LordsStacks extends AbstractStacks<Lord> {
     private lordsStocks: LordStock[] = [];
 
-    constructor(public game: ConspiracyGame, visibleLords: { [spot: number]: Lord[] }, pickLords: Lord[]) {
-        super();
+    constructor(game: ConspiracyGame, visibleLords: { [spot: number]: Lord[] }, pickLords: Lord[]) {
+        super(game);
 
         this.pileDiv.addEventListener('click', e => this.onHiddenLordsClick(e));
 
@@ -17,6 +17,8 @@ class LordsStacks extends AbstractStacks<Lord> {
         setupLordCards([this.pickStock]);
         this.setPickStockClick();
         pickLords.forEach(lord => this.pickStock.addToStockWithId(this.getCardUniqueId(lord), `${lord.id}`));
+
+        (this.game as any).addTooltipToClass('lord-hidden-pile-tooltip', _("Reveal 1 to 3 hidden lords. Choose one, the others are discarded"), '');
     }
 
     get pileDiv(): HTMLDivElement {

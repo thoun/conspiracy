@@ -6,9 +6,7 @@ You can play here : https://boardgamearena.com
  TODO resizable like draftosorus
  TODO score highlight
  TODO help popup for no-mouse devices
- TODO test spectator mode
  TODO check pre-release list
-
 
 # How to install the auto-build stack
 

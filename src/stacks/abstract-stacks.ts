@@ -3,7 +3,7 @@ abstract class AbstractStacks<T extends Card> {
     protected pickSelectable: boolean;
     protected pickStock: Stock;
 
-    constructor() {
+    constructor(public game: ConspiracyGame) {
     }
 
     protected abstract get pileDiv(): HTMLDivElement;
@@ -32,7 +32,9 @@ abstract class AbstractStacks<T extends Card> {
 
         // if player has all hidden location, we replace the 3 buttons by one special for the rest of the game
         if (allHidden && buttons.length > 1) {
-            document.getElementById('location-hidden-pile').innerHTML = '<div class="button eye" data-number="0"></div>';
+            document.getElementById('location-hidden-pile').innerHTML = '<div class="button eye location-hidden-pile-eye-tooltip" data-number="0"></div>';
+
+            (this.game as any).addTooltip('location-hidden-pile-eye-tooltip', _("As you have the See all deck location, you can pick a location from all deck, but you cannot pick visible locations."), '');
         }
     }
 
