@@ -47,49 +47,70 @@
     
 */
 
-$stats_type = array(
+$stats_type = [
 
     // Statistics global to table
-    "table" => array(
-
-        "turns_number" => array("id"=> 10,
-                    "name" => totranslate("Number of turns"),
-                    "type" => "int" ),
-
-/*
-        Examples:
-
-
-        "table_teststat1" => array(   "id"=> 10,
-                                "name" => totranslate("table test stat 1"), 
-                                "type" => "int" ),
-                                
-        "table_teststat2" => array(   "id"=> 11,
-                                "name" => totranslate("table test stat 2"), 
-                                "type" => "float" )
-*/  
-    ),
+    "table" => [
+        "turns_number" => [
+            "id"=> 10,
+            "name" => totranslate("Number of turns"),
+            "type" => "int" 
+        ],
+        "players_number" => [
+            "id"=> 11,
+            "name" => totranslate("Number of players"),
+            "type" => "int" 
+        ],
+    ],
     
     // Statistics existing for each player
-    "player" => array(
+    "player" => [
+        "turns_number" => [
+            "id" => 10,
+            "name" => totranslate("Number of turns"),
+            "type" => "int" 
+        ],
 
-        "turns_number" => array("id"=> 10,
-                    "name" => totranslate("Number of turns"),
-                    "type" => "int" ),
-    
-/*
-        Examples:    
-        
-        
-        "player_teststat1" => array(   "id"=> 10,
-                                "name" => totranslate("player test stat 1"), 
-                                "type" => "int" ),
-                                
-        "player_teststat2" => array(   "id"=> 11,
-                                "name" => totranslate("player test stat 2"), 
-                                "type" => "float" )
+        "played_lords" => [
+            "id" => 20,
+            "name" => totranslate("Number of played lords"), 
+            "type" => "int" 
+        ],
+        "played_locations" =>  [
+            "id" => 21,
+            "name" => totranslate("Number of played locations"), 
+            "type" => "int" 
+        ],
+        "pearls" =>  [
+            "id" => 22,
+            "name" => totranslate("Pearl count"), 
+            "type" => "int" 
+        ],
 
-*/    
-    )
-
-);
+        "lords_points" =>  [
+            "id" => 30,
+            "name" => totranslate("Points won with lords"), 
+            "type" => "int" 
+        ],
+        "locations_points" =>  [
+            "id" => 31,
+            "name" => totranslate("Points won with locations"), 
+            "type" => "int" 
+        ],
+        "coalition_size" =>  [
+            "id" => 32,
+            "name" => totranslate("Top coalition size"), 
+            "type" => "int" 
+        ],
+        "pearl_master" =>  [
+            "id" => 33,
+            "name" => totranslate("Pearl Master"), 
+            "type" => "bool" 
+        ],
+        "total_points" =>  [
+            "id" => 34,
+            "name" => totranslate("Final score"), 
+            "type" => "int" 
+        ],
+    ]
+];

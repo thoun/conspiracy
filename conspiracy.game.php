@@ -114,8 +114,18 @@ class Conspiracy extends Table
         
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
-        //self::initStat( 'table', 'table_teststat1', 0 );    // Init a table statistics
-        //self::initStat( 'player', 'player_teststat1', 0 );  // Init a player statistics (for all players)
+        self::initStat('table', 'turns_number', 0);
+        self::initStat('table', 'players_number', count($players));
+
+        self::initStat('player', 'turns_number', 0);
+        self::initStat('player', 'played_lords', 0);
+        self::initStat('player', 'played_locations', 0);
+        self::initStat('player', 'pearls', 0);
+        self::initStat('player', 'lords_points', 0);
+        self::initStat('player', 'locations_points', 0);
+        self::initStat('player', 'coalition_size', 0);
+        self::initStat('player', 'pearl_master', 0);
+        self::initStat('player', 'total_points', 0);
 
         // setup the initial game situation here
         $this->setupLordsCards();
@@ -229,7 +239,7 @@ class Conspiracy extends Table
         (see states.inc.php)
     */
     function getGameProgression() {
-        $maxPlayedLords = intval(self::getUniqueValueFromDB( "SELECT count(*) FROM lord WHERE `card_location` like 'player%' GROUP BY `card_location_arg` ORDER BY count(*) DESC LIMIT 1"));
+        $maxPlayedLords = intval(self::getUniqueValueFromDB( "SELECT count(*) FROM lord WHERE `card_location` like 'player%' GROUP BY `card_location` ORDER BY count(*) DESC LIMIT 1"));
         return $maxPlayedLords * 100 / 15;
     }
 
@@ -702,6 +712,8 @@ class Conspiracy extends Table
 
         $this->checkPearlMaster($player_id);
 
+        self::incStat(1, 'played_lords', $player_id);
+
         if ($lord->switch && $this->canSwitch($player_id)) {
             $this->gamestate->nextState('switch');
             self::giveExtraTime($player_id);
@@ -766,6 +778,8 @@ class Conspiracy extends Table
             self::setGameStateValue('AP_DECK_LOCATION', $player_id);
         }
 
+        self::incStat(1, 'played_locations', $player_id);
+
         $this->gamestate->nextState('next');
     }
 
@@ -787,9 +801,13 @@ class Conspiracy extends Table
         }
     }
 
-    function stNextPlayer() {
-        if (self::getGameStateValue('endTurn') == 0) {            
-            $player_id = self::getActivePlayerId();
+    function stNextPlayer() {        
+        $player_id = self::getActivePlayerId();
+
+        self::incStat(1, 'turns_number');
+        self::incStat(1, 'turns_number', $player_id);
+
+        if (self::getGameStateValue('endTurn') == 0) {    
             $playedLords = $this->lords->countCardInLocation("player$player_id");
 
             if ($playedLords == SPOT_NUMBER) {
@@ -841,6 +859,8 @@ class Conspiracy extends Table
                 'player_name' => self::getActivePlayerName(),
                 'points' => $points,
             ]);
+
+            self::setStat($points, 'lords_points', $player_id);
         }
 
         // locations
@@ -855,6 +875,8 @@ class Conspiracy extends Table
                 'player_name' => self::getActivePlayerName(),
                 'points' => $points,
             ]);
+            
+            self::setStat($points, 'locations_points', $player_id);
         }
 
         // coalition
@@ -871,6 +893,8 @@ class Conspiracy extends Table
                 'points' => $points,
                 'coalition' => $coalition,
             ]);
+
+            self::setStat($coalition->size, 'coalition_size', $player_id);
         }
 
         // pearl master
@@ -885,6 +909,11 @@ class Conspiracy extends Table
             'player_name' => self::getActivePlayerName()
         ]);
 
+        foreach ($players as $player_id => $playerDb) {
+            self::setStat(intval($playerDb['pearls']), 'pearls', $player_id);
+            self::setStat($player_id == $pearlMaster ? 1 : 0, 'pearl_master', $player_id);
+        }
+
         // total
         foreach ($players as $player_id => $playerDb) {
             $points = $playersPoints[$player_id];
@@ -893,6 +922,8 @@ class Conspiracy extends Table
                 'player_name' => self::getActivePlayerName(),
                 'points' => $points,
             ]);
+
+            self::setStat($points, 'total_points', $player_id);
         }
 
         $this->gamestate->nextState('endGame');

@@ -3,8 +3,9 @@ This project is an adaptation for BoardGameArena of game Conspiracy : Abyss univ
 You can play here : https://boardgamearena.com
 
 # TODO
+fix stack lord origin
+TODO fix double action on visible location selection
  TODO score highlight
- TODO check pre-release list
 
 # How to install the auto-build stack
 
