@@ -259,7 +259,10 @@ class Conspiracy implements ConspiracyGame {
     }
 
     private createPlayerTables(gamedatas: ConspiracyGamedatas) {
-        this.createPlayerTable(gamedatas, Number((this as any).player_id));
+        const currentPlayer = Object.values(gamedatas.players).find(player => Number(player.id) === Number((this as any).player_id));
+        if (currentPlayer) {
+            this.createPlayerTable(gamedatas, Number(currentPlayer.id));
+        }
         Object.values(gamedatas.players).filter(player => Number(player.id) !== Number((this as any).player_id)).forEach(player => 
             this.createPlayerTable(gamedatas, Number(player.id))
         );
