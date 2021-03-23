@@ -84,6 +84,10 @@ interface NotifDiscardLordPickArgs {
     discardedLords: Lord[];
 }
 
+interface NotifDiscardLocationPickArgs {
+    discardedLocations: Location[];
+}
+
 interface NotifLordPlayedArgs {
     playerId: number;
     lord: Lord;

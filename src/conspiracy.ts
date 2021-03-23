@@ -415,6 +415,7 @@ class Conspiracy implements ConspiracyGame {
             ['discardLocations', ANIMATION_MS],
             ['newPearlMaster', 1],
             ['discardLordPick', 1],
+            ['discardLocationPick', 1],
             ['scoreLords', SCORE_MS],
             ['scoreLocations', SCORE_MS],
             ['scoreCoalition', SCORE_MS],
@@ -470,6 +471,13 @@ class Conspiracy implements ConspiracyGame {
     notif_discardLordPick(notif: Notif<NotifDiscardLordPickArgs>) {
         // console.log('notif_discardLordPick', notif.args);
         this.lordsStacks.discardPick(notif.args.discardedLords);
+        this.lordsStacks.setPick(false, false);
+    }
+    
+    notif_discardLocationPick(notif: Notif<NotifDiscardLocationPickArgs>) {
+        // console.log('notif_discardLordPick', notif.args);
+        this.locationsStacks.discardPick(notif.args.discardedLocations);
+        this.locationsStacks.setPick(false, false);
     }
 
     notif_discardLocations() {

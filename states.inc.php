@@ -104,7 +104,8 @@ $lordGameStates = [
         "transitions" => array( 
             "chooseDeckStack" => ST_PLAYER_LORD_SELECTION,
             "chooseOneOnStack" => ST_PLAY_LORD,
-            "chooseVisibleStack" => ST_PLAYER_LORD_PICK
+            "chooseVisibleStack" => ST_PLAYER_LORD_PICK,
+            "zombiePass" => ST_NEXT_PLAYER,
         )
     ),  
 
@@ -116,7 +117,8 @@ $lordGameStates = [
         "args" => "argLordSelection",
         "possibleactions" => array( "addLord" ),
         "transitions" => array( 
-            "addLord" => ST_PLAY_LORD
+            "addLord" => ST_PLAY_LORD,
+            "zombiePass" => ST_NEXT_PLAYER,
         )
     ),
 
@@ -127,7 +129,8 @@ $lordGameStates = [
         "type" => "activeplayer",
         "possibleactions" => array( "addLord" ),
         "transitions" => array( 
-            "addLord" => ST_PLAY_LORD
+            "addLord" => ST_PLAY_LORD,
+            "zombiePass" => ST_NEXT_PLAYER,
         )
     ),
 
@@ -150,7 +153,8 @@ $lordGameStates = [
         "type" => "activeplayer",
         "possibleactions" => array( "next" ),
         "transitions" => array( 
-            "next" => ST_END_LORD
+            "next" => ST_END_LORD,
+            "zombiePass" => ST_NEXT_PLAYER,
         )
     ),
 
@@ -179,7 +183,8 @@ $locationGameStates = [
         "transitions" => array( 
             "chooseDeckStack" => ST_PLAYER_LOCATION_SELECTION,
             "chooseOneOnStack" => ST_ADD_LOCATION,
-            "chooseVisibleLocation" => ST_ADD_LOCATION
+            "chooseVisibleLocation" => ST_ADD_LOCATION,
+            "zombiePass" => ST_NEXT_PLAYER,
         )
     ),  
 
@@ -191,7 +196,8 @@ $locationGameStates = [
         "args" => "argLocationSelection",
         "possibleactions" => array( "addLocation" ),
         "transitions" => array( 
-            "addLocation" => ST_ADD_LOCATION
+            "addLocation" => ST_ADD_LOCATION,
+            "zombiePass" => ST_NEXT_PLAYER,
         )
     ),
 

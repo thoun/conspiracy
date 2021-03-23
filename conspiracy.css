@@ -45,6 +45,7 @@
 }
 
 #lord-stacks #lord-hidden-pile {
+  min-width: 207px;
   width: 207px;
   height: 207px;
   margin-right: 10px;
@@ -65,6 +66,7 @@
 }
 
 #location-stacks #location-hidden-pile {
+  min-width: 186px;
   width: 186px;
   height: 124px;
   margin-right: 10px;

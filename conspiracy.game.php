@@ -916,26 +916,30 @@ class Conspiracy extends Table
     */
 
     function zombieTurn( $state, $active_player ) {
-    	$statename = $state['name']; // TODO clear selection/pick on zombie and notif about it
-    	
-        if ($state['type'] === "activeplayer") {
-            switch ($statename) {
-                default:
-                    $this->gamestate->nextState( "zombiePass" );
-                	break;
-            }
-
-            return;
+        // we clean up if player left during his turn
+    	$lordPick = $this->lords->getCardsInLocation('lord_pick');
+        if (count($lordPick)) {
+            $this->lords->moveAllCardsInLocation('lord_pick', 'lord_selection');
+        }
+        $lordSelection = $this->lords->getCardsInLocation('lord_selection');
+        if (count($lordSelection)) {
+            $this->placeRemainingLordSelectionToTable();
         }
 
-        if ($state['type'] === "multipleactiveplayer") {
-            // Make sure player is in a non blocking status for role turn
-            $this->gamestate->setPlayerNonMultiactive( $active_player, '' );
-            
-            return;
+    	$locationPick = $this->locations->getCardsInLocation('location_pick');
+        if (count($locationPick)) {
+            $this->locations->moveAllCardsInLocation('location_pick', 'location_sel');
+        }
+        $locationSelection = $this->locations->getCardsInLocation('location_sel');
+        if (count($locationSelection)) {
+            $this->locations->moveAllCardsInLocation('location_sel', 'table');
+
+            self::notifyAllPlayers('discardLocationPick', '', [
+                'discardedLocations' => $this->getLocationsFromDb($locationSelection)
+            ]);
         }
 
-        throw new feException( "Zombie mode not supported at this game state: ".$statename );
+        $this->gamestate->nextState( "zombiePass" );
     }
     
 ///////////////////////////////////////////////////////////////////////////////////:
