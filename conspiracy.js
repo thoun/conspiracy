@@ -110,10 +110,14 @@ function getLocationTooltip(typeWithGuild) {
             message = _("Until the end of the game, when you take control of a Location, you choose this location from the Location deck (No longer from the available Locations). The deck is then reshuffled. At the end of the game, this Location is worth 3 IP.");
             break;
         case 100:
-            message = dojo.string.substitute(_("At the end of the game, this Location is worth as many IP as your most influential ${guild_name} Lord."), { guild_name: getGuildName(guild) });
+            message = guild ?
+                dojo.string.substitute(_("At the end of the game, this Location is worth as many IP as your most influential ${guild_name} Lord."), { guild_name: getGuildName(guild) }) :
+                _("At the end of the game, this Location is worth as many IP as your most influential Lord of the indicated color.");
             break;
         case 101:
-            message = dojo.string.substitute(_("At the end of the game, this Location is worth 1 IP + a bonus of 1 IP per ${guild_name} Lord present in your Senate Chamber."), { guild_name: getGuildName(guild) });
+            message = guild ?
+                dojo.string.substitute(_("At the end of the game, this Location is worth 1 IP + a bonus of 1 IP per ${guild_name} Lord present in your Senate Chamber."), { guild_name: getGuildName(guild) }) :
+                _("At the end of the game, this Location is worth 1 IP + a bonus of 1 IP per Lord of the indicated color present in your Senate Chamber.");
             break;
     }
     return message;
@@ -844,6 +848,7 @@ var Conspiracy = /** @class */ (function () {
         if (Number(gamedatas.gamestate.id) >= 80) { // score or end
             this.onEnteringShowScore();
         }
+        this.addHelp();
         this.setupNotifications();
         console.log("Ending game setup");
     };
@@ -1070,6 +1075,27 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.setScore = function (playerId, column, score) {
         document.getElementById("score" + playerId).getElementsByTagName('td')[column].innerHTML = "" + score;
+    };
+    Conspiracy.prototype.addHelp = function () {
+        var _this = this;
+        dojo.place("<button id=\"conspiracy-help-button\">?</button>", 'left-side');
+        dojo.connect($('conspiracy-help-button'), 'onclick', this, function () { return _this.showHelp(); });
+    };
+    Conspiracy.prototype.showHelp = function () {
+        if (!this.helpDialog) {
+            this.helpDialog = new ebg.popindialog();
+            this.helpDialog.create('conspiracyHelpDialog');
+            this.helpDialog.setTitle(_("Cards help"));
+            var html = "<h1>" + _("Lords") + "</h1>\n            <div id=\"help-lords\" class=\"help-section\">\n                <table>";
+            LORDS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"lord" + number + "\" class=\"lord\"></div></td><td>" + getLordTooltip(number * 10) + "</td></tr>"; });
+            html += "</table>\n            </div>\n            <h1>" + _("Locations") + "</h1>\n            <div id=\"help-locations\" class=\"help-section\">\n                <table>";
+            LOCATIONS_UNIQUE_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location" + number + "\" class=\"location\"></div></td><td>" + getLocationTooltip(number * 10) + "</td></tr>"; });
+            LOCATIONS_GUILDS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location" + number + "\" class=\"location\"></div></td><td>" + getLocationTooltip(number * 10) + "</td></tr>"; });
+            html += "</table>\n            </div>";
+            // Show the dialog
+            this.helpDialog.setContent(html);
+        }
+        this.helpDialog.show();
     };
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications

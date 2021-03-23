@@ -25,6 +25,7 @@ class Conspiracy implements ConspiracyGame {
     private lordCounters: Counter[] = [];
     private pearlCounters: Counter[] = [];
     private switchSpots: number[] = [];
+    private helpDialog;
 
     constructor() {
     }
@@ -60,6 +61,8 @@ class Conspiracy implements ConspiracyGame {
         if (Number(gamedatas.gamestate.id) >= 80) { // score or end
             this.onEnteringShowScore();
         }
+
+        this.addHelp();
 
         this.setupNotifications();
 
@@ -354,6 +357,38 @@ class Conspiracy implements ConspiracyGame {
 
     private setScore(playerId: number | string, column: number, score: number) { // column 1 for lord ... 5 for pearl master
         (document.getElementById(`score${playerId}`).getElementsByTagName('td')[column] as HTMLTableDataCellElement).innerHTML = `${score}`;
+    }
+
+    private addHelp() {
+        dojo.place(`<button id="conspiracy-help-button">?</button>`, 'left-side');
+        dojo.connect( $('conspiracy-help-button'), 'onclick', this, () => this.showHelp());
+    }
+
+    private showHelp() {
+        if (!this.helpDialog) {
+            this.helpDialog = new ebg.popindialog();
+            this.helpDialog.create( 'conspiracyHelpDialog' );
+            this.helpDialog.setTitle( _("Cards help") );
+            
+            var html = `<h1>${_("Lords")}</h1>
+            <div id="help-lords" class="help-section">
+                <table>`;
+            LORDS_IDS.forEach(number => html += `<tr><td><div id="lord${number}" class="lord"></div></td><td>${getLordTooltip(number * 10)}</td></tr>`);
+            html += `</table>
+            </div>
+            <h1>${_("Locations")}</h1>
+            <div id="help-locations" class="help-section">
+                <table>`;
+            LOCATIONS_UNIQUE_IDS.forEach(number => html += `<tr><td><div id="location${number}" class="location"></div></td><td>${getLocationTooltip(number * 10)}</td></tr>`);
+            LOCATIONS_GUILDS_IDS.forEach(number => html += `<tr><td><div id="location${number}" class="location"></div></td><td>${getLocationTooltip(number * 10)}</td></tr>`);
+            html += `</table>
+            </div>`;
+            
+            // Show the dialog
+            this.helpDialog.setContent(html);
+        }
+
+        this.helpDialog.show();
     }
 
     ///////////////////////////////////////////////////

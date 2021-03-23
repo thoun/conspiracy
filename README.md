@@ -3,9 +3,7 @@ This project is an adaptation for BoardGameArena of game Conspiracy : Abyss univ
 You can play here : https://boardgamearena.com
 
 # TODO
- TODO resizable like draftosorus
  TODO score highlight
- TODO help popup for no-mouse devices
  TODO check pre-release list
 
 # How to install the auto-build stack

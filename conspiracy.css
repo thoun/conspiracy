@@ -326,6 +326,110 @@
   font-weight: bold;
 }
 
+#conspiracy-help-button {
+  position: fixed;
+  bottom: 75px;
+  left: 5px;
+  width: 50px;
+  height: 50px;
+  background-color: white;
+  border-radius: 25px;
+  border: 1px solid #777;
+  box-shadow: 3px 5px 5px 0px black;
+  cursor: pointer;
+  z-index: 949;
+  font-size: 28pt;
+}
+
+/* we show help button if user has no mouse ( = no tooltips) */
+@media (pointer: fine) {
+  #conspiracy-help-button {
+    display: none;
+  }
+}
+.help-section table {
+  border-spacing: 5px;
+  border-collapse: separate;
+}
+
+#help-lords .lord {
+  width: 207.26px;
+  height: 207px;
+  background-image: url("img/lords.jpg");
+}
+#help-lords #lord1 {
+  background-position: -1300% 0%;
+}
+#help-lords #lord2 {
+  background-position: -1400% 0%;
+}
+#help-lords #lord3 {
+  background-position: -1500% 0%;
+}
+#help-lords #lord4 {
+  background-position: -1600% 0%;
+}
+#help-lords #lord5 {
+  background-position: -1700% 0%;
+}
+#help-lords #lord6 {
+  background-position: -1800% 0%;
+}
+
+#help-locations .location {
+  width: 186.24px;
+  height: 124px;
+  background-image: url("img/locations.jpg");
+}
+#help-locations #location1 {
+  background-position: -100% 0%;
+}
+#help-locations #location2 {
+  background-position: -200% 0%;
+}
+#help-locations #location3 {
+  background-position: -300% 0%;
+}
+#help-locations #location4 {
+  background-position: -400% 0%;
+}
+#help-locations #location5 {
+  background-position: -500% 0%;
+}
+#help-locations #location6 {
+  background-position: -600% 0%;
+}
+#help-locations #location7 {
+  background-position: -700% 0%;
+}
+#help-locations #location8 {
+  background-position: -800% 0%;
+}
+#help-locations #location9 {
+  background-position: -900% 0%;
+}
+#help-locations #location10 {
+  background-position: -1000% 0%;
+}
+#help-locations #location11 {
+  background-position: -1100% 0%;
+}
+#help-locations #location12 {
+  background-position: -1200% 0%;
+}
+#help-locations #location13 {
+  background-position: -1300% 0%;
+}
+#help-locations #location14 {
+  background-position: -1400% 0%;
+}
+#help-locations #location100 {
+  background-position: -1700% 0%;
+}
+#help-locations #location101 {
+  background-position: -2200% 0%;
+}
+
 html {
   background: url("img/background.jpg");
   background-size: contain;
