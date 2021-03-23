@@ -28,7 +28,7 @@ $gameinfos = array(
 'publisher' => 'Bombyx',                     
 
 // Url of game publisher website
-'publisher_website' => 'http://www.mypublishingcompany.com/',   
+'publisher_website' => 'https://studiobombyx.com',   
 
 // Board Game Geek ID of the publisher
 'publisher_bgg_id' => 19260,
@@ -66,7 +66,7 @@ $gameinfos = array(
 // Note: if you are NOT using any tie breaker, leave the empty string.
 //
 // Example: 'tie_breaker_description' => totranslate( "Number of remaining cards in hand" ),
-'tie_breaker_description' => "",
+'tie_breaker_description' => totranslate( "Number of pearls" ),
 
 // If in the game, all losers are equal (no score to rank them or explicit in the rules that losers are not ranked between them), set this to true 
 // The game end result will display "Winner" for the 1st player and "Loser" for all other players
@@ -117,7 +117,7 @@ $gameinfos = array(
     //  default: 740
     //  maximum possible value: 740 (ie: your game interface should fit with a 740px width (correspond to a 1024px screen)
     //  minimum possible value: 320 (the lowest value you specify, the better the display is on mobile)
-    'min' => 740,
+    'min' => 1096,
 
     // Maximum width
     //  default: null (ie: no limit, the game interface is as big as the player's screen allows it).
@@ -130,10 +130,11 @@ $gameinfos = array(
 // Short game presentation text that will appear on the game description page, structured as an array of paragraphs.
 // Each paragraph must be wrapped with totranslate() for translation and should not contain html (plain text without formatting).
 // A good length for this text is between 100 and 150 words (about 6 to 9 lines on a standard display)
+
+// this presentation has been taken from website : https://studiobombyx.com/en/jeu/conspiracy-abyss-universe/
 'presentation' => array(
-//    totranslate("This wonderful game is about geometric shapes!"),
-//    totranslate("It was awarded best triangle game of the year in 2005 and nominated for the Spiel des Jahres."),
-//    ...
+    totranslate("Plots and corruption abound in the perpetual darkness of the Abyss kingdom’s deep waters. At the Oceanic Senate Assembly, you are at the very heart of this permanent battle for power. Your opponents conspire tirelessly to gain influence. In order to organize your Senatorial Chamber, you must rally the most powerful Lords before your opponents turn them away."),
+    totranslate("Can you elude the plots of your rivals to establish your empire and reign supreme over the Oceanic Senate Assembly?"),
 ),
 
 // Games categories
@@ -143,7 +144,7 @@ $gameinfos = array(
 //  http://en.doc.boardgamearena.com/Game_meta-information:_gameinfos.inc.php
 //  IMPORTANT: this list should be ORDERED, with the most important tag first.
 //  IMPORTANT: it is mandatory that the FIRST tag is 1, 2, 3 and 4 (= game category)
-'tags' => array( 2 ),
+'tags' => array( 2, 11, 100, 200, 206, 207, 210 ),
 
 
 //////// BGA SANDBOX ONLY PARAMETERS (DO NOT MODIFY)
