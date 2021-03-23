@@ -739,7 +739,7 @@ var PlayerTable = /** @class */ (function () {
         this.spotsStock = [];
         this.switchSpots = [];
         this.playerId = Number(player.id);
-        dojo.place("<div class=\"whiteblock\">\n            <div class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</div>\n            <div class=\"player-table-mat mat" + player.mat + "\">\n                <div id=\"player-table-" + this.playerId + "\" class=\"player-table\"></div>\n            </div>\n        </div>", 'players-tables');
+        dojo.place("<div class=\"player-table-wrapper\">\n            <div class=\"player-table-mat mat" + player.mat + "\">\n                <div id=\"player-table-" + this.playerId + "\" class=\"player-table\">\n                    <div class=\"player-name mat" + player.mat + "\" style=\"color: #" + player.color + ";\">\n                        " + player.name + "\n                    </div>\n                </div>\n            </div>\n        </div>", 'players-tables');
         SPOTS_NUMBERS.forEach(function (spotNumber) {
             _this.spotsStock[spotNumber] = new PlayerTableSpotStock(game, _this, player, spots[spotNumber], spotNumber);
         });
@@ -987,7 +987,10 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;
-        this.createPlayerTable(gamedatas, Number(this.player_id));
+        var currentPlayer = Object.values(gamedatas.players).find(function (player) { return Number(player.id) === Number(_this.player_id); });
+        if (currentPlayer) {
+            this.createPlayerTable(gamedatas, Number(currentPlayer.id));
+        }
         Object.values(gamedatas.players).filter(function (player) { return Number(player.id) !== Number(_this.player_id); }).forEach(function (player) {
             return _this.createPlayerTable(gamedatas, Number(player.id));
         });

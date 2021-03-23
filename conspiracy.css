@@ -79,54 +79,72 @@
   box-shadow: 1px 1px 3px black;
 }
 
-#players-tables .player-name {
-  font-weight: bold;
-  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
-}
-#players-tables .player-table-mat {
+#players-tables .player-table-wrapper {
   display: flex;
   justify-content: center;
-  /* TODO adjust */
-  /*background-size: 85% 132%;
-  background-position-y: 41%;*/
+}
+#players-tables .player-table-wrapper .player-name {
+  text-align: center;
+  min-width: 150px;
+  font-weight: bold;
+  position: absolute;
+  left: calc(50% - 87px);
+  top: -35px;
+  text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.8);
+  background: #040b11;
+  padding: 5px 10px;
+  border: 2px solid #040b11;
+  border-radius: 5px 5px 0 0;
+  border-bottom: 0px;
+  background-repeat: no-repeat;
+  background-position: center -110px;
+}
+#players-tables .player-table-wrapper .player-table-mat {
+  display: flex;
+  justify-content: center;
   background-repeat: no-repeat;
   background-position: center -140px;
+  box-shadow: 2px 2px 5px 5px black;
+  max-width: 99%;
+  width: 1388px;
+  min-width: 1096px;
+  margin-top: 40px;
 }
-#players-tables .player-table-mat.mat1 {
-  background-image: url("img/playmat_1.jpg");
-}
-#players-tables .player-table-mat.mat2 {
-  background-image: url("img/playmat_2.jpg");
-}
-#players-tables .player-table-mat.mat3 {
-  background-image: url("img/playmat_3.jpg");
-}
-#players-tables .player-table-mat.mat4 {
-  background-image: url("img/playmat_4.jpg");
-}
-#players-tables .player-table-mat.mat5 {
-  background-image: url("img/playmat_5.jpg");
-}
-#players-tables .player-table-mat.mat6 {
-  background-image: url("img/playmat_6.jpg");
-}
-#players-tables .player-table-mat.mat7 {
-  background-image: url("img/playmat_7.jpg");
-}
-#players-tables .player-table-mat.mat8 {
-  background-image: url("img/playmat_8.jpg");
-}
-#players-tables .player-table-mat.mat9 {
-  background-image: url("img/playmat_9.jpg");
-}
-#players-tables .player-table-mat.mat10 {
-  background-image: url("img/playmat_10.jpg");
-}
-#players-tables .player-table-mat .player-table {
+#players-tables .player-table-wrapper .player-table-mat .player-table {
   position: relative;
   width: 1096.3px;
-  height: 1180px;
+  height: 1095px;
   margin-top: 5px;
+}
+#players-tables .player-table-wrapper .mat1 {
+  background-image: url("img/playmat_1.jpg");
+}
+#players-tables .player-table-wrapper .mat2 {
+  background-image: url("img/playmat_2.jpg");
+}
+#players-tables .player-table-wrapper .mat3 {
+  background-image: url("img/playmat_3.jpg");
+}
+#players-tables .player-table-wrapper .mat4 {
+  background-image: url("img/playmat_4.jpg");
+}
+#players-tables .player-table-wrapper .mat5 {
+  background-image: url("img/playmat_5.jpg");
+}
+#players-tables .player-table-wrapper .mat6 {
+  background-image: url("img/playmat_6.jpg");
+}
+#players-tables .player-table-wrapper .mat7 {
+  background-image: url("img/playmat_7.jpg");
+}
+#players-tables .player-table-wrapper .mat8 {
+  background-image: url("img/playmat_8.jpg");
+}
+#players-tables .player-table-wrapper .mat9 {
+  background-image: url("img/playmat_9.jpg");
+}
+#players-tables .player-table-wrapper .mat10 {
+  background-image: url("img/playmat_10.jpg");
 }
 
 .player-table-spot {
@@ -194,6 +212,9 @@
 .player-table-spot.spot15 {
   top: 888px;
   left: 444.52px;
+}
+.player-table-spot .stockitem {
+  box-shadow: 2px 2px 4px black;
 }
 .player-table-spot .stockitem.disabled {
   cursor: not-allowed;

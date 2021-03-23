@@ -7,31 +7,53 @@ $top-margin: 5px;
 $bottom-margin: 85px;
 
 #players-tables {
-    .player-name {
-        font-weight: bold;
-        text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
-    }
-
-    .player-table-mat {
+    .player-table-wrapper {
         display: flex;
         justify-content: center;
-        /* TODO adjust */
-        /*background-size: 85% 132%;
-        background-position-y: 41%;*/
-        background-repeat: no-repeat;
-        background-position: center -140px;
 
-        @for $i from 1 through 10 {
-            &.mat#{$i} {
-                background-image: url('img/playmat_#{$i}.jpg');
+        .player-name {
+            text-align: center;
+            min-width: 150px;
+            font-weight: bold;
+            
+            position: absolute;
+            left: calc(50% - 87px);
+            top: -35px;
+            text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.8);
+            background: #040b11;
+            padding: 5px 10px;
+            border: 2px solid #040b11;
+            border-radius: 5px 5px 0 0;
+            border-bottom: 0px;
+
+            background-repeat: no-repeat;
+            background-position: center -110px;
+        }
+
+        .player-table-mat {
+            display: flex;
+            justify-content: center;
+            background-repeat: no-repeat;
+            background-position: center -140px;
+    
+            box-shadow: 2px 2px 5px 5px black;
+            max-width: 99%;
+            width: 1388px;
+            min-width: 1096px;
+            margin-top: 40px;
+
+            .player-table {
+                position: relative;
+                width: $lord-width * 5 + $lord-margin * 4;
+                height: $lord-height * 5 + $lord-margin * 4/* + $bottom-margin*/;
+                margin-top: $top-margin;
             }
         }
 
-        .player-table {
-            position: relative;
-            width: $lord-width * 5 + $lord-margin * 4;
-            height: $lord-height * 5 + $lord-margin * 4 + $bottom-margin;
-            margin-top: $top-margin;
+        @for $i from 1 through 10 {
+            .mat#{$i} {
+                background-image: url('img/playmat_#{$i}.jpg');
+            }
         }
     }
 }

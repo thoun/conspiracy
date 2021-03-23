@@ -15,10 +15,13 @@ class PlayerTable {
 
         this.playerId = Number(player.id);
 
-        dojo.place(`<div class="whiteblock">
-            <div class="player-name" style="color: #${player.color}">${player.name}</div>
+        dojo.place(`<div class="player-table-wrapper">
             <div class="player-table-mat mat${(player as any).mat}">
-                <div id="player-table-${this.playerId}" class="player-table"></div>
+                <div id="player-table-${this.playerId}" class="player-table">
+                    <div class="player-name mat${(player as any).mat}" style="color: #${player.color};">
+                        ${player.name}
+                    </div>
+                </div>
             </div>
         </div>`, 'players-tables');
 
