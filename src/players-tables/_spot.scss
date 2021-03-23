@@ -2,42 +2,39 @@
     position: absolute;
     display: inline-block;
     width: 207.26px;
-    background: #76cee160;
     height: 209px;
-    border-radius: 10px;
-    box-shadow: 1px 1px 3px rgb(0 0 0 / 50%);
 
     @for $i from 1 through 5 {
         &.spot#{$i} {
             top: 0;
-            left: ($lord-width + $lord-left-margin) * ($i - 1);
+            left: ($lord-width + $lord-margin) * ($i - 1);
         }
     }
 
     @for $i from 6 through 9 {
         &.spot#{$i} {
-            top: $lord-height + $lord-top-margin;
-            left: ($lord-width + $lord-left-margin) * ($i - 5.5);
+            top: $lord-height + $lord-margin;
+            left: ($lord-width + $lord-margin) * ($i - 5.5);
         }
     }
 
     @for $i from 10 through 12 {
         &.spot#{$i} {
-            top: ($lord-height + $lord-top-margin) * 2;
-            left: ($lord-width + $lord-left-margin) * ($i - 9);
+            top: ($lord-height + $lord-margin) * 2;
+            left: ($lord-width + $lord-margin) * ($i - 9);
         }
     }
 
     @for $i from 13 through 14 {
         &.spot#{$i} {
-            top: ($lord-height + $lord-top-margin) * 3;
-            left: ($lord-width + $lord-left-margin) * ($i - 11.5);
+            top: ($lord-height + $lord-margin) * 3;
+            left: ($lord-width + $lord-margin) * ($i - 11.5);
         }
     }
 
     &.spot15 {
-        top: ($lord-height + $lord-top-margin) * 4;
-        left: ($lord-width + $lord-left-margin) * 2;
+        top: ($lord-height + $lord-margin) * 4;
+        left: ($lord-width + $lord-margin) * 2;
     }
 
     

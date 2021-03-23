@@ -84,11 +84,18 @@ class Conspiracy extends Table
  
         // Create players
         // Note: if you added some extra field on "player" table in the database (dbmodel.sql), you can initialize it there.
-        $sql = "INSERT INTO player (player_id, player_color, player_canal, player_name, player_avatar) VALUES ";
+        $sql = "INSERT INTO player (player_id, player_color, player_canal, player_name, player_avatar, player_mat) VALUES ";
         $values = array();
+        $affectedMats = [];
         foreach( $players as $player_id => $player ) {
             $color = array_shift( $default_colors );
-            $values[] = "('".$player_id."','$color','".$player['player_canal']."','".addslashes( $player['player_name'] )."','".addslashes( $player['player_avatar'] )."')";
+            $player_mat = bga_rand(1, 10);
+            while (array_search($player_mat, $affectedMats) !== false) {
+                $player_mat = bga_rand(1, 10);
+            }
+            $affectedMats[] = $player_mat;
+
+            $values[] = "('".$player_id."','$color','".$player['player_canal']."','".addslashes( $player['player_name'] )."','".addslashes( $player['player_avatar'] )."', $player_mat)";
         }
         $sql .= implode( $values, ',' );
         self::DbQuery( $sql );
@@ -162,7 +169,7 @@ class Conspiracy extends Table
     
         $current_player_id = self::getCurrentPlayerId();
     
-        $sql = "SELECT player_id id, player_score score, player_score_aux pearls, player_score_lords lords, player_score_locations locations, player_score_coalition coalition FROM player ";
+        $sql = "SELECT player_id id, player_score score, player_score_aux pearls, player_score_lords lords, player_score_locations locations, player_score_coalition coalition, player_mat mat FROM player ";
         $result['players'] = self::getCollectionFromDb( $sql );
   
         // Gather all information about current game situation.

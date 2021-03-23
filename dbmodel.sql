@@ -41,3 +41,4 @@ CREATE TABLE IF NOT EXISTS `location` (
 ALTER TABLE `player` ADD `player_score_lords` int(10);
 ALTER TABLE `player` ADD `player_score_locations` int(10);
 ALTER TABLE `player` ADD `player_score_coalition` int(10);
+ALTER TABLE `player` ADD `player_mat` int(1) unsigned NOT NULL;

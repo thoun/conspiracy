@@ -83,20 +83,57 @@
   font-weight: bold;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
 }
-#players-tables .player-table {
+#players-tables .player-table-mat {
+  display: flex;
+  justify-content: center;
+  /* TODO adjust */
+  /*background-size: 85% 132%;
+  background-position-y: 41%;*/
+  background-repeat: no-repeat;
+  background-position: center -140px;
+}
+#players-tables .player-table-mat.mat1 {
+  background-image: url("img/playmat_1.jpg");
+}
+#players-tables .player-table-mat.mat2 {
+  background-image: url("img/playmat_2.jpg");
+}
+#players-tables .player-table-mat.mat3 {
+  background-image: url("img/playmat_3.jpg");
+}
+#players-tables .player-table-mat.mat4 {
+  background-image: url("img/playmat_4.jpg");
+}
+#players-tables .player-table-mat.mat5 {
+  background-image: url("img/playmat_5.jpg");
+}
+#players-tables .player-table-mat.mat6 {
+  background-image: url("img/playmat_6.jpg");
+}
+#players-tables .player-table-mat.mat7 {
+  background-image: url("img/playmat_7.jpg");
+}
+#players-tables .player-table-mat.mat8 {
+  background-image: url("img/playmat_8.jpg");
+}
+#players-tables .player-table-mat.mat9 {
+  background-image: url("img/playmat_9.jpg");
+}
+#players-tables .player-table-mat.mat10 {
+  background-image: url("img/playmat_10.jpg");
+}
+#players-tables .player-table-mat .player-table {
   position: relative;
-  height: 1060px;
-  margin-top: 10px;
+  width: 1096.3px;
+  height: 1180px;
+  margin-top: 5px;
 }
 
 .player-table-spot {
   position: absolute;
   display: inline-block;
   width: 207.26px;
-  background: #76cee160;
   height: 209px;
-  border-radius: 10px;
-  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 .player-table-spot.spot1 {
   top: 0;
@@ -104,59 +141,59 @@
 }
 .player-table-spot.spot2 {
   top: 0;
-  left: 212.26px;
+  left: 222.26px;
 }
 .player-table-spot.spot3 {
   top: 0;
-  left: 424.52px;
+  left: 444.52px;
 }
 .player-table-spot.spot4 {
   top: 0;
-  left: 636.78px;
+  left: 666.78px;
 }
 .player-table-spot.spot5 {
   top: 0;
-  left: 849.04px;
+  left: 889.04px;
 }
 .player-table-spot.spot6 {
-  top: 212px;
-  left: 106.13px;
+  top: 222px;
+  left: 111.13px;
 }
 .player-table-spot.spot7 {
-  top: 212px;
-  left: 318.39px;
+  top: 222px;
+  left: 333.39px;
 }
 .player-table-spot.spot8 {
-  top: 212px;
-  left: 530.65px;
+  top: 222px;
+  left: 555.65px;
 }
 .player-table-spot.spot9 {
-  top: 212px;
-  left: 742.91px;
+  top: 222px;
+  left: 777.91px;
 }
 .player-table-spot.spot10 {
-  top: 424px;
-  left: 212.26px;
+  top: 444px;
+  left: 222.26px;
 }
 .player-table-spot.spot11 {
-  top: 424px;
-  left: 424.52px;
+  top: 444px;
+  left: 444.52px;
 }
 .player-table-spot.spot12 {
-  top: 424px;
-  left: 636.78px;
+  top: 444px;
+  left: 666.78px;
 }
 .player-table-spot.spot13 {
-  top: 636px;
-  left: 318.39px;
+  top: 666px;
+  left: 333.39px;
 }
 .player-table-spot.spot14 {
-  top: 636px;
-  left: 530.65px;
+  top: 666px;
+  left: 555.65px;
 }
 .player-table-spot.spot15 {
-  top: 848px;
-  left: 424.52px;
+  top: 888px;
+  left: 444.52px;
 }
 .player-table-spot .stockitem.disabled {
   cursor: not-allowed;

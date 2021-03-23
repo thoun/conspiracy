@@ -637,7 +637,6 @@ var PlayerTableSpotStock = /** @class */ (function () {
         var lord = spot.lord;
         if (lord) {
             this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), "" + lord.id);
-            this.hidePlaceholder();
         }
         this.locationsStock = new ebg.stock();
         this.locationsStock.create(this.game, $("player" + this.playerId + "-spot" + spotNumber + "-location-stock"), LOCATION_WIDTH, LOCATION_HEIGHT);
@@ -663,7 +662,6 @@ var PlayerTableSpotStock = /** @class */ (function () {
         return this.spot.lord;
     };
     PlayerTableSpotStock.prototype.setLord = function (lord, fromStock) {
-        var _this = this;
         if (fromStock) {
             moveToAnotherStock(fromStock, this.lordsStock, getUniqueId(lord.type, lord.guild), "" + lord.id);
         }
@@ -671,11 +669,6 @@ var PlayerTableSpotStock = /** @class */ (function () {
             this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), "" + lord.id, 'lord-hidden-pile');
         }
         this.spot.lord = lord;
-        setTimeout(function () { return _this.hidePlaceholder(); }, 500);
-    };
-    PlayerTableSpotStock.prototype.hidePlaceholder = function () {
-        dojo.style("player-table-" + this.playerId + "-spot" + this.spotNumber, 'background', 'none');
-        dojo.style("player-table-" + this.playerId + "-spot" + this.spotNumber, 'box-shadow', 'none');
     };
     PlayerTableSpotStock.prototype.setLocation = function (location, fromStock) {
         var _a, _b;
@@ -746,7 +739,7 @@ var PlayerTable = /** @class */ (function () {
         this.spotsStock = [];
         this.switchSpots = [];
         this.playerId = Number(player.id);
-        dojo.place("<div class=\"whiteblock\">\n            <div class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</div>\n            <div id=\"player-table-" + this.playerId + "\" class=\"player-table\"></div>\n        </div>", 'players-tables');
+        dojo.place("<div class=\"whiteblock\">\n            <div class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</div>\n            <div class=\"player-table-mat mat" + player.mat + "\">\n                <div id=\"player-table-" + this.playerId + "\" class=\"player-table\"></div>\n            </div>\n        </div>", 'players-tables');
         SPOTS_NUMBERS.forEach(function (spotNumber) {
             _this.spotsStock[spotNumber] = new PlayerTableSpotStock(game, _this, player, spots[spotNumber], spotNumber);
         });

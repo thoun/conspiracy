@@ -17,7 +17,9 @@ class PlayerTable {
 
         dojo.place(`<div class="whiteblock">
             <div class="player-name" style="color: #${player.color}">${player.name}</div>
-            <div id="player-table-${this.playerId}" class="player-table"></div>
+            <div class="player-table-mat mat${(player as any).mat}">
+                <div id="player-table-${this.playerId}" class="player-table"></div>
+            </div>
         </div>`, 'players-tables');
 
         SPOTS_NUMBERS.forEach(spotNumber => {
