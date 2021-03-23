@@ -947,7 +947,7 @@ var Conspiracy = /** @class */ (function () {
         this.locationsStacks.setSelectable(false);
     };
     Conspiracy.prototype.onLeavingLocationSelection = function () {
-        this.locationsStacks.setPick(false, false);
+        this.locationsStacks.setSelectable(false);
     };
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
@@ -1129,10 +1129,10 @@ var Conspiracy = /** @class */ (function () {
         this.playersTables[notif.args.playerId].addLocation(notif.args.spot, notif.args.location, from);
         this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
-        // TODO when location played, pick disapear before slide, discardPick should be called every time and shouls hide pick, not before
         if ((_a = notif.args.discardedLocations) === null || _a === void 0 ? void 0 : _a.length) {
             this.locationsStacks.discardPick(notif.args.discardedLocations);
         }
+        this.locationsStacks.setPick(false, false);
     };
     Conspiracy.prototype.notif_discardLords = function () {
         this.lordsStacks.discardVisible();

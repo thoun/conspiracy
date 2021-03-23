@@ -188,7 +188,7 @@ class Conspiracy implements ConspiracyGame {
     }
 
     onLeavingLocationSelection() {
-        this.locationsStacks.setPick(false, false);
+        this.locationsStacks.setSelectable(false);
     }
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -418,10 +418,11 @@ class Conspiracy implements ConspiracyGame {
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
 
-        // TODO when location played, pick disapear before slide, discardPick should be called every time and shouls hide pick, not before
         if (notif.args.discardedLocations?.length) {
             this.locationsStacks.discardPick(notif.args.discardedLocations);
         }
+
+        this.locationsStacks.setPick(false, false);
     }
 
     notif_discardLords() {

@@ -909,7 +909,7 @@ class Conspiracy extends Table
     */
 
     function zombieTurn( $state, $active_player ) {
-    	$statename = $state['name'];
+    	$statename = $state['name']; // TODO clear selection/pick on zombie and notif about it
     	
         if ($state['type'] === "activeplayer") {
             switch ($statename) {
