@@ -32,10 +32,11 @@
   pointer-events: none;
   cursor: default;
 }
-.stacks .pick-stock.selectable {
+
+.pick-stock.selectable {
   border: 3px dashed white;
 }
-.stacks .pick-stock.selectable .stockitem {
+.pick-stock.selectable .stockitem {
   cursor: pointer;
 }
 

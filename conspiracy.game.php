@@ -44,7 +44,6 @@ class Conspiracy extends Table
                 //  // if > 0, indicates the player that added the constraint
                 'AP_FIRST_LORD' => 11, // reset to 0 when this player plays again
                 'AP_FIRST_LORDS' => 12, // reset to 0 when this player plays again
-                'AP_KEYS' => 13, // reset to 0 when this player plays again
                 'AP_DECK_LOCATION' => 14, // apply for all game, not reseted                
 
                 'stackSelection' => 20, // 1 for lord stack selection, 0 for visible lords selection
@@ -271,8 +270,9 @@ class Conspiracy extends Table
         $locations = $this->getLocationsFromDb($this->locations->getCardsInLocation("player$playerId"));
         $locationsSpots = array_map(function($location) { return $location->location_arg; }, $locations);
         $lastLocationSpot = count($locationsSpots) > 0 ? max($locationsSpots) : 0;
+        $hasActivePowerKeys = count(array_values(array_filter($locations, function ($location) { return $location->activePower === AP_KEYS; }))) > 0;
 
-        if (self::getGameStateValue('AP_KEYS') == $playerId) {
+        if ($hasActivePowerKeys) {
             $keys = count(array_filter($lords, function($lord) use ($lastLocationSpot) { return $lord->location_arg > $lastLocationSpot && $lord->key >= 1; }));
             
             return $keys >= 2;

@@ -36,14 +36,14 @@
             cursor: default;
         }
     }
+}
 
-    .pick-stock {
-        &.selectable {
-            border: 3px dashed white;
+.pick-stock {
+    &.selectable {
+        border: 3px dashed white;
 
-            .stockitem {
-                cursor: pointer;
-            }
+        .stockitem {
+            cursor: pointer;
         }
     }
 }

@@ -53,7 +53,7 @@ $this->LOCATIONS_UNIQUE = [
     12 => new LocationCard(3, 0, AP_DISCARD_LOCATIONS),
     13 => new LocationCard(3, 0, AP_KEYS),
     14 => new LocationCard(3, 0, AP_DECK_LOCATION),
-];
+]; 
 $this->LOCATIONS_GUILD = [
     100 => new LocationCard(0, 0, null, PP_LORD_MAX),
     101 => new LocationCard(1, 0, null, PP_LORD_COUNT),
