@@ -130,7 +130,7 @@ class PlayerTableSpotStock {
     }
 
     public addTokenDiv(tokenDiv: HTMLDivElement) {
-        this.tokenWrapper.appendChild(tokenDiv);
+        slideToObjectAndAttach(this.game, tokenDiv, this.tokenWrapper.id);
     }
     public getTokenDiv(): HTMLDivElement | undefined {
         return this.tokenWrapper.getElementsByTagName('div')[0] as HTMLDivElement;
@@ -138,7 +138,6 @@ class PlayerTableSpotStock {
     
     public highlightLord() {
         const cardId = this.lordsStock.items[0]?.id;
-        console.log('highlight lord', document.getElementById(`${this.lordsStock.container_div.id}_item_${cardId}`));
         cardId && document.getElementById(`${this.lordsStock.container_div.id}_item_${cardId}`).classList.add('highlight');
     }
 
@@ -149,7 +148,6 @@ class PlayerTableSpotStock {
 
     public highlightLocation() {
         const cardId = this.locationsStock.items[0]?.id;
-        console.log('highlight location', document.getElementById(`${this.locationsStock.container_div.id}_item_${cardId}`));
         cardId && document.getElementById(`${this.locationsStock.container_div.id}_item_${cardId}`).classList.add('highlight');
     }
 }

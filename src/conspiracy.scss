@@ -11,6 +11,12 @@ html {
     background-size: contain;
 }
 
+.pearlMasterWrapper {
+    display: inline-block;
+    position: relative;
+    width: 32px;
+}
+
 .log-guild-name {
     text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
 }

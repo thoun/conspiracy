@@ -250,6 +250,7 @@ class Conspiracy implements ConspiracyGame {
             dojo.place(html, `player_board_${player.id}`);
 
             // pearl master token
+            dojo.place(`<div id="player_board_${player.id}_pearlMasterWrapper" class="pearlMasterWrapper"></div>`, `player_board_${player.id}`);
 
             if (gamedatas.pearlMasterPlayer === playerId) {
                 this.placePearlMasterToken(gamedatas.pearlMasterPlayer);
@@ -314,17 +315,9 @@ class Conspiracy implements ConspiracyGame {
     placePearlMasterToken(playerId: number) {
         const pearlMasterToken = document.getElementById('pearlMasterToken');
         if (pearlMasterToken) {
-            const animation = (this as any).slideToObject(pearlMasterToken, `player_board_${playerId}`);
-            dojo.connect(animation, 'onEnd', dojo.hitch(this, () => {
-                pearlMasterToken.style.top = 'unset';
-                pearlMasterToken.style.left = 'unset';
-                pearlMasterToken.style.position = 'unset';
-                pearlMasterToken.style.zIndex = 'unset';
-                document.getElementById(`player_board_${playerId}`).appendChild(pearlMasterToken);
-            }));
-            animation.play();
+            slideToObjectAndAttach(this, pearlMasterToken, `player_board_${playerId}_pearlMasterWrapper`);
         } else {
-            dojo.place('<div id="pearlMasterToken" class="token"></div>', `player_board_${playerId}`);
+            dojo.place('<div id="pearlMasterToken" class="token"></div>', `player_board_${playerId}_pearlMasterWrapper`);
 
             (this as any).addTooltip('pearlMasterToken', _("Pearl Master token. At the end of the game, the player possessing the Pearl Master token gains a bonus of 5 Influence Points."), '');
         }

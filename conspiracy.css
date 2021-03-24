@@ -7,7 +7,7 @@
   position: relative;
   display: flex;
   border-radius: 10px;
-  box-shadow: 1px 1px 3px black;
+  box-shadow: 3px 3px 0px 0px #333, 5px 5px 3px black;
   background-position: 0% 0%;
 }
 .stacks .hidden-pile .button {
@@ -440,6 +440,12 @@
 html {
   background: url("img/background.jpg");
   background-size: contain;
+}
+
+.pearlMasterWrapper {
+  display: inline-block;
+  position: relative;
+  width: 32px;
 }
 
 .log-guild-name {

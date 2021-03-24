@@ -1,3 +1,18 @@
+function slideToObjectAndAttach(game, object, destinationId) {
+    var destination = document.getElementById(destinationId);
+    if (destination.contains(object)) {
+        return;
+    }
+    var animation = game.slideToObject(object, destinationId);
+    dojo.connect(animation, 'onEnd', dojo.hitch(this, function () {
+        object.style.top = 'unset';
+        object.style.left = 'unset';
+        object.style.position = 'unset';
+        object.style.zIndex = 'unset';
+        destination.appendChild(object);
+    }));
+    animation.play();
+}
 /*declare const define;
 declare const ebg;
 declare const $;
@@ -735,7 +750,7 @@ var PlayerTableSpotStock = /** @class */ (function () {
         }
     };
     PlayerTableSpotStock.prototype.addTokenDiv = function (tokenDiv) {
-        this.tokenWrapper.appendChild(tokenDiv);
+        slideToObjectAndAttach(this.game, tokenDiv, this.tokenWrapper.id);
     };
     PlayerTableSpotStock.prototype.getTokenDiv = function () {
         return this.tokenWrapper.getElementsByTagName('div')[0];
@@ -743,7 +758,6 @@ var PlayerTableSpotStock = /** @class */ (function () {
     PlayerTableSpotStock.prototype.highlightLord = function () {
         var _a;
         var cardId = (_a = this.lordsStock.items[0]) === null || _a === void 0 ? void 0 : _a.id;
-        console.log('highlight lord', document.getElementById(this.lordsStock.container_div.id + "_item_" + cardId));
         cardId && document.getElementById(this.lordsStock.container_div.id + "_item_" + cardId).classList.add('highlight');
     };
     PlayerTableSpotStock.prototype.clearLordHighlight = function () {
@@ -754,7 +768,6 @@ var PlayerTableSpotStock = /** @class */ (function () {
     PlayerTableSpotStock.prototype.highlightLocation = function () {
         var _a;
         var cardId = (_a = this.locationsStock.items[0]) === null || _a === void 0 ? void 0 : _a.id;
-        console.log('highlight location', document.getElementById(this.locationsStock.container_div.id + "_item_" + cardId));
         cardId && document.getElementById(this.locationsStock.container_div.id + "_item_" + cardId).classList.add('highlight');
     };
     return PlayerTableSpotStock;
@@ -1017,6 +1030,7 @@ var Conspiracy = /** @class */ (function () {
             html += "</div>";
             dojo.place(html, "player_board_" + player.id);
             // pearl master token
+            dojo.place("<div id=\"player_board_" + player.id + "_pearlMasterWrapper\" class=\"pearlMasterWrapper\"></div>", "player_board_" + player.id);
             if (gamedatas.pearlMasterPlayer === playerId) {
                 _this.placePearlMasterToken(gamedatas.pearlMasterPlayer);
             }
@@ -1070,18 +1084,10 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.placePearlMasterToken = function (playerId) {
         var pearlMasterToken = document.getElementById('pearlMasterToken');
         if (pearlMasterToken) {
-            var animation = this.slideToObject(pearlMasterToken, "player_board_" + playerId);
-            dojo.connect(animation, 'onEnd', dojo.hitch(this, function () {
-                pearlMasterToken.style.top = 'unset';
-                pearlMasterToken.style.left = 'unset';
-                pearlMasterToken.style.position = 'unset';
-                pearlMasterToken.style.zIndex = 'unset';
-                document.getElementById("player_board_" + playerId).appendChild(pearlMasterToken);
-            }));
-            animation.play();
+            slideToObjectAndAttach(this, pearlMasterToken, "player_board_" + playerId + "_pearlMasterWrapper");
         }
         else {
-            dojo.place('<div id="pearlMasterToken" class="token"></div>', "player_board_" + playerId);
+            dojo.place('<div id="pearlMasterToken" class="token"></div>', "player_board_" + playerId + "_pearlMasterWrapper");
             this.addTooltip('pearlMasterToken', _("Pearl Master token. At the end of the game, the player possessing the Pearl Master token gains a bonus of 5 Influence Points."), '');
         }
     };
