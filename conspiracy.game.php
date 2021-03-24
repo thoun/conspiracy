@@ -467,15 +467,17 @@ class Conspiracy extends Table
         }
     }
 
-    function placeRemainingLordSelectionToTable(): array {
+    function placeRemainingLordSelectionToTable(bool $notify): array {
         $remainingLords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
         foreach($remainingLords as $lord) {
             $this->lords->moveCard($lord->id, 'table', $lord->guild);
         }
 
-        self::notifyAllPlayers('discardLordPick', '', [
-            'discardedLords' => $remainingLords
-        ]);
+        if ($notify) {
+            self::notifyAllPlayers('discardLordPick', '', [
+                'discardedLords' => $remainingLords
+            ]);
+        }
 
         return $remainingLords;
     } 
@@ -664,7 +666,7 @@ class Conspiracy extends Table
         $stackSelection = self::getGameStateValue('stackSelection') == 1;
         $remainingLords = [];
         if ($stackSelection) {
-            $remainingLords = $this->placeRemainingLordSelectionToTable();
+            $remainingLords = $this->placeRemainingLordSelectionToTable(false);
         } else {
             $remainingLords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
         }
@@ -793,7 +795,7 @@ class Conspiracy extends Table
                 self::giveExtraTime($player_id);
                 $this->gamestate->nextState('nextLord');
             } else {
-                $this->placeRemainingLordSelectionToTable();
+                $this->placeRemainingLordSelectionToTable(true);
                 $this->gamestate->nextState('nextPlayer');
             }
         } else {
@@ -954,7 +956,7 @@ class Conspiracy extends Table
         }
         $lordSelection = $this->lords->getCardsInLocation('lord_selection');
         if (count($lordSelection)) {
-            $this->placeRemainingLordSelectionToTable();
+            $this->placeRemainingLordSelectionToTable(true);
         }
 
     	$locationPick = $this->locations->getCardsInLocation('location_pick');

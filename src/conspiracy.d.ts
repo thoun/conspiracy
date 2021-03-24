@@ -132,6 +132,15 @@ interface NotifScorePointArgs {
     };
 }
 
+interface NotifScoreCoalitionArgs extends NotifScorePointArgs {
+    coalition: {
+        spot: number;
+        size: number;
+        $guild: number;
+        alreadyCounted: number[];
+    };
+}
+
 interface NotifScorePearlMasterArgs {
     playerId: number;
 }

@@ -431,13 +431,14 @@ class Conspiracy implements ConspiracyGame {
 
     notif_lordPlayed(notif: Notif<NotifLordPlayedArgs>) {
         const from = this.lordsStacks.getStockContaining(`${notif.args.lord.id}`);
-
+        
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord, from);
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.lordCounters[notif.args.playerId].incValue(1);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         
         if (notif.args.stackSelection || !notif.args.discardedLords.length) {
+            this.lordsStacks.discardPick(notif.args.discardedLords);
             this.lordsStacks.setPick(false, false);
         }
     }
@@ -489,18 +490,22 @@ class Conspiracy implements ConspiracyGame {
     }
 
     notif_scoreLords(notif: Notif<NotifScorePointArgs>) {
+        console.log('notif_scoreLords', notif.args);
         this.setScore(notif.args.playerId, 1, notif.args.points); // TODO highlight
     }
 
     notif_scoreLocations(notif: Notif<NotifScorePointArgs>) {
+        console.log('notif_scoreLocations', notif.args);
         this.setScore(notif.args.playerId, 2, notif.args.points); // TODO highlight
     }
 
-    notif_scoreCoalition(notif: Notif<NotifScorePointArgs>) {
+    notif_scoreCoalition(notif: Notif<NotifScoreCoalitionArgs>) {
+        console.log('notif_scoreCoalition', notif.args);
         this.setScore(notif.args.playerId, 3, notif.args.points); // TODO highlight
     }
 
     notif_scorePearlMaster(notif: Notif<NotifScorePearlMasterArgs>) {
+        console.log('notif_scorePearlMaster', notif.args);
         Object.keys(this.gamedatas.players).forEach(playerId => this.setScore(playerId, 4, notif.args.playerId == Number(playerId) ? 5 : 0));
          // TODO highlight
 
@@ -517,6 +522,7 @@ class Conspiracy implements ConspiracyGame {
     }
 
     notif_scoreTotal(notif: Notif<NotifScorePointArgs>) {
+        console.log('notif_scoreTotal', notif.args);
         this.setScore(notif.args.playerId, 5, notif.args.points);
     }
 

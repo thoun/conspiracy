@@ -151,12 +151,13 @@ function moveToAnotherStock(sourceStock, destinationStock, uniqueId, cardId) {
     if (sourceStock === destinationStock) {
         return;
     }
-    if (document.getElementById(sourceStock.container_div.id + "_item_" + cardId)) {
-        destinationStock.addToStockWithId(uniqueId, cardId, sourceStock.container_div.id + "_item_" + cardId);
+    var sourceStockItemId = sourceStock.container_div.id + "_item_" + cardId;
+    if (document.getElementById(sourceStockItemId)) {
+        destinationStock.addToStockWithId(uniqueId, cardId, sourceStockItemId);
         sourceStock.removeFromStockById(cardId);
     }
     else {
-        console.warn(sourceStock.container_div.id + "_item_" + cardId + " not found in ", sourceStock);
+        console.warn(sourceStockItemId + " not found in ", sourceStock);
         destinationStock.addToStockWithId(uniqueId, cardId, sourceStock.container_div.id);
     }
 }
@@ -618,6 +619,7 @@ var LocationsStacks = /** @class */ (function (_super) {
         if (!this.game.checkAction('chooseVisibleLocation')) {
             return;
         }
+        console.log('onVisibleLocationClick', control_name, item_id);
         this.game.takeAction('chooseVisibleLocation', {
             id: item_id
         });
@@ -1139,6 +1141,7 @@ var Conspiracy = /** @class */ (function () {
         this.lordCounters[notif.args.playerId].incValue(1);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         if (notif.args.stackSelection || !notif.args.discardedLords.length) {
+            this.lordsStacks.discardPick(notif.args.discardedLords);
             this.lordsStacks.setPick(false, false);
         }
     };
@@ -1179,16 +1182,20 @@ var Conspiracy = /** @class */ (function () {
         this.placePearlMasterToken(notif.args.playerId);
     };
     Conspiracy.prototype.notif_scoreLords = function (notif) {
+        console.log('notif_scoreLords', notif.args);
         this.setScore(notif.args.playerId, 1, notif.args.points); // TODO highlight
     };
     Conspiracy.prototype.notif_scoreLocations = function (notif) {
+        console.log('notif_scoreLocations', notif.args);
         this.setScore(notif.args.playerId, 2, notif.args.points); // TODO highlight
     };
     Conspiracy.prototype.notif_scoreCoalition = function (notif) {
+        console.log('notif_scoreCoalition', notif.args);
         this.setScore(notif.args.playerId, 3, notif.args.points); // TODO highlight
     };
     Conspiracy.prototype.notif_scorePearlMaster = function (notif) {
         var _this = this;
+        console.log('notif_scorePearlMaster', notif.args);
         Object.keys(this.gamedatas.players).forEach(function (playerId) { return _this.setScore(playerId, 4, notif.args.playerId == Number(playerId) ? 5 : 0); });
         // TODO highlight
         /*
@@ -1203,6 +1210,7 @@ var Conspiracy = /** @class */ (function () {
 }*/
     };
     Conspiracy.prototype.notif_scoreTotal = function (notif) {
+        console.log('notif_scoreTotal', notif.args);
         this.setScore(notif.args.playerId, 5, notif.args.points);
     };
     /* This enable to inject translatable styled things to logs or action bar */

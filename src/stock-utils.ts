@@ -129,11 +129,12 @@ function moveToAnotherStock(sourceStock: Stock, destinationStock: Stock, uniqueI
         return;
     }
     
-    if (document.getElementById(`${sourceStock.container_div.id}_item_${cardId}`)) {
-        destinationStock.addToStockWithId(uniqueId, cardId, `${sourceStock.container_div.id}_item_${cardId}`);
+    const sourceStockItemId = `${sourceStock.container_div.id}_item_${cardId}`;
+    if (document.getElementById(sourceStockItemId)) {        
+        destinationStock.addToStockWithId(uniqueId, cardId, sourceStockItemId);
         sourceStock.removeFromStockById(cardId);
     } else {
-        console.warn(`${sourceStock.container_div.id}_item_${cardId} not found in `, sourceStock);
+        console.warn(`${sourceStockItemId} not found in `, sourceStock);
         destinationStock.addToStockWithId(uniqueId, cardId, sourceStock.container_div.id);
     }
 }
