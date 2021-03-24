@@ -598,7 +598,7 @@ var LocationsStacks = /** @class */ (function (_super) {
         _super.prototype.setSelectable.call(this, selectable, limitToHidden, allHidden);
         var visibleSelectable = selectable && !allHidden;
         this.visibleLocationsStock.setSelectionMode(visibleSelectable ? 1 : 0);
-        var action = visibleSelectable ? 'add' : 'remove';
+        var action = visibleSelectable && this.visibleLocationsStock.items.length ? 'add' : 'remove';
         this.visibleLocationsStock.container_div.classList[action]('selectable');
     };
     LocationsStacks.prototype.discardVisible = function () {
@@ -955,8 +955,12 @@ var Conspiracy = /** @class */ (function () {
         document.getElementById('score').style.display = 'flex';
         Object.values(this.gamedatas.players).forEach(function (player) {
             var detailedScore = player.detailedScore;
-            dojo.place("<tr id=\"score" + player.id + "\">\n                <td class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.lords) !== undefined ? detailedScore.lords : '') + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.locations) !== undefined ? detailedScore.locations : '') + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.coalition) !== undefined ? detailedScore.coalition : '') + "</td>\n                <td>" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.pearlMaster) !== undefined ? detailedScore.pearlMaster : '') + "</td>\n                <td class=\"total\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.total) !== undefined ? detailedScore.total : '') + "</td>\n            </tr>", 'score-table-body');
+            dojo.place("<tr id=\"score" + player.id + "\">\n                <td class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</td>\n                <td class=\"lords-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.lords) !== undefined ? detailedScore.lords : '') + "</td>\n                <td class=\"locations-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.locations) !== undefined ? detailedScore.locations : '') + "</td>\n                <td class=\"coalition-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.coalition) !== undefined ? detailedScore.coalition : '') + "</td>\n                <td class=\"masterPearl-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.pearlMaster) !== undefined ? detailedScore.pearlMaster : '') + "</td>\n                <td class=\"total\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.total) !== undefined ? detailedScore.total : '') + "</td>\n            </tr>", 'score-table-body');
         });
+        this.addTooltipToClass('lords-score', _("The total of Influence Points from the Lords with the Coat of Arms tokens (the most influential Lord of each color in your Senate Chamber)."), '');
+        this.addTooltipToClass('locations-score', _("The total of Influence Points from the Locations you control."), '');
+        this.addTooltipToClass('coalition-score', _("The biggest area of adjacent Lords of the same color is identified and 3 points are scored for each Lord within it"), '');
+        this.addTooltipToClass('masterPearl-score', _("The player who has the Pearl Master token gains a bonus of 5 Influence Points."), '');
     };
     // onLeavingState: this method is called each time we are leaving a game state.
     //                 You can use this method to perform some user interface changes at this moment.

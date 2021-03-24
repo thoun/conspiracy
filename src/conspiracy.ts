@@ -137,13 +137,18 @@ class Conspiracy implements ConspiracyGame {
 
             dojo.place(`<tr id="score${player.id}">
                 <td class="player-name" style="color: #${player.color}">${player.name}</td>
-                <td>${detailedScore?.lords !== undefined ? detailedScore.lords : ''}</td>
-                <td>${detailedScore?.locations !== undefined ? detailedScore.locations : ''}</td>
-                <td>${detailedScore?.coalition !== undefined ? detailedScore.coalition : ''}</td>
-                <td>${detailedScore?.pearlMaster !== undefined ? detailedScore.pearlMaster : ''}</td>
+                <td class="lords-score">${detailedScore?.lords !== undefined ? detailedScore.lords : ''}</td>
+                <td class="locations-score">${detailedScore?.locations !== undefined ? detailedScore.locations : ''}</td>
+                <td class="coalition-score">${detailedScore?.coalition !== undefined ? detailedScore.coalition : ''}</td>
+                <td class="masterPearl-score">${detailedScore?.pearlMaster !== undefined ? detailedScore.pearlMaster : ''}</td>
                 <td class="total">${detailedScore?.total !== undefined ? detailedScore.total : ''}</td>
             </tr>`, 'score-table-body');
         });
+
+        (this as any).addTooltipToClass('lords-score', _("The total of Influence Points from the Lords with the Coat of Arms tokens (the most influential Lord of each color in your Senate Chamber)."), '');
+        (this as any).addTooltipToClass('locations-score', _("The total of Influence Points from the Locations you control."), '');
+        (this as any).addTooltipToClass('coalition-score', _("The biggest area of adjacent Lords of the same color is identified and 3 points are scored for each Lord within it"), '');
+        (this as any).addTooltipToClass('masterPearl-score', _("The player who has the Pearl Master token gains a bonus of 5 Influence Points."), '');
     }
 
     // onLeavingState: this method is called each time we are leaving a game state.

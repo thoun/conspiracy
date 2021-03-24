@@ -4,7 +4,12 @@
     <table>
         <thead>
             <tr>
-                <th colspan="6"></th>
+                <th></th>
+                <th class="lords-score"></th>
+                <th class="locations-score"></th>
+                <th class="coalition-score"></th>
+                <th class="masterPearl-score"></th>
+                <th></th>
             </tr>
         </thead>
         <tbody id="score-table-body">

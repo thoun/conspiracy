@@ -52,7 +52,7 @@ class LocationsStacks extends AbstractStacks<Location> {
 
         const visibleSelectable = selectable && !allHidden;
         this.visibleLocationsStock.setSelectionMode(visibleSelectable ? 1 : 0); 
-        const action = visibleSelectable ? 'add' : 'remove';
+        const action = visibleSelectable && this.visibleLocationsStock.items.length ? 'add' : 'remove';
         this.visibleLocationsStock.container_div.classList[action]('selectable');
     }
 
