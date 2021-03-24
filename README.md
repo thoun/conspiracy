@@ -2,11 +2,6 @@
 This project is an adaptation for BoardGameArena of game Conspiracy : Abyss universe edited by Bombyx.
 You can play here : https://boardgamearena.com
 
-# TODO
-fix stack lord origin
-TODO fix double action on visible location selection
- TODO score highlight
-
 # How to install the auto-build stack
 
 ## Install builders

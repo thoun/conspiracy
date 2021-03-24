@@ -14,3 +14,13 @@ html {
 .log-guild-name {
     text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
 }
+
+.highlight {
+    animation: highlight-animation 0.75s alternate 2;
+}
+
+@keyframes highlight-animation {
+    100% { 
+        box-shadow: 0 0 30px 15px white;
+    }
+}

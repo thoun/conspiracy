@@ -655,6 +655,12 @@ var PlayerTableSpotStock = /** @class */ (function () {
             this.locationsStock.addToStockWithId(getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id);
         }
     }
+    PlayerTableSpotStock.prototype.hasLord = function () {
+        return !!this.spot.lord;
+    };
+    PlayerTableSpotStock.prototype.hasLocation = function () {
+        return !!this.spot.location;
+    };
     PlayerTableSpotStock.prototype.getLordStock = function () {
         return this.lordsStock;
     };
@@ -734,6 +740,23 @@ var PlayerTableSpotStock = /** @class */ (function () {
     PlayerTableSpotStock.prototype.getTokenDiv = function () {
         return this.tokenWrapper.getElementsByTagName('div')[0];
     };
+    PlayerTableSpotStock.prototype.highlightLord = function () {
+        var _a;
+        var cardId = (_a = this.lordsStock.items[0]) === null || _a === void 0 ? void 0 : _a.id;
+        console.log('highlight lord', document.getElementById(this.lordsStock.container_div.id + "_item_" + cardId));
+        cardId && document.getElementById(this.lordsStock.container_div.id + "_item_" + cardId).classList.add('highlight');
+    };
+    PlayerTableSpotStock.prototype.clearLordHighlight = function () {
+        var _a;
+        var cardId = (_a = this.lordsStock.items[0]) === null || _a === void 0 ? void 0 : _a.id;
+        cardId && document.getElementById(this.lordsStock.container_div.id + "_item_" + cardId).classList.remove('highlight');
+    };
+    PlayerTableSpotStock.prototype.highlightLocation = function () {
+        var _a;
+        var cardId = (_a = this.locationsStock.items[0]) === null || _a === void 0 ? void 0 : _a.id;
+        console.log('highlight location', document.getElementById(this.locationsStock.container_div.id + "_item_" + cardId));
+        cardId && document.getElementById(this.locationsStock.container_div.id + "_item_" + cardId).classList.add('highlight');
+    };
     return PlayerTableSpotStock;
 }());
 var SPOTS_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
@@ -741,8 +764,6 @@ var PlayerTable = /** @class */ (function () {
     function PlayerTable(game, player, spots) {
         var _this = this;
         this.game = game;
-        //private lordsStock: Stock;
-        //private locationsStock: Stock;
         this.spotsStock = [];
         this.swapSpots = [];
         this.playerId = Number(player.id);
@@ -808,6 +829,17 @@ var PlayerTable = /** @class */ (function () {
         if (tokenSpot1) {
             setTimeout(function () { return _this.spotsStock[args.spot2].addTokenDiv(tokenSpot1); }, 500);
         }
+    };
+    PlayerTable.prototype.highlightCoalition = function (coalition) {
+        var _this = this;
+        this.spotsStock.filter(function (spotStock) { return spotStock.hasLord(); }).forEach(function (spotStock) { return spotStock.clearLordHighlight(); });
+        coalition.alreadyCounted.forEach(function (spotNumber) { return _this.spotsStock[spotNumber].highlightLord(); });
+    };
+    PlayerTable.prototype.highlightLocations = function () {
+        this.spotsStock.filter(function (spotStock) { return spotStock.hasLocation(); }).forEach(function (spotStock) { return spotStock.highlightLocation(); });
+    };
+    PlayerTable.prototype.highlightTopLords = function () {
+        this.spotsStock.filter(function (spotStock) { return spotStock.hasLord() && !!spotStock.getTokenDiv(); }).forEach(function (spotStock) { return spotStock.highlightLord(); });
     };
     return PlayerTable;
 }());
@@ -1182,31 +1214,24 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.notif_scoreLords = function (notif) {
         console.log('notif_scoreLords', notif.args);
-        this.setScore(notif.args.playerId, 1, notif.args.points); // TODO highlight
+        this.setScore(notif.args.playerId, 1, notif.args.points);
+        this.playersTables[notif.args.playerId].highlightTopLords();
     };
     Conspiracy.prototype.notif_scoreLocations = function (notif) {
         console.log('notif_scoreLocations', notif.args);
-        this.setScore(notif.args.playerId, 2, notif.args.points); // TODO highlight
+        this.setScore(notif.args.playerId, 2, notif.args.points);
+        this.playersTables[notif.args.playerId].highlightLocations();
     };
     Conspiracy.prototype.notif_scoreCoalition = function (notif) {
         console.log('notif_scoreCoalition', notif.args);
-        this.setScore(notif.args.playerId, 3, notif.args.points); // TODO highlight
+        this.setScore(notif.args.playerId, 3, notif.args.points);
+        this.playersTables[notif.args.playerId].highlightCoalition(notif.args.coalition);
     };
     Conspiracy.prototype.notif_scorePearlMaster = function (notif) {
         var _this = this;
         console.log('notif_scorePearlMaster', notif.args);
         Object.keys(this.gamedatas.players).forEach(function (playerId) { return _this.setScore(playerId, 4, notif.args.playerId == Number(playerId) ? 5 : 0); });
-        // TODO highlight
-        /*
-        .target-highlight {
-   animation: target-fade 1.5s 1;
-}
-
-@keyframes target-fade {
-   0% { background-color: rgba(255,255,153,0); }
-   50% { background-color: rgba(255,255,153,.8); }
-   100% { background-color: rgba(255,255,153,0); }
-}*/
+        document.getElementById('pearlMasterToken').classList.add('highlight');
     };
     Conspiracy.prototype.notif_scoreTotal = function (notif) {
         console.log('notif_scoreTotal', notif.args);

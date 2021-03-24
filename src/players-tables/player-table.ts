@@ -2,8 +2,6 @@ const SPOTS_NUMBERS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
 
 class PlayerTable {
     private playerId: number;
-    //private lordsStock: Stock;
-    //private locationsStock: Stock;
     private spotsStock: PlayerTableSpotStock[] = [];
 
     private swapSpots: number[] = [];
@@ -97,5 +95,18 @@ class PlayerTable {
         if (tokenSpot1) {
             setTimeout(() => this.spotsStock[args.spot2].addTokenDiv(tokenSpot1), 500);
         }
+    }
+
+    public highlightCoalition(coalition: Coalition) {
+        this.spotsStock.filter(spotStock => spotStock.hasLord()).forEach(spotStock => spotStock.clearLordHighlight());
+        coalition.alreadyCounted.forEach(spotNumber => this.spotsStock[spotNumber].highlightLord());
+    }
+
+    public highlightLocations() {
+        this.spotsStock.filter(spotStock => spotStock.hasLocation()).forEach(spotStock => spotStock.highlightLocation());
+    }
+
+    public highlightTopLords() {
+        this.spotsStock.filter(spotStock => spotStock.hasLord() && !!spotStock.getTokenDiv()).forEach(spotStock => spotStock.highlightLord());
     }
 }

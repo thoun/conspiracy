@@ -491,34 +491,27 @@ class Conspiracy implements ConspiracyGame {
 
     notif_scoreLords(notif: Notif<NotifScorePointArgs>) {
         console.log('notif_scoreLords', notif.args);
-        this.setScore(notif.args.playerId, 1, notif.args.points); // TODO highlight
+        this.setScore(notif.args.playerId, 1, notif.args.points);
+        this.playersTables[notif.args.playerId].highlightTopLords();
     }
 
     notif_scoreLocations(notif: Notif<NotifScorePointArgs>) {
         console.log('notif_scoreLocations', notif.args);
-        this.setScore(notif.args.playerId, 2, notif.args.points); // TODO highlight
+        this.setScore(notif.args.playerId, 2, notif.args.points);
+        this.playersTables[notif.args.playerId].highlightLocations();
     }
 
     notif_scoreCoalition(notif: Notif<NotifScoreCoalitionArgs>) {
         console.log('notif_scoreCoalition', notif.args);
-        this.setScore(notif.args.playerId, 3, notif.args.points); // TODO highlight
+        this.setScore(notif.args.playerId, 3, notif.args.points);
+        this.playersTables[notif.args.playerId].highlightCoalition(notif.args.coalition);
     }
 
     notif_scorePearlMaster(notif: Notif<NotifScorePearlMasterArgs>) {
         console.log('notif_scorePearlMaster', notif.args);
         Object.keys(this.gamedatas.players).forEach(playerId => this.setScore(playerId, 4, notif.args.playerId == Number(playerId) ? 5 : 0));
-         // TODO highlight
 
-         /*
-         .target-highlight {
-    animation: target-fade 1.5s 1;
-}
-
-@keyframes target-fade {
-    0% { background-color: rgba(255,255,153,0); }
-    50% { background-color: rgba(255,255,153,.8); }
-    100% { background-color: rgba(255,255,153,0); }
-}*/
+        document.getElementById('pearlMasterToken').classList.add('highlight');
     }
 
     notif_scoreTotal(notif: Notif<NotifScorePointArgs>) {
