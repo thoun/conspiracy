@@ -616,10 +616,9 @@ var LocationsStacks = /** @class */ (function (_super) {
         });
     };
     LocationsStacks.prototype.onVisibleLocationClick = function (control_name, item_id) {
-        if (!this.game.checkAction('chooseVisibleLocation')) {
+        if (!item_id || !this.game.checkAction('chooseVisibleLocation')) {
             return;
         }
-        console.log('onVisibleLocationClick', control_name, item_id);
         this.game.takeAction('chooseVisibleLocation', {
             id: item_id
         });

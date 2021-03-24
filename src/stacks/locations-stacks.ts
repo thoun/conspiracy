@@ -94,11 +94,10 @@ class LocationsStacks extends AbstractStacks<Location> {
     }
 
     public onVisibleLocationClick(control_name: string, item_id: string) {
-        if(!(this.game as any).checkAction('chooseVisibleLocation')) {
+        if (!item_id || !(this.game as any).checkAction('chooseVisibleLocation')) {
             return;
         }
 
-        console.log('onVisibleLocationClick', control_name, item_id);
         this.game.takeAction('chooseVisibleLocation', {
             id: item_id
         });
