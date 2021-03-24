@@ -3,17 +3,17 @@ class LordCard {
     //public /*int*/ $id;
     public /*int*/ $nbr;
     public /*int*/ $points;
-    public /*bool*/ $switch;
+    public /*bool*/ $swap;
     public /*int*/ $key; // 1 for silver, 2 for gold
     public /*int*/ $pearls;
     public /*bool*/ $showExtraLord;
   
   
-    public function __construct(/*$id,*/ $nbr, $points, $key = null, $pearls = 0, $switch = false, $showExtraLord = false) {
+    public function __construct(/*$id,*/ $nbr, $points, $key = null, $pearls = 0, $swap = false, $showExtraLord = false) {
         //$this->id = $id;
         $this->nbr = $nbr;
         $this->points = $points;
-        $this->switch = $switch;
+        $this->swap = $swap;
         $this->key = $key;
         $this->pearls = $pearls;
         $this->showExtraLord = $showExtraLord;
@@ -36,7 +36,7 @@ class Lord extends LordCard {
 
         $lordCard = $LORDS[$this->type];
         $this->points = $lordCard->points;
-        $this->switch = $lordCard->switch;
+        $this->swap = $lordCard->swap;
         $this->key = $lordCard->key;
         $this->pearls = $lordCard->pearls;
         $this->showExtraLord = $lordCard->showExtraLord;     

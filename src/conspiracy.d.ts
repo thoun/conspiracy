@@ -13,7 +13,7 @@ interface Lord extends Card {
     guild: number;    
     key: number; 
     showExtraLord: boolean;
-    switch: boolean;
+    swap: boolean;
 }
 
 interface Location extends Card {
@@ -60,7 +60,7 @@ interface ConspiracyGame extends Game {
     takeAction: (action: string, data?: any) => void;
     lordPick: (id: number) => void;
     lordStockPick: (guild: number) => void;
-    setCanSwitch(switchSpots: number[]);
+    setCanSwap(swapSpots: number[]);
     locationPick: (id: number) => void;
 }
 
@@ -98,7 +98,7 @@ interface NotifLordPlayedArgs {
     pearls: number;
 }
 
-interface NotifLordSwitchedArgs {
+interface NotifLordSwappedArgs {
     playerId: number;
     spot1: number;
     spot2: number;

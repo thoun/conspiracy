@@ -366,7 +366,7 @@ class Conspiracy extends Table
         $this->gamestate->nextState('addLord');
     }
 
-    function switch(string $spotsStr) {
+    function swap(string $spotsStr) {
         self::checkAction('next'); 
 
         $spots = explode(',', $spotsStr);
@@ -381,7 +381,7 @@ class Conspiracy extends Table
         $this->lords->moveCard($cardSpot1->id, "player$player_id", $spot2);
         $this->lords->moveCard($cardSpot2->id, "player$player_id", $spot1);
 
-        self::notifyAllPlayers('lordSwitched', clienttranslate('${player_name} switches two lords'), [
+        self::notifyAllPlayers('lordSwapped', clienttranslate('${player_name} swaps two lords'), [
             'playerId' => $player_id,
             'player_name' => self::getActivePlayerName(),
             'spot1' => $spot1,
@@ -391,7 +391,7 @@ class Conspiracy extends Table
         $this->gamestate->nextState('next');
     }
 
-    function dontSwitch() {
+    function dontSwap() {
         self::checkAction('next'); 
 
         $this->gamestate->nextState('next');
@@ -494,11 +494,11 @@ class Conspiracy extends Table
         }
     }
 
-    function canSwitch(int $player_id): bool {
+    function canSwap(int $player_id): bool {
         $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id"));
-        $switchableLords = array_values(array_filter($lords, function($lord) { return !$lord->key; }));
+        $swappableLords = array_values(array_filter($lords, function($lord) { return !$lord->key; }));
 
-        return count($switchableLords) >= 2;
+        return count($swappableLords) >= 2;
     }
 
     function getScoreLords(int $player_id): int {
@@ -716,8 +716,8 @@ class Conspiracy extends Table
 
         self::incStat(1, 'played_lords', $player_id);
 
-        if ($lord->switch && $this->canSwitch($player_id)) {
-            $this->gamestate->nextState('switch');
+        if ($lord->swap && $this->canSwap($player_id)) {
+            $this->gamestate->nextState('swap');
             self::giveExtraTime($player_id);
         } else if ($lord->key && $this->canConstructWithNewKey($player_id, $lord->key)) {
             $this->gamestate->nextState('addLocation');

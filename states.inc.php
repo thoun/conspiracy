@@ -140,14 +140,14 @@ $lordGameStates = [
         "type" => "game",
         "action" => "stPlayLord",
         "transitions" => array( 
-            "switch" => ST_PLAYER_LORDS_SWITCH,
+            "swap" => ST_PLAYER_LORDS_SWAP,
             "addLocation" => ST_PLAYER_LOCATION_STACK_SELECTION,
             "next" => ST_END_LORD,
         )
     ),
 
-    ST_PLAYER_LORDS_SWITCH => array(
-        "name" => "lordSwitch",
+    ST_PLAYER_LORDS_SWAP => array(
+        "name" => "lordSwap",
         "description" => clienttranslate('${actplayer} must select two lords to swap'),
         "descriptionmyturn" => clienttranslate('${you} must select two lords to swap'),
         "type" => "activeplayer",

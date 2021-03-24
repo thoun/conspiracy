@@ -6,7 +6,7 @@ class PlayerTable {
     //private locationsStock: Stock;
     private spotsStock: PlayerTableSpotStock[] = [];
 
-    private switchSpots: number[] = [];
+    private swapSpots: number[] = [];
 
     constructor(
         private game: ConspiracyGame, 
@@ -58,30 +58,30 @@ class PlayerTable {
         this.spotsStock[spot].setLocation(location, fromStock);
     }
 
-    public setSelectableForSwitch(selectable: boolean) {
-        SPOTS_NUMBERS.forEach(spotNumber => this.spotsStock[spotNumber].setSelectableForSwitch(selectable));
+    public setSelectableForSwap(selectable: boolean) {
+        SPOTS_NUMBERS.forEach(spotNumber => this.spotsStock[spotNumber].setSelectableForSwap(selectable));
     }
 
     public removeSelectedSpot(spot: number) {
-        const index = this.switchSpots.indexOf(spot);
+        const index = this.swapSpots.indexOf(spot);
         if (index !== -1) {
-            this.switchSpots.splice(index, 1);
-            this.setCanSwitch();
+            this.swapSpots.splice(index, 1);
+            this.setCanSwap();
         }
     }
 
     public addSelectedSpot(spot: number) {
-        if (!this.switchSpots.some(val => val === spot)) {
-            this.switchSpots.push(spot);
-            this.setCanSwitch();
+        if (!this.swapSpots.some(val => val === spot)) {
+            this.swapSpots.push(spot);
+            this.setCanSwap();
         }
     }
 
-    public setCanSwitch() {
-        this.game.setCanSwitch(this.switchSpots);
+    public setCanSwap() {
+        this.game.setCanSwap(this.swapSpots);
     }
     
-    public lordSwitched(args: NotifLordSwitchedArgs) {
+    public lordSwapped(args: NotifLordSwappedArgs) {
         const lordSpot1 = this.spotsStock[args.spot1].getLord();
         const lordSpot2 = this.spotsStock[args.spot2].getLord();
 

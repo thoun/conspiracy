@@ -63,19 +63,19 @@
         self::ajaxResponse( );
     }
 
-    public function switch() {
+    public function swap() {
         self::setAjaxMode();     
 
         $spots = self::getArg( "spots", AT_numberlist, true );
-        $this->game->switch( $spots );
+        $this->game->swap( $spots );
 
         self::ajaxResponse( );
     }
 
-    public function dontSwitch() {
+    public function dontSwap() {
         self::setAjaxMode();     
 
-        $this->game->dontSwitch();
+        $this->game->dontSwap();
 
         self::ajaxResponse( );
     }

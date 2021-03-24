@@ -74,14 +74,14 @@ class PlayerTableSpotStock {
         this.spot.location = location;
     }
 
-    public setSelectableForSwitch(selectable: boolean): void {
+    public setSelectableForSwap(selectable: boolean): void {
         if (!this.spot.lord) {
             return;
         }
 
-        if (this.spot.lord.key) { // can't switch
+        if (this.spot.lord.key) { // can't swap
             dojo.toggleClass(`player${this.playerId}-spot${this.spotNumber}-lord-stock_item_${this.spot.lord.id}`, 'disabled', selectable);
-        } else { // can switch
+        } else { // can swap
             this.lordsStock.setSelectionMode(selectable ? 2 : 0);
             dojo.toggleClass(`player${this.playerId}-spot${this.spotNumber}-lord-stock_item_${this.spot.lord.id}`, 'selectable', selectable);
             
@@ -103,7 +103,7 @@ class PlayerTableSpotStock {
     public placeTopLordToken() {
         const guild = this.spot.lord.guild;
         const tokenDiv = document.getElementById(`top-lord-token-${guild}-${this.playerId}`) as HTMLDivElement;
-        this.addTokenDiv(tokenDiv);
+        this.addTokenDiv(tokenDiv); // TODO animate
     }
 
     public setupNewLordCard(card_div: HTMLDivElement, card_type_id: number, card_id: string) {

@@ -24,7 +24,7 @@ class Conspiracy implements ConspiracyGame {
     private playersTables: PlayerTable[] = [];
     private lordCounters: Counter[] = [];
     private pearlCounters: Counter[] = [];
-    private switchSpots: number[] = [];
+    private swapSpots: number[] = [];
     private helpDialog;
 
     constructor() {
@@ -85,8 +85,8 @@ class Conspiracy implements ConspiracyGame {
             case 'lordSelection':
                 this.onEnteringLordSelection(args.args);
                 break;
-            case 'lordSwitch':
-                this.onEnteringLordSwitch();
+            case 'lordSwap':
+                this.onEnteringLordSwap();
                 break;
 
             case 'locationStackSelection':
@@ -112,9 +112,9 @@ class Conspiracy implements ConspiracyGame {
         this.lordsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.lords);
     }
 
-    onEnteringLordSwitch() {        
+    onEnteringLordSwap() {        
         if ((this as any).isCurrentPlayerActive()) {
-            this.playersTables[(this as any).player_id].setSelectableForSwitch(true);
+            this.playersTables[(this as any).player_id].setSelectableForSwap(true);
         }
     }
 
@@ -159,8 +159,8 @@ class Conspiracy implements ConspiracyGame {
             case 'lordSelection':
                 this.onLeavingLordSelection();
                 break;
-            case 'lordSwitch':
-                this.onLeavingLordSwitch();
+            case 'lordSwap':
+                this.onLeavingLordSwap();
                 break;
 
             case 'locationStackSelection':
@@ -180,9 +180,9 @@ class Conspiracy implements ConspiracyGame {
         this.lordsStacks.setPick(this.lordsStacks.hasPickCards(), false);
     }
 
-    onLeavingLordSwitch() {        
+    onLeavingLordSwap() {        
         if ((this as any).isCurrentPlayerActive()) {
-            this.playersTables[(this as any).player_id].setSelectableForSwitch(false);
+            this.playersTables[(this as any).player_id].setSelectableForSwap(false);
         }
     }
 
@@ -200,8 +200,8 @@ class Conspiracy implements ConspiracyGame {
     public onUpdateActionButtons(stateName: string, args: any) {
         if((this as any).isCurrentPlayerActive()) {
             switch (stateName) {
-                case 'lordSwitch':
-                (this as any).addActionButton( 'dontSwitch_button', _("Don't switch"), 'onDontSwitch' );
+                case 'lordSwap':
+                (this as any).addActionButton( 'dontSwap_button', _("Don't swap"), 'onDontSwap' );
                 break;
             }
 
@@ -330,29 +330,29 @@ class Conspiracy implements ConspiracyGame {
         }
     }
 
-    public setCanSwitch(switchSpots: number[]) {
-        if (this.switchSpots.length !== 2 && switchSpots.length === 2) {
-            (this as any).addActionButton( 'switch_button', _("Switch"), 'onSwitch' );
-        } else if (this.switchSpots.length === 2 && switchSpots.length !== 2) {
-            dojo.destroy('switch_button');
+    public setCanSwap(swapSpots: number[]) {
+        if (this.swapSpots.length !== 2 && swapSpots.length === 2) {
+            (this as any).addActionButton( 'swap_button', _("Swap"), 'onSwap' );
+        } else if (this.swapSpots.length === 2 && swapSpots.length !== 2) {
+            dojo.destroy('swap_button');
         }
-        this.switchSpots = switchSpots.slice();
+        this.swapSpots = swapSpots.slice();
     }
 
-    public onSwitch() {
+    public onSwap() {
         if(!(this as any).checkAction('next')) {
             return;
         }
      
-        this.takeAction('switch', { spots: this.switchSpots.join(',') });
+        this.takeAction('swap', { spots: this.swapSpots.join(',') });
     }
 
-    public onDontSwitch() {
+    public onDontSwap() {
         /*if(!(this as any).checkAction('next')) {
             return;
         }*/
      
-        this.takeAction('dontSwitch');
+        this.takeAction('dontSwap');
     }
 
     private setScore(playerId: number | string, column: number, score: number) { // column 1 for lord ... 5 for pearl master
@@ -408,7 +408,7 @@ class Conspiracy implements ConspiracyGame {
 
         const notifs = [
             ['lordPlayed', ANIMATION_MS],
-            ['lordSwitched', ANIMATION_MS],
+            ['lordSwapped', ANIMATION_MS],
             ['extraLordRevealed', ANIMATION_MS],
             ['locationPlayed', ANIMATION_MS],
             ['discardLords', ANIMATION_MS],
@@ -443,8 +443,8 @@ class Conspiracy implements ConspiracyGame {
         }
     }
 
-    notif_lordSwitched(notif: Notif<NotifLordSwitchedArgs>) {
-        this.playersTables[notif.args.playerId].lordSwitched(notif.args);
+    notif_lordSwapped(notif: Notif<NotifLordSwappedArgs>) {
+        this.playersTables[notif.args.playerId].lordSwapped(notif.args);
     }
 
     notif_extraLordRevealed(notif: Notif<NotifExtraLordRevealedArgs>) {

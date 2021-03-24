@@ -688,14 +688,14 @@ var PlayerTableSpotStock = /** @class */ (function () {
         }
         this.spot.location = location;
     };
-    PlayerTableSpotStock.prototype.setSelectableForSwitch = function (selectable) {
+    PlayerTableSpotStock.prototype.setSelectableForSwap = function (selectable) {
         if (!this.spot.lord) {
             return;
         }
-        if (this.spot.lord.key) { // can't switch
+        if (this.spot.lord.key) { // can't swap
             dojo.toggleClass("player" + this.playerId + "-spot" + this.spotNumber + "-lord-stock_item_" + this.spot.lord.id, 'disabled', selectable);
         }
-        else { // can switch
+        else { // can swap
             this.lordsStock.setSelectionMode(selectable ? 2 : 0);
             dojo.toggleClass("player" + this.playerId + "-spot" + this.spotNumber + "-lord-stock_item_" + this.spot.lord.id, 'selectable', selectable);
             if (!selectable) {
@@ -715,7 +715,7 @@ var PlayerTableSpotStock = /** @class */ (function () {
     PlayerTableSpotStock.prototype.placeTopLordToken = function () {
         var guild = this.spot.lord.guild;
         var tokenDiv = document.getElementById("top-lord-token-" + guild + "-" + this.playerId);
-        this.addTokenDiv(tokenDiv);
+        this.addTokenDiv(tokenDiv); // TODO animate
     };
     PlayerTableSpotStock.prototype.setupNewLordCard = function (card_div, card_type_id, card_id) {
         var message = getLordTooltip(card_type_id);
@@ -745,7 +745,7 @@ var PlayerTable = /** @class */ (function () {
         //private lordsStock: Stock;
         //private locationsStock: Stock;
         this.spotsStock = [];
-        this.switchSpots = [];
+        this.swapSpots = [];
         this.playerId = Number(player.id);
         dojo.place("<div class=\"player-table-wrapper\">\n            <div class=\"player-table-mat mat" + player.mat + "\">\n                <div id=\"player-table-" + this.playerId + "\" class=\"player-table\">\n                    <div class=\"player-name mat" + player.mat + "\" style=\"color: #" + player.color + ";\">\n                        " + player.name + "\n                    </div>\n                </div>\n            </div>\n        </div>", 'players-tables');
         SPOTS_NUMBERS.forEach(function (spotNumber) {
@@ -775,27 +775,27 @@ var PlayerTable = /** @class */ (function () {
     PlayerTable.prototype.addLocation = function (spot, location, fromStock) {
         this.spotsStock[spot].setLocation(location, fromStock);
     };
-    PlayerTable.prototype.setSelectableForSwitch = function (selectable) {
+    PlayerTable.prototype.setSelectableForSwap = function (selectable) {
         var _this = this;
-        SPOTS_NUMBERS.forEach(function (spotNumber) { return _this.spotsStock[spotNumber].setSelectableForSwitch(selectable); });
+        SPOTS_NUMBERS.forEach(function (spotNumber) { return _this.spotsStock[spotNumber].setSelectableForSwap(selectable); });
     };
     PlayerTable.prototype.removeSelectedSpot = function (spot) {
-        var index = this.switchSpots.indexOf(spot);
+        var index = this.swapSpots.indexOf(spot);
         if (index !== -1) {
-            this.switchSpots.splice(index, 1);
-            this.setCanSwitch();
+            this.swapSpots.splice(index, 1);
+            this.setCanSwap();
         }
     };
     PlayerTable.prototype.addSelectedSpot = function (spot) {
-        if (!this.switchSpots.some(function (val) { return val === spot; })) {
-            this.switchSpots.push(spot);
-            this.setCanSwitch();
+        if (!this.swapSpots.some(function (val) { return val === spot; })) {
+            this.swapSpots.push(spot);
+            this.setCanSwap();
         }
     };
-    PlayerTable.prototype.setCanSwitch = function () {
-        this.game.setCanSwitch(this.switchSpots);
+    PlayerTable.prototype.setCanSwap = function () {
+        this.game.setCanSwap(this.swapSpots);
     };
-    PlayerTable.prototype.lordSwitched = function (args) {
+    PlayerTable.prototype.lordSwapped = function (args) {
         var _this = this;
         var lordSpot1 = this.spotsStock[args.spot1].getLord();
         var lordSpot2 = this.spotsStock[args.spot2].getLord();
@@ -825,7 +825,7 @@ var Conspiracy = /** @class */ (function () {
         this.playersTables = [];
         this.lordCounters = [];
         this.pearlCounters = [];
-        this.switchSpots = [];
+        this.swapSpots = [];
     }
     /*
         setup:
@@ -868,8 +868,8 @@ var Conspiracy = /** @class */ (function () {
             case 'lordSelection':
                 this.onEnteringLordSelection(args.args);
                 break;
-            case 'lordSwitch':
-                this.onEnteringLordSwitch();
+            case 'lordSwap':
+                this.onEnteringLordSwap();
                 break;
             case 'locationStackSelection':
                 this.onEnteringLocationStackSelection(args.args);
@@ -890,9 +890,9 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.onEnteringLordSelection = function (args) {
         this.lordsStacks.setPick(true, this.isCurrentPlayerActive(), args.lords);
     };
-    Conspiracy.prototype.onEnteringLordSwitch = function () {
+    Conspiracy.prototype.onEnteringLordSwap = function () {
         if (this.isCurrentPlayerActive()) {
-            this.playersTables[this.player_id].setSelectableForSwitch(true);
+            this.playersTables[this.player_id].setSelectableForSwap(true);
         }
     };
     Conspiracy.prototype.onEnteringLocationStackSelection = function (args) {
@@ -923,8 +923,8 @@ var Conspiracy = /** @class */ (function () {
             case 'lordSelection':
                 this.onLeavingLordSelection();
                 break;
-            case 'lordSwitch':
-                this.onLeavingLordSwitch();
+            case 'lordSwap':
+                this.onLeavingLordSwap();
                 break;
             case 'locationStackSelection':
                 this.onLeavingLocationStackSelection();
@@ -940,9 +940,9 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.onLeavingLordSelection = function () {
         this.lordsStacks.setPick(this.lordsStacks.hasPickCards(), false);
     };
-    Conspiracy.prototype.onLeavingLordSwitch = function () {
+    Conspiracy.prototype.onLeavingLordSwap = function () {
         if (this.isCurrentPlayerActive()) {
-            this.playersTables[this.player_id].setSelectableForSwitch(false);
+            this.playersTables[this.player_id].setSelectableForSwap(false);
         }
     };
     Conspiracy.prototype.onLeavingLocationStackSelection = function () {
@@ -957,8 +957,8 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.onUpdateActionButtons = function (stateName, args) {
         if (this.isCurrentPlayerActive()) {
             switch (stateName) {
-                case 'lordSwitch':
-                    this.addActionButton('dontSwitch_button', _("Don't switch"), 'onDontSwitch');
+                case 'lordSwap':
+                    this.addActionButton('dontSwap_button', _("Don't swap"), 'onDontSwap');
                     break;
             }
         }
@@ -1054,26 +1054,26 @@ var Conspiracy = /** @class */ (function () {
             this.addTooltip('pearlMasterToken', _("Pearl Master token. At the end of the game, the player possessing the Pearl Master token gains a bonus of 5 Influence Points."), '');
         }
     };
-    Conspiracy.prototype.setCanSwitch = function (switchSpots) {
-        if (this.switchSpots.length !== 2 && switchSpots.length === 2) {
-            this.addActionButton('switch_button', _("Switch"), 'onSwitch');
+    Conspiracy.prototype.setCanSwap = function (swapSpots) {
+        if (this.swapSpots.length !== 2 && swapSpots.length === 2) {
+            this.addActionButton('swap_button', _("Swap"), 'onSwap');
         }
-        else if (this.switchSpots.length === 2 && switchSpots.length !== 2) {
-            dojo.destroy('switch_button');
+        else if (this.swapSpots.length === 2 && swapSpots.length !== 2) {
+            dojo.destroy('swap_button');
         }
-        this.switchSpots = switchSpots.slice();
+        this.swapSpots = swapSpots.slice();
     };
-    Conspiracy.prototype.onSwitch = function () {
+    Conspiracy.prototype.onSwap = function () {
         if (!this.checkAction('next')) {
             return;
         }
-        this.takeAction('switch', { spots: this.switchSpots.join(',') });
+        this.takeAction('swap', { spots: this.swapSpots.join(',') });
     };
-    Conspiracy.prototype.onDontSwitch = function () {
+    Conspiracy.prototype.onDontSwap = function () {
         /*if(!(this as any).checkAction('next')) {
             return;
         }*/
-        this.takeAction('dontSwitch');
+        this.takeAction('dontSwap');
     };
     Conspiracy.prototype.setScore = function (playerId, column, score) {
         document.getElementById("score" + playerId).getElementsByTagName('td')[column].innerHTML = "" + score;
@@ -1115,7 +1115,7 @@ var Conspiracy = /** @class */ (function () {
         var _this = this;
         var notifs = [
             ['lordPlayed', ANIMATION_MS],
-            ['lordSwitched', ANIMATION_MS],
+            ['lordSwapped', ANIMATION_MS],
             ['extraLordRevealed', ANIMATION_MS],
             ['locationPlayed', ANIMATION_MS],
             ['discardLords', ANIMATION_MS],
@@ -1145,8 +1145,8 @@ var Conspiracy = /** @class */ (function () {
             this.lordsStacks.setPick(false, false);
         }
     };
-    Conspiracy.prototype.notif_lordSwitched = function (notif) {
-        this.playersTables[notif.args.playerId].lordSwitched(notif.args);
+    Conspiracy.prototype.notif_lordSwapped = function (notif) {
+        this.playersTables[notif.args.playerId].lordSwapped(notif.args);
     };
     Conspiracy.prototype.notif_extraLordRevealed = function (notif) {
         this.lordsStacks.addLords([notif.args.lord]);
