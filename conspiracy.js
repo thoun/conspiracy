@@ -596,7 +596,10 @@ var LocationsStacks = /** @class */ (function (_super) {
     };
     LocationsStacks.prototype.setSelectable = function (selectable, limitToHidden, allHidden) {
         _super.prototype.setSelectable.call(this, selectable, limitToHidden, allHidden);
-        this.visibleLocationsStock.setSelectionMode(selectable && !allHidden ? 1 : 0);
+        var visibleSelectable = selectable && !allHidden;
+        this.visibleLocationsStock.setSelectionMode(visibleSelectable ? 1 : 0);
+        var action = visibleSelectable ? 'add' : 'remove';
+        this.visibleLocationsStock.container_div.classList[action]('selectable');
     };
     LocationsStacks.prototype.discardVisible = function () {
         this.visibleLocationsStock.removeAllTo('location-hidden-pile');
@@ -735,7 +738,7 @@ var PlayerTableSpotStock = /** @class */ (function () {
     PlayerTableSpotStock.prototype.placeTopLordToken = function () {
         var guild = this.spot.lord.guild;
         var tokenDiv = document.getElementById("top-lord-token-" + guild + "-" + this.playerId);
-        this.addTokenDiv(tokenDiv); // TODO animate
+        this.addTokenDiv(tokenDiv);
     };
     PlayerTableSpotStock.prototype.setupNewLordCard = function (card_div, card_type_id, card_id) {
         var message = getLordTooltip(card_type_id);

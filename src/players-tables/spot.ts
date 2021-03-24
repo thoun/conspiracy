@@ -110,7 +110,7 @@ class PlayerTableSpotStock {
     public placeTopLordToken() {
         const guild = this.spot.lord.guild;
         const tokenDiv = document.getElementById(`top-lord-token-${guild}-${this.playerId}`) as HTMLDivElement;
-        this.addTokenDiv(tokenDiv); // TODO animate
+        this.addTokenDiv(tokenDiv);
     }
 
     public setupNewLordCard(card_div: HTMLDivElement, card_type_id: number, card_id: string) {
@@ -132,6 +132,7 @@ class PlayerTableSpotStock {
     public addTokenDiv(tokenDiv: HTMLDivElement) {
         slideToObjectAndAttach(this.game, tokenDiv, this.tokenWrapper.id);
     }
+    
     public getTokenDiv(): HTMLDivElement | undefined {
         return this.tokenWrapper.getElementsByTagName('div')[0] as HTMLDivElement;
     }

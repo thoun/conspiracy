@@ -91,6 +91,11 @@
 
     #location-visible-stock {
         flex: 1;
+
+        &.selectable {
+            border: 3px dashed white;
+            cursor: pointer;
+        }
     }
 }
 

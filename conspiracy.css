@@ -75,6 +75,10 @@
 #location-stacks #location-visible-stock {
   flex: 1;
 }
+#location-stacks #location-visible-stock.selectable {
+  border: 3px dashed white;
+  cursor: pointer;
+}
 
 .stockitem {
   border-radius: 10px;

@@ -919,7 +919,7 @@ class Conspiracy extends Table
         // total
         foreach ($players as $player_id => $playerDb) {
             $points = $playersPoints[$player_id];
-            self::notifyAllPlayers('scoreTotal', clienttranslate('${player_name} has ${points} in total'), [
+            self::notifyAllPlayers('scoreTotal', clienttranslate('${player_name} has ${points} points in total'), [
                 'playerId' => $player_id,
                 'player_name' => self::getActivePlayerName(),
                 'points' => $points,

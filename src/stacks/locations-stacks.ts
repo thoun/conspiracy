@@ -50,7 +50,10 @@ class LocationsStacks extends AbstractStacks<Location> {
     public setSelectable(selectable: boolean, limitToHidden?: number, allHidden?: boolean) {
         super.setSelectable(selectable, limitToHidden, allHidden);
 
-        this.visibleLocationsStock.setSelectionMode(selectable && !allHidden ? 1 : 0); 
+        const visibleSelectable = selectable && !allHidden;
+        this.visibleLocationsStock.setSelectionMode(visibleSelectable ? 1 : 0); 
+        const action = visibleSelectable ? 'add' : 'remove';
+        this.visibleLocationsStock.container_div.classList[action]('selectable');
     }
 
     public discardVisible() {
