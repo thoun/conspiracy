@@ -7,8 +7,9 @@
 @import 'help';
 
 html {
-    background: url('img/background.jpg');
+    background: url('img/background.jpg') #0D111A;
     background-size: contain;
+    background-repeat: no-repeat;
 }
 
 .pearlMasterWrapper {
