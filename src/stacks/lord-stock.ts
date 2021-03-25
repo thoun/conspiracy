@@ -1,5 +1,5 @@
-const LORD_OVERLAP_WIDTH = 45;
-const LORD_OVERLAP_HEIGHT = 65;
+const LORD_OVERLAP_WIDTH = 35;
+const LORD_OVERLAP_HEIGHT = 35;
 
 function updateDisplay(from: string) {
     if (!$(this.control_name)) {

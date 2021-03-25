@@ -176,8 +176,8 @@ function moveToAnotherStock(sourceStock, destinationStock, uniqueId, cardId) {
         destinationStock.addToStockWithId(uniqueId, cardId, sourceStock.container_div.id);
     }
 }
-var LORD_OVERLAP_WIDTH = 45;
-var LORD_OVERLAP_HEIGHT = 65;
+var LORD_OVERLAP_WIDTH = 35;
+var LORD_OVERLAP_HEIGHT = 35;
 function updateDisplay(from) {
     var _this = this;
     if (!$(this.control_name)) {
