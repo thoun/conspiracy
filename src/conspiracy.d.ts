@@ -64,7 +64,11 @@ interface ConspiracyGame extends Game {
     locationPick: (id: number) => void;
 }
 
-interface EnteringLordStackSelectionArgs {
+interface EnteringStackSelectionArgs {
+    max: number;
+}
+
+interface EnteringLordStackSelectionArgs extends EnteringStackSelectionArgs {
     limitToHidden: number;
 }
 
@@ -72,7 +76,7 @@ interface EnteringLordSelectionArgs {
     lords: Lord[];
 }
 
-interface EnteringLocationStackSelectionArgs {
+interface EnteringLocationStackSelectionArgs extends EnteringStackSelectionArgs {
     allHidden: boolean;
 }
 

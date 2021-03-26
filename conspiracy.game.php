@@ -320,6 +320,11 @@ class Conspiracy extends Table
         self::checkAction('chooseDeckStack'); 
         self::debug('[GBA] chooseLordDeckStack');
 
+        $count = $this->lords->countCardInLocation('deck');
+        if ($number > $count) {
+            throw new Error("Can't take $number cards, only $count in deck");
+        }
+
         $this->lords->pickCardsForLocation($number, 'deck', $number == 1 ? 'lord_pick' : 'lord_selection');
 
         $message = $number > 1 ?
@@ -400,6 +405,11 @@ class Conspiracy extends Table
     function chooseLocationDeckStack(int $number) {
         self::checkAction('chooseDeckStack'); 
         self::debug('[GBA] chooseLocationDeckStack');
+
+        $count = $this->locations->countCardInLocation('deck');
+        if ($number > $count || $count == 0) {
+            throw new Error("Can't take $number cards, only $count in deck");
+        }
 
         $fromHidden = self::getGameStateValue('AP_DECK_LOCATION') == self::getActivePlayerId();
 
@@ -628,7 +638,12 @@ class Conspiracy extends Table
         } else if (self::getGameStateValue('AP_FIRST_LORDS') > 0) {
             $limitToHidden = 2;
         }
-        return ['limitToHidden' => $limitToHidden];
+
+        $count = $this->lords->countCardInLocation('deck');
+        return [
+            'limitToHidden' => $limitToHidden,
+            'max' => intval(min(3, $count)),
+        ];
     }
     
     function argLordSelection() {
@@ -637,7 +652,11 @@ class Conspiracy extends Table
     }
     
     function argLocationStackSelection() {
-        return ['allHidden' => self::getGameStateValue('AP_DECK_LOCATION') == self::getActivePlayerId()];
+        $count = $this->locations->countCardInLocation('deck');
+        return [
+            'allHidden' => self::getGameStateValue('AP_DECK_LOCATION') == self::getActivePlayerId(),
+            'max' => intval(min(3, $count)),
+        ];
     }
 
     function argLocationSelection() {

@@ -2,6 +2,8 @@ abstract class AbstractStacks<T extends Card> {
     protected selectable: boolean;
     protected pickSelectable: boolean;
     protected pickStock: Stock;
+    private max: number = 3;
+    private allHidden: boolean = false;
 
     constructor(public game: ConspiracyGame) {
     }
@@ -20,8 +22,9 @@ abstract class AbstractStacks<T extends Card> {
         const buttons = Array.from(this.pileDiv.getElementsByClassName('button'));
 
         if (limitToHidden) {
+            const adjustedLimitToHidden = Math.min(this.max, limitToHidden);
             if (selectable) {
-                buttons.filter((button: HTMLDivElement) => parseInt(button.dataset.number) !== limitToHidden)
+                buttons.filter((button: HTMLDivElement) => parseInt(button.dataset.number) !== adjustedLimitToHidden)
                     .forEach(button => button.classList.add('hidden'));
             }
         }
@@ -32,10 +35,24 @@ abstract class AbstractStacks<T extends Card> {
 
         // if player has all hidden location, we replace the 3 buttons by one special for the rest of the game
         if (allHidden && buttons.length > 1) {
+            this.allHidden = true;
             document.getElementById('location-hidden-pile').innerHTML = '<div class="button eye location-hidden-pile-eye-tooltip" data-number="0"></div>';
 
             (this.game as any).addTooltip('location-hidden-pile-eye-tooltip', _("As you have the See all deck location, you can pick a location from all deck, but you cannot pick visible locations."), '');
         }
+    }
+
+    public setMax(max: number) {
+        this.max = max;
+
+        if (max === 0) {
+            this.pileDiv.style.visibility = 'hidden';
+        } else if (!this.allHidden && max < 3) {
+            const buttons = Array.from(this.pileDiv.getElementsByClassName('button'));
+            buttons.filter((button: HTMLDivElement) => parseInt(button.dataset.number) > max)
+                .forEach(button => button.classList.add('max'));
+        }
+        
     }
 
     public setPick(showPick: boolean, pickSelectable: boolean, collection?: T[]) {

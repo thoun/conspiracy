@@ -35,6 +35,12 @@
             pointer-events: none;
             cursor: default;
         }
+
+        &.selectable .button.max {
+            visibility: hidden;
+            pointer-events: none;
+            cursor: default;
+        }
     }
 }
 

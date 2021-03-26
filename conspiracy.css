@@ -32,6 +32,11 @@
   pointer-events: none;
   cursor: default;
 }
+.stacks .hidden-pile.selectable .button.max {
+  visibility: hidden;
+  pointer-events: none;
+  cursor: default;
+}
 
 .pick-stock.selectable {
   border: 3px dashed white;
@@ -314,6 +319,9 @@
 }
 #score table tr {
   height: 125px;
+}
+#score table tr:first-of-type {
+  height: 122px;
 }
 #score table tr td {
   width: 105px;

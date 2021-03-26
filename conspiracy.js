@@ -384,6 +384,8 @@ var LordStock = /** @class */ (function () {
 var AbstractStacks = /** @class */ (function () {
     function AbstractStacks(game) {
         this.game = game;
+        this.max = 3;
+        this.allHidden = false;
     }
     AbstractStacks.prototype.setSelectable = function (selectable, limitToHidden, allHidden) {
         this.selectable = selectable;
@@ -391,8 +393,9 @@ var AbstractStacks = /** @class */ (function () {
         this.pileDiv.classList[action]('selectable');
         var buttons = Array.from(this.pileDiv.getElementsByClassName('button'));
         if (limitToHidden) {
+            var adjustedLimitToHidden_1 = Math.min(this.max, limitToHidden);
             if (selectable) {
-                buttons.filter(function (button) { return parseInt(button.dataset.number) !== limitToHidden; })
+                buttons.filter(function (button) { return parseInt(button.dataset.number) !== adjustedLimitToHidden_1; })
                     .forEach(function (button) { return button.classList.add('hidden'); });
             }
         }
@@ -401,8 +404,20 @@ var AbstractStacks = /** @class */ (function () {
         }
         // if player has all hidden location, we replace the 3 buttons by one special for the rest of the game
         if (allHidden && buttons.length > 1) {
+            this.allHidden = true;
             document.getElementById('location-hidden-pile').innerHTML = '<div class="button eye location-hidden-pile-eye-tooltip" data-number="0"></div>';
             this.game.addTooltip('location-hidden-pile-eye-tooltip', _("As you have the See all deck location, you can pick a location from all deck, but you cannot pick visible locations."), '');
+        }
+    };
+    AbstractStacks.prototype.setMax = function (max) {
+        this.max = max;
+        if (max === 0) {
+            this.pileDiv.style.visibility = 'hidden';
+        }
+        else if (!this.allHidden && max < 3) {
+            var buttons = Array.from(this.pileDiv.getElementsByClassName('button'));
+            buttons.filter(function (button) { return parseInt(button.dataset.number) > max; })
+                .forEach(function (button) { return button.classList.add('max'); });
         }
     };
     AbstractStacks.prototype.setPick = function (showPick, pickSelectable, collection) {
@@ -528,6 +543,9 @@ var LordsStacks = /** @class */ (function (_super) {
             return;
         }
         var number = parseInt(event.target.dataset.number);
+        if (isNaN(number)) {
+            return;
+        }
         if (!this.game.checkAction('chooseDeckStack')) {
             return;
         }
@@ -626,6 +644,9 @@ var LocationsStacks = /** @class */ (function (_super) {
             return;
         }
         var number = parseInt(event.target.dataset.number);
+        if (isNaN(number)) {
+            return;
+        }
         if (!this.game.checkAction('chooseDeckStack')) {
             return;
         }
@@ -907,7 +928,7 @@ var Conspiracy = /** @class */ (function () {
     //                  You can use this method to perform some user interface changes at this moment.
     //
     Conspiracy.prototype.onEnteringState = function (stateName, args) {
-        console.log('Entering state: ' + stateName /*, args.args*/);
+        console.log('Entering state: ' + stateName, args.args);
         switch (stateName) {
             case 'lordStackSelection':
                 this.onEnteringLordStackSelection(args.args);
@@ -930,6 +951,7 @@ var Conspiracy = /** @class */ (function () {
         }
     };
     Conspiracy.prototype.onEnteringLordStackSelection = function (args) {
+        this.lordsStacks.setMax(args.max);
         if (this.isCurrentPlayerActive()) {
             this.lordsStacks.setSelectable(true, args.limitToHidden);
         }
@@ -943,6 +965,7 @@ var Conspiracy = /** @class */ (function () {
         }
     };
     Conspiracy.prototype.onEnteringLocationStackSelection = function (args) {
+        this.locationsStacks.setMax(args.max);
         if (this.isCurrentPlayerActive()) {
             this.locationsStacks.setSelectable(true, null, args.allHidden);
         }

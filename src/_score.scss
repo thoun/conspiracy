@@ -10,6 +10,10 @@
         tr {
             height: 125px;
 
+            &:first-of-type {
+                height: 122px;
+            }
+
             td {
                 width: 105px;
                 max-width: 105px;

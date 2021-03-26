@@ -25,7 +25,7 @@ class Conspiracy implements ConspiracyGame {
     private lordCounters: Counter[] = [];
     private pearlCounters: Counter[] = [];
     private swapSpots: number[] = [];
-    private helpDialog;
+    private helpDialog: any;
 
     constructor() {
     }
@@ -76,7 +76,7 @@ class Conspiracy implements ConspiracyGame {
     //                  You can use this method to perform some user interface changes at this moment.
     //
     public onEnteringState(stateName: string, args: any) {
-        console.log( 'Entering state: '+stateName /*, args.args*/ );
+        console.log( 'Entering state: '+stateName , args.args );
 
         switch (stateName) {
             case 'lordStackSelection':
@@ -103,6 +103,7 @@ class Conspiracy implements ConspiracyGame {
     }
 
     onEnteringLordStackSelection(args: EnteringLordStackSelectionArgs) {
+        this.lordsStacks.setMax(args.max);
         if ((this as any).isCurrentPlayerActive()) {
             this.lordsStacks.setSelectable(true, args.limitToHidden);
         }
@@ -119,6 +120,7 @@ class Conspiracy implements ConspiracyGame {
     }
 
     onEnteringLocationStackSelection(args: EnteringLocationStackSelectionArgs) {
+        this.locationsStacks.setMax(args.max);
         if ((this as any).isCurrentPlayerActive()) {
             this.locationsStacks.setSelectable(true, null, args.allHidden);
         }

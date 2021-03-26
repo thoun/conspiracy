@@ -87,6 +87,10 @@ class LordsStacks extends AbstractStacks<Lord> {
 
         const number = parseInt((event.target as HTMLDivElement).dataset.number);
 
+        if (isNaN(number)) {
+            return;
+        }
+
         if(!(this.game as any).checkAction('chooseDeckStack')) {
             return;
         }
