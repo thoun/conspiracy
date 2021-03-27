@@ -132,9 +132,9 @@ class Conspiracy extends Table
         $this->setupLocationsCards(); 
         
         // show the first location
-        //$this->locations->pickCardForLocation('deck', 'table');
-        $testedCard = $this->getLocationsFromDb($this->locations->getCardsOfType(11))[0];
-        $this->locations->moveCard($testedCard->id, 'table');
+        $this->locations->pickCardForLocation('deck', 'table');
+        //$testedCard = $this->getLocationsFromDb($this->locations->getCardsOfType(11))[0];
+        //$this->locations->moveCard($testedCard->id, 'table');
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
@@ -782,12 +782,14 @@ class Conspiracy extends Table
         $this->checkPearlMaster($player_id);
 
         if ($location->activePower == AP_DISCARD_LORDS && $this->lords->countCardInLocation("table") > 0) {
-            self::notifyAllPlayers('discardLords', clienttranslate('Lords are discarded'), []);
+            $this->lords->moveAllCardsInLocation('table', 'deck');
             $this->lords->shuffle('deck');
+            self::notifyAllPlayers('discardLords', clienttranslate('Lords are discarded'), []);
         }
         if ($location->activePower == AP_DISCARD_LOCATIONS && $this->locations->countCardInLocation("table") > 0) {
-            self::notifyAllPlayers('discardLocations', clienttranslate('Locations are discarded'), []);
+            $this->locations->moveAllCardsInLocation('table', 'deck');
             $this->locations->shuffle('deck');
+            self::notifyAllPlayers('discardLocations', clienttranslate('Locations are discarded'), []);
         }
         if ($location->activePower == AP_FIRST_LORD) {
             self::setGameStateValue('AP_FIRST_LORD', $player_id);
