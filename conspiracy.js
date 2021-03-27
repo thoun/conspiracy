@@ -422,11 +422,13 @@ var AbstractStacks = /** @class */ (function () {
     };
     AbstractStacks.prototype.setPick = function (showPick, pickSelectable, collection) {
         var _this = this;
+        collection === null || collection === void 0 ? void 0 : collection.filter(function (item) { return !_this.pickStock.items.some(function (i) { return i.id === "" + item.id; }); }).forEach(function (item) { return _this.pickStock.removeFromStockById("" + item.id); });
         this.pickDiv.style.display = showPick ? 'block' : 'none';
         var action = pickSelectable ? 'add' : 'remove';
         this.pickDiv.classList[action]('selectable');
         this.pickSelectable = pickSelectable;
-        collection === null || collection === void 0 ? void 0 : collection.forEach(function (item) {
+        collection === null || collection === void 0 ? void 0 : collection.filter(function (item) { return !_this.pickStock.items.some(function (i) { return i.id === "" + item.id; }); }).forEach(function (item) {
+            console.log(item, _this.pickStock.items);
             var from = _this.getStockContaining("" + item.id);
             if (from) {
                 moveToAnotherStock(from, _this.pickStock, _this.getCardUniqueId(item), "" + item.id);
