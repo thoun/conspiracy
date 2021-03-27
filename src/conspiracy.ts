@@ -153,13 +153,15 @@ class Conspiracy implements ConspiracyGame {
         (this as any).addTooltipToClass('coalition-score', _("The biggest area of adjacent Lords of the same color is identified and 3 points are scored for each Lord within it"), '');
         (this as any).addTooltipToClass('masterPearl-score', _("The player who has the Pearl Master token gains a bonus of 5 Influence Points."), '');
 
-        // scale down 
-        [
-            ...Array.from(document.getElementsByClassName('player-table-wrapper')), 
-            ...Array.from(document.getElementsByClassName('player-table-mat'))
-        ].forEach(elem => 
-            elem.classList.add('scaled-down')
-        );
+        if(!document.getElementById('page-content').style.zoom) {
+            // scale down 
+            [
+                ...Array.from(document.getElementsByClassName('player-table-wrapper')), 
+                ...Array.from(document.getElementsByClassName('player-table-mat'))
+            ].forEach(elem => 
+                elem.classList.add('scaled-down')
+            );
+        }
     }
 
     // onLeavingState: this method is called each time we are leaving a game state.
