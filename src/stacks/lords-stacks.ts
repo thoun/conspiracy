@@ -18,7 +18,7 @@ class LordsStacks extends AbstractStacks<Lord> {
         this.setPickStockClick();
         pickLords.forEach(lord => this.pickStock.addToStockWithId(this.getCardUniqueId(lord), `${lord.id}`));
 
-        (this.game as any).addTooltipToClass('lord-hidden-pile-tooltip', _("Reveal 1 to 3 hidden lords. Choose one, the others are discarded"), '');
+        (this.game as any).addTooltipHtmlToClass('lord-hidden-pile-tooltip', _("Reveal 1 to 3 hidden lords. Choose one, the others are discarded"));
     }
 
     get pileDiv(): HTMLDivElement {
@@ -104,7 +104,7 @@ class LordsStacks extends AbstractStacks<Lord> {
         let message = getLordTooltip(card_type_id);
 
         if (message) {
-            (this.game as any).addTooltip(card_div.id, message, '');
+            (this.game as any).addTooltipHtml(card_div.id, message);
         }
     }
 

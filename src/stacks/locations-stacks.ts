@@ -27,7 +27,7 @@ class LocationsStacks extends AbstractStacks<Location> {
         visibleLocations.forEach(location => this.visibleLocationsStock.addToStockWithId(this.getCardUniqueId(location), `${location.id}`));
         pickLocations.forEach(location => this.pickStock.addToStockWithId(this.getCardUniqueId(location), `${location.id}`));
         
-        (this.game as any).addTooltipToClass('location-hidden-pile-tooltip', _("Reveal 1 to 3 hidden locations. Choose one, the others are discarded"), '');
+        (this.game as any).addTooltipHtmlToClass('location-hidden-pile-tooltip', _("Reveal 1 to 3 hidden locations. Choose one, the others are discarded"));
     }
 
     get pileDiv(): HTMLDivElement {
@@ -76,7 +76,7 @@ class LocationsStacks extends AbstractStacks<Location> {
         let message = getLocationTooltip(card_type_id);
 
         if (message) {
-            (this.game as any).addTooltip(card_div.id, message, '');
+            (this.game as any).addTooltipHtml(card_div.id, message);
         }
     }
 

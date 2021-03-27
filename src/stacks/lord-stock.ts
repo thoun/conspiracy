@@ -204,7 +204,7 @@ class LordStock {
         let message = getLordTooltip(card_type_id);
 
         if (message) {
-            (this.lordsStacks.game as any).addTooltip(card_div.id, message, '');
+            (this.lordsStacks.game as any).addTooltipHtml(card_div.id, message);
         }
     }
 }

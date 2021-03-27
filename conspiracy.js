@@ -376,7 +376,7 @@ var LordStock = /** @class */ (function () {
     LordStock.prototype.setupNewLordCard = function (card_div, card_type_id, card_id) {
         var message = getLordTooltip(card_type_id);
         if (message) {
-            this.lordsStacks.game.addTooltip(card_div.id, message, '');
+            this.lordsStacks.game.addTooltipHtml(card_div.id, message);
         }
     };
     return LordStock;
@@ -406,7 +406,7 @@ var AbstractStacks = /** @class */ (function () {
         if (allHidden && buttons.length > 1) {
             this.allHidden = true;
             document.getElementById('location-hidden-pile').innerHTML = '<div class="button eye location-hidden-pile-eye-tooltip" data-number="0"></div>';
-            this.game.addTooltip('location-hidden-pile-eye-tooltip', _("As you have the See all deck location, you can pick a location from all deck, but you cannot pick visible locations."), '');
+            this.game.addTooltipHtml('location-hidden-pile-eye-tooltip', _("As you have the See all deck location, you can pick a location from all deck, but you cannot pick visible locations."));
         }
     };
     AbstractStacks.prototype.setMax = function (max) {
@@ -476,7 +476,7 @@ var LordsStacks = /** @class */ (function (_super) {
         setupLordCards([_this.pickStock]);
         _this.setPickStockClick();
         pickLords.forEach(function (lord) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(lord), "" + lord.id); });
-        _this.game.addTooltipToClass('lord-hidden-pile-tooltip', _("Reveal 1 to 3 hidden lords. Choose one, the others are discarded"), '');
+        _this.game.addTooltipHtmlToClass('lord-hidden-pile-tooltip', _("Reveal 1 to 3 hidden lords. Choose one, the others are discarded"));
         return _this;
     }
     Object.defineProperty(LordsStacks.prototype, "pileDiv", {
@@ -557,7 +557,7 @@ var LordsStacks = /** @class */ (function (_super) {
     LordsStacks.prototype.setupNewLordCard = function (card_div, card_type_id, card_id) {
         var message = getLordTooltip(card_type_id);
         if (message) {
-            this.game.addTooltip(card_div.id, message, '');
+            this.game.addTooltipHtml(card_div.id, message);
         }
     };
     LordsStacks.prototype.getGuildStock = function (guild) {
@@ -587,7 +587,7 @@ var LocationsStacks = /** @class */ (function (_super) {
         setupLocationCards([_this.visibleLocationsStock, _this.pickStock]);
         visibleLocations.forEach(function (location) { return _this.visibleLocationsStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
         pickLocations.forEach(function (location) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
-        _this.game.addTooltipToClass('location-hidden-pile-tooltip', _("Reveal 1 to 3 hidden locations. Choose one, the others are discarded"), '');
+        _this.game.addTooltipHtmlToClass('location-hidden-pile-tooltip', _("Reveal 1 to 3 hidden locations. Choose one, the others are discarded"));
         return _this;
     }
     Object.defineProperty(LocationsStacks.prototype, "pileDiv", {
@@ -637,7 +637,7 @@ var LocationsStacks = /** @class */ (function (_super) {
     LocationsStacks.prototype.setupNewLocationCard = function (card_div, card_type_id, card_id) {
         var message = getLocationTooltip(card_type_id);
         if (message) {
-            this.game.addTooltip(card_div.id, message, '');
+            this.game.addTooltipHtml(card_div.id, message);
         }
     };
     LocationsStacks.prototype.onHiddenLocationClick = function (event) {
@@ -765,13 +765,13 @@ var PlayerTableSpotStock = /** @class */ (function () {
     PlayerTableSpotStock.prototype.setupNewLordCard = function (card_div, card_type_id, card_id) {
         var message = getLordTooltip(card_type_id);
         if (message) {
-            this.game.addTooltip(card_div.id, message, '');
+            this.game.addTooltipHtml(card_div.id, message);
         }
     };
     PlayerTableSpotStock.prototype.setupNewLocationCard = function (card_div, card_type_id, card_id) {
         var message = getLocationTooltip(card_type_id);
         if (message) {
-            this.game.addTooltip(card_div.id, message, '');
+            this.game.addTooltipHtml(card_div.id, message);
         }
     };
     PlayerTableSpotStock.prototype.addTokenDiv = function (tokenDiv) {
@@ -988,12 +988,12 @@ var Conspiracy = /** @class */ (function () {
         document.getElementById('score').style.display = 'flex';
         Object.values(this.gamedatas.players).forEach(function (player) {
             var detailedScore = player.detailedScore;
-            dojo.place("<tr id=\"score" + player.id + "\">\n                <td class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</td>\n                <td class=\"lords-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.lords) !== undefined ? detailedScore.lords : '') + "</td>\n                <td class=\"locations-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.locations) !== undefined ? detailedScore.locations : '') + "</td>\n                <td class=\"coalition-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.coalition) !== undefined ? detailedScore.coalition : '') + "</td>\n                <td class=\"masterPearl-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.pearlMaster) !== undefined ? detailedScore.pearlMaster : '') + "</td>\n                <td class=\"total\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.total) !== undefined ? detailedScore.total : '') + "</td>\n            </tr>", 'score-table-body');
+            dojo.place("<tr id=\"score" + player.id + "\">\n                <td class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</td>\n                <td class=\"score-number lords-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.lords) !== undefined ? detailedScore.lords : '') + "</td>\n                <td class=\"score-number locations-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.locations) !== undefined ? detailedScore.locations : '') + "</td>\n                <td class=\"score-number coalition-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.coalition) !== undefined ? detailedScore.coalition : '') + "</td>\n                <td class=\"score-number masterPearl-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.pearlMaster) !== undefined ? detailedScore.pearlMaster : '') + "</td>\n                <td class=\"score-number total\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.total) !== undefined ? detailedScore.total : '') + "</td>\n            </tr>", 'score-table-body');
         });
-        this.addTooltipToClass('lords-score', _("The total of Influence Points from the Lords with the Coat of Arms tokens (the most influential Lord of each color in your Senate Chamber)."), '');
-        this.addTooltipToClass('locations-score', _("The total of Influence Points from the Locations you control."), '');
-        this.addTooltipToClass('coalition-score', _("The biggest area of adjacent Lords of the same color is identified and 3 points are scored for each Lord within it"), '');
-        this.addTooltipToClass('masterPearl-score', _("The player who has the Pearl Master token gains a bonus of 5 Influence Points."), '');
+        this.addTooltipHtmlToClass('lords-score', _("The total of Influence Points from the Lords with the Coat of Arms tokens (the most influential Lord of each color in your Senate Chamber)."));
+        this.addTooltipHtmlToClass('locations-score', _("The total of Influence Points from the Locations you control."));
+        this.addTooltipHtmlToClass('coalition-score', _("The biggest area of adjacent Lords of the same color is identified and 3 points are scored for each Lord within it"));
+        this.addTooltipHtmlToClass('masterPearl-score', _("The player who has the Pearl Master token gains a bonus of 5 Influence Points."));
         if (!document.getElementById('page-content').style.zoom) {
             // scale down 
             __spreadArray(__spreadArray([], Array.from(document.getElementsByClassName('player-table-wrapper'))), Array.from(document.getElementsByClassName('player-table-mat'))).forEach(function (elem) {
@@ -1081,9 +1081,9 @@ var Conspiracy = /** @class */ (function () {
                 _this.placePearlMasterToken(gamedatas.pearlMasterPlayer);
             }
         });
-        this.addTooltipToClass('lord-counter', _("Number of lords in player table"), '');
-        this.addTooltipToClass('pearl-counter', _("Number of pearls"), '');
-        GUILD_IDS.forEach(function (guild) { return _this.addTooltipToClass("token-guild" + guild, _("The Coat of Arms token indicates the most influential Lord of each color."), ''); });
+        this.addTooltipHtmlToClass('lord-counter', _("Number of lords in player table"));
+        this.addTooltipHtmlToClass('pearl-counter', _("Number of pearls"));
+        GUILD_IDS.forEach(function (guild) { return _this.addTooltipHtmlToClass("token-guild" + guild, _("The Coat of Arms token indicates the most influential Lord of each color.")); });
     };
     Conspiracy.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;
@@ -1134,7 +1134,7 @@ var Conspiracy = /** @class */ (function () {
         }
         else {
             dojo.place('<div id="pearlMasterToken" class="token"></div>', "player_board_" + playerId + "_pearlMasterWrapper");
-            this.addTooltip('pearlMasterToken', _("Pearl Master token. At the end of the game, the player possessing the Pearl Master token gains a bonus of 5 Influence Points."), '');
+            this.addTooltipHtml('pearlMasterToken', _("Pearl Master token. At the end of the game, the player possessing the Pearl Master token gains a bonus of 5 Influence Points."));
         }
     };
     Conspiracy.prototype.setCanSwap = function (swapSpots) {
@@ -1171,12 +1171,12 @@ var Conspiracy = /** @class */ (function () {
             this.helpDialog = new ebg.popindialog();
             this.helpDialog.create('conspiracyHelpDialog');
             this.helpDialog.setTitle(_("Cards help"));
-            var html = "<h1>" + _("Lords") + "</h1>\n            <div id=\"help-lords\" class=\"help-section\">\n                <table>";
+            var html = "<div id=\"help-popin\">\n                <h1>" + _("Lords") + "</h1>\n                <div id=\"help-lords\" class=\"help-section\">\n                    <table>";
             LORDS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"lord" + number + "\" class=\"lord\"></div></td><td>" + getLordTooltip(number * 10) + "</td></tr>"; });
-            html += "</table>\n            </div>\n            <h1>" + _("Locations") + "</h1>\n            <div id=\"help-locations\" class=\"help-section\">\n                <table>";
+            html += "</table>\n                </div>\n                <h1>" + _("Locations") + "</h1>\n                <div id=\"help-locations\" class=\"help-section\">\n                    <table>";
             LOCATIONS_UNIQUE_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location" + number + "\" class=\"location\"></div></td><td>" + getLocationTooltip(number * 10) + "</td></tr>"; });
             LOCATIONS_GUILDS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location" + number + "\" class=\"location\"></div></td><td>" + getLocationTooltip(number * 10) + "</td></tr>"; });
-            html += "</table>\n            </div>";
+            html += "</table>\n                </div>\n            </div>";
             // Show the dialog
             this.helpDialog.setContent(html);
         }

@@ -15,6 +15,7 @@
     cursor: pointer;
     z-index: 949;
     font-size: 28pt;
+    font-family: 'MoolBoran';
 }
 
 /* we show help button if user has no mouse ( = no tooltips) */
@@ -24,42 +25,59 @@
     }
 }
 
-.help-section {    
-    table {
-        border-spacing: 5px;
-        border-collapse: separate;
-    }
+#popin_conspiracyHelpDialog {
+    color: #212222;
+    background: #e5f4fd;
 }
 
-#help-lords {
-    .lord {
-        width: $lord-width; 
-        height: $lord-height;
-        background-image: url('img/lords.jpg');
+#help-popin {
+    max-width: 35rem;
+    max-height: 80vh;
+    overflow: auto;
+        
+    font-family: 'MoolBoran';
+
+    h1.help {
+        font-family: 'TribalGaramondPL-SC700';
+        color: #0094bb;
     }
-    @for $i from 1 through 6 {
-        #lord#{$i} {
-            background-position: (-1200% - $i * 100%) 0%;
+
+    .help-section {    
+        table {
+            border-spacing: 10px;
+            border-collapse: separate;
         }
     }
+
+    #help-lords {
+        .lord {
+            width: $lord-width; 
+            height: $lord-height;
+            background-image: url('img/lords.jpg');
+        }
+        @for $i from 1 through 6 {
+            #lord#{$i} {
+                background-position: (-1200% - $i * 100%) 0%;
+            }
+        }
+    }
+
+    #help-locations {
+        .location {
+            width: $location-width; 
+            height: $location-height;
+            background-image: url('img/locations.jpg');
+        }
+        @for $i from 1 through 14 {
+            #location#{$i} {
+                background-position: (- $i * 100%) 0%;
+            }
+        }
+        #location100 {        
+            background-position: -1700% 0%;
+        }
+        #location101 {        
+            background-position: -2200% 0%;
+        }
 }
-
-#help-locations {
-    .location {
-        width: $location-width; 
-        height: $location-height;
-        background-image: url('img/locations.jpg');
-    }
-    @for $i from 1 through 14 {
-        #location#{$i} {
-            background-position: (- $i * 100%) 0%;
-        }
-    }
-    #location100 {        
-        background-position: -1700% 0%;
-    }
-    #location101 {        
-        background-position: -2200% 0%;
-    }
-
 }

@@ -117,7 +117,7 @@ class PlayerTableSpotStock {
         let message = getLordTooltip(card_type_id);
 
         if (message) {
-            (this.game as any).addTooltip(card_div.id, message, '');
+            (this.game as any).addTooltipHtml(card_div.id, message);
         }
     }
 
@@ -125,7 +125,7 @@ class PlayerTableSpotStock {
         let message = getLocationTooltip(card_type_id);
 
         if (message) {
-            (this.game as any).addTooltip(card_div.id, message, '');
+            (this.game as any).addTooltipHtml(card_div.id, message);
         }
     }
 

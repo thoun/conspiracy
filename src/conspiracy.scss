@@ -12,6 +12,23 @@ html {
     background-repeat: no-repeat;
 }
 
+#stacks, #score .score-number  {
+    font-family: 'MoolBoran';
+}
+
+.dijitTooltip {
+    font-family: 'MoolBoran';
+}
+
+.dijitTooltipContents {
+    font-size: 1rem;
+}
+
+.player_board_content {    
+  font-family: 'MoolBoran';
+  font-size: 120%;
+}
+
 .pearlMasterWrapper {
     display: inline-block;
     position: relative;

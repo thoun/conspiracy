@@ -144,18 +144,18 @@ class Conspiracy implements ConspiracyGame {
 
             dojo.place(`<tr id="score${player.id}">
                 <td class="player-name" style="color: #${player.color}">${player.name}</td>
-                <td class="lords-score">${detailedScore?.lords !== undefined ? detailedScore.lords : ''}</td>
-                <td class="locations-score">${detailedScore?.locations !== undefined ? detailedScore.locations : ''}</td>
-                <td class="coalition-score">${detailedScore?.coalition !== undefined ? detailedScore.coalition : ''}</td>
-                <td class="masterPearl-score">${detailedScore?.pearlMaster !== undefined ? detailedScore.pearlMaster : ''}</td>
-                <td class="total">${detailedScore?.total !== undefined ? detailedScore.total : ''}</td>
+                <td class="score-number lords-score">${detailedScore?.lords !== undefined ? detailedScore.lords : ''}</td>
+                <td class="score-number locations-score">${detailedScore?.locations !== undefined ? detailedScore.locations : ''}</td>
+                <td class="score-number coalition-score">${detailedScore?.coalition !== undefined ? detailedScore.coalition : ''}</td>
+                <td class="score-number masterPearl-score">${detailedScore?.pearlMaster !== undefined ? detailedScore.pearlMaster : ''}</td>
+                <td class="score-number total">${detailedScore?.total !== undefined ? detailedScore.total : ''}</td>
             </tr>`, 'score-table-body');
         });
 
-        (this as any).addTooltipToClass('lords-score', _("The total of Influence Points from the Lords with the Coat of Arms tokens (the most influential Lord of each color in your Senate Chamber)."), '');
-        (this as any).addTooltipToClass('locations-score', _("The total of Influence Points from the Locations you control."), '');
-        (this as any).addTooltipToClass('coalition-score', _("The biggest area of adjacent Lords of the same color is identified and 3 points are scored for each Lord within it"), '');
-        (this as any).addTooltipToClass('masterPearl-score', _("The player who has the Pearl Master token gains a bonus of 5 Influence Points."), '');
+        (this as any).addTooltipHtmlToClass('lords-score', _("The total of Influence Points from the Lords with the Coat of Arms tokens (the most influential Lord of each color in your Senate Chamber)."));
+        (this as any).addTooltipHtmlToClass('locations-score', _("The total of Influence Points from the Locations you control."));
+        (this as any).addTooltipHtmlToClass('coalition-score', _("The biggest area of adjacent Lords of the same color is identified and 3 points are scored for each Lord within it"));
+        (this as any).addTooltipHtmlToClass('masterPearl-score', _("The player who has the Pearl Master token gains a bonus of 5 Influence Points."));
 
         if(!document.getElementById('page-content').style.zoom) {
             // scale down 
@@ -279,9 +279,9 @@ class Conspiracy implements ConspiracyGame {
             }
         });
 
-        (this as any).addTooltipToClass('lord-counter', _("Number of lords in player table"), '');
-        (this as any).addTooltipToClass('pearl-counter', _("Number of pearls"), '');
-        GUILD_IDS.forEach(guild => (this as any).addTooltipToClass(`token-guild${guild}`, _("The Coat of Arms token indicates the most influential Lord of each color."), ''));
+        (this as any).addTooltipHtmlToClass('lord-counter', _("Number of lords in player table"));
+        (this as any).addTooltipHtmlToClass('pearl-counter', _("Number of pearls"));
+        GUILD_IDS.forEach(guild => (this as any).addTooltipHtmlToClass(`token-guild${guild}`, _("The Coat of Arms token indicates the most influential Lord of each color.")));
     }
 
     private createPlayerTables(gamedatas: ConspiracyGamedatas) {
@@ -341,7 +341,7 @@ class Conspiracy implements ConspiracyGame {
         } else {
             dojo.place('<div id="pearlMasterToken" class="token"></div>', `player_board_${playerId}_pearlMasterWrapper`);
 
-            (this as any).addTooltip('pearlMasterToken', _("Pearl Master token. At the end of the game, the player possessing the Pearl Master token gains a bonus of 5 Influence Points."), '');
+            (this as any).addTooltipHtml('pearlMasterToken', _("Pearl Master token. At the end of the game, the player possessing the Pearl Master token gains a bonus of 5 Influence Points."));
         }
     }
 
@@ -385,18 +385,20 @@ class Conspiracy implements ConspiracyGame {
             this.helpDialog.create( 'conspiracyHelpDialog' );
             this.helpDialog.setTitle( _("Cards help") );
             
-            var html = `<h1>${_("Lords")}</h1>
-            <div id="help-lords" class="help-section">
-                <table>`;
-            LORDS_IDS.forEach(number => html += `<tr><td><div id="lord${number}" class="lord"></div></td><td>${getLordTooltip(number * 10)}</td></tr>`);
-            html += `</table>
-            </div>
-            <h1>${_("Locations")}</h1>
-            <div id="help-locations" class="help-section">
-                <table>`;
-            LOCATIONS_UNIQUE_IDS.forEach(number => html += `<tr><td><div id="location${number}" class="location"></div></td><td>${getLocationTooltip(number * 10)}</td></tr>`);
-            LOCATIONS_GUILDS_IDS.forEach(number => html += `<tr><td><div id="location${number}" class="location"></div></td><td>${getLocationTooltip(number * 10)}</td></tr>`);
-            html += `</table>
+            var html = `<div id="help-popin">
+                <h1>${_("Lords")}</h1>
+                <div id="help-lords" class="help-section">
+                    <table>`;
+                LORDS_IDS.forEach(number => html += `<tr><td><div id="lord${number}" class="lord"></div></td><td>${getLordTooltip(number * 10)}</td></tr>`);
+                html += `</table>
+                </div>
+                <h1>${_("Locations")}</h1>
+                <div id="help-locations" class="help-section">
+                    <table>`;
+                LOCATIONS_UNIQUE_IDS.forEach(number => html += `<tr><td><div id="location${number}" class="location"></div></td><td>${getLocationTooltip(number * 10)}</td></tr>`);
+                LOCATIONS_GUILDS_IDS.forEach(number => html += `<tr><td><div id="location${number}" class="location"></div></td><td>${getLocationTooltip(number * 10)}</td></tr>`);
+                html += `</table>
+                </div>
             </div>`;
             
             // Show the dialog
