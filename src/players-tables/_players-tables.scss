@@ -4,12 +4,17 @@ $location-width: 186.24px;
 $location-height: 124px;
 $lord-margin: 15px;
 $top-margin: 5px;
-$bottom-margin: 85px;
 
 #players-tables {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+
     .player-table-wrapper {
-        display: flex;
-        justify-content: center;
+        &.scaled-down {        
+            animation-duration: 1s;
+            animation: scale-down-wrapper 1s 1 forwards;
+        }
 
         .player-name {
             text-align: center;
@@ -35,7 +40,7 @@ $bottom-margin: 85px;
             justify-content: center;
             background-repeat: no-repeat;
             background-position: center -140px;
-    
+
             box-shadow: 2px 2px 5px 5px black;
             max-width: 99%;
             width: 1388px;
@@ -45,8 +50,12 @@ $bottom-margin: 85px;
             .player-table {
                 position: relative;
                 width: $lord-width * 5 + $lord-margin * 4;
-                height: $lord-height * 5 + $lord-margin * 4 + 10px /*$bottom-margin*/;
+                height: $lord-height * 5 + $lord-margin * 4 + 10px;
                 margin-top: $top-margin;
+            }
+
+            &.scaled-down {
+                animation: scale-down-mat 1s 1 forwards;
             }
         }
 
@@ -55,6 +64,21 @@ $bottom-margin: 85px;
                 background-image: url('img/playmat_#{$i}.jpg');
             }
         }
+    }
+}
+
+@keyframes scale-down-wrapper {
+    100% {
+        margin-right: -50%;
+    }
+}
+
+@keyframes scale-down-mat {
+    100% {
+        transform: scale(0.5);
+        transform-origin: top left;
+        margin-bottom: -40%;
+        margin-right: -40%;
     }
 }
 

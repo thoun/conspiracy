@@ -882,6 +882,11 @@ var PlayerTable = /** @class */ (function () {
     };
     return PlayerTable;
 }());
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
 var ANIMATION_MS = 500;
 var SCORE_MS = 1500;
 var GUILD_COLOR = [];
@@ -988,6 +993,10 @@ var Conspiracy = /** @class */ (function () {
         this.addTooltipToClass('locations-score', _("The total of Influence Points from the Locations you control."), '');
         this.addTooltipToClass('coalition-score', _("The biggest area of adjacent Lords of the same color is identified and 3 points are scored for each Lord within it"), '');
         this.addTooltipToClass('masterPearl-score', _("The player who has the Pearl Master token gains a bonus of 5 Influence Points."), '');
+        // scale down 
+        __spreadArray(__spreadArray([], Array.from(document.getElementsByClassName('player-table-wrapper'))), Array.from(document.getElementsByClassName('player-table-mat'))).forEach(function (elem) {
+            return elem.classList.add('scaled-down');
+        });
     };
     // onLeavingState: this method is called each time we are leaving a game state.
     //                 You can use this method to perform some user interface changes at this moment.

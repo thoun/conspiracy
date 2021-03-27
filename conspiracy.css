@@ -95,9 +95,14 @@
   box-shadow: 1px 1px 3px black;
 }
 
-#players-tables .player-table-wrapper {
+#players-tables {
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+}
+#players-tables .player-table-wrapper.scaled-down {
+  animation-duration: 1s;
+  animation: scale-down-wrapper 1s 1 forwards;
 }
 #players-tables .player-table-wrapper .player-name {
   text-align: center;
@@ -132,6 +137,9 @@
   height: 1105px;
   margin-top: 5px;
 }
+#players-tables .player-table-wrapper .player-table-mat.scaled-down {
+  animation: scale-down-mat 1s 1 forwards;
+}
 #players-tables .player-table-wrapper .mat1 {
   background-image: url("img/playmat_1.jpg");
 }
@@ -163,6 +171,19 @@
   background-image: url("img/playmat_10.jpg");
 }
 
+@keyframes scale-down-wrapper {
+  100% {
+    margin-right: -50%;
+  }
+}
+@keyframes scale-down-mat {
+  100% {
+    transform: scale(0.5);
+    transform-origin: top left;
+    margin-bottom: -40%;
+    margin-right: -40%;
+  }
+}
 .player-table-spot {
   position: absolute;
   display: inline-block;
