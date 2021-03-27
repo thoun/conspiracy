@@ -355,6 +355,7 @@ class Conspiracy extends Table
             'guild' => $guild,
             'guild_name' => $this->getGuildName($guild),
             'number' => $number,
+            'i18n' => ['guild_name'],
         ]);
 
         self::setGameStateValue('stackSelection', 0);
@@ -718,6 +719,7 @@ class Conspiracy extends Table
             'pearls' => $pearls,
             'guild' => $lord->guild,
             'guild_name' => $this->getGuildName($lord->guild),
+            'i18n' => ['guild_name'],
         ]);
 
         if ($lord->showExtraLord) {
