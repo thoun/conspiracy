@@ -729,6 +729,7 @@ class Conspiracy extends Table
                 'lord' => $extraLord,
                 'guild' => $extraLord->guild,
                 'guild_name' => $this->getGuildName($extraLord->guild),
+                'i18n' => ['guild_name'],
             ]);
         }
 
