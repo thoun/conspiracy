@@ -97,6 +97,7 @@ class Conspiracy implements ConspiracyGame {
                 break;
 
             case 'showScore':
+                Object.keys(this.gamedatas.players).forEach(playerId => (this as any).scoreCtrl[playerId].setValue(0));
                 this.onEnteringShowScore();
                 break;
         }
@@ -492,24 +493,33 @@ class Conspiracy implements ConspiracyGame {
     notif_scoreLords(notif: Notif<NotifScorePointArgs>) {
         console.log('notif_scoreLords', notif.args);
         this.setScore(notif.args.playerId, 1, notif.args.points);
+        (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightTopLords();
     }
 
     notif_scoreLocations(notif: Notif<NotifScorePointArgs>) {
         console.log('notif_scoreLocations', notif.args);
         this.setScore(notif.args.playerId, 2, notif.args.points);
+        (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightLocations();
     }
 
     notif_scoreCoalition(notif: Notif<NotifScoreCoalitionArgs>) {
         console.log('notif_scoreCoalition', notif.args);
         this.setScore(notif.args.playerId, 3, notif.args.points);
+        (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightCoalition(notif.args.coalition);
     }
 
     notif_scorePearlMaster(notif: Notif<NotifScorePearlMasterArgs>) {
         console.log('notif_scorePearlMaster', notif.args);
-        Object.keys(this.gamedatas.players).forEach(playerId => this.setScore(playerId, 4, notif.args.playerId == Number(playerId) ? 5 : 0));
+        Object.keys(this.gamedatas.players).forEach(playerId => {
+            const isPearlMaster = notif.args.playerId == Number(playerId);
+            this.setScore(playerId, 4, isPearlMaster ? 5 : 0);
+            if (isPearlMaster) {
+                (this as any).scoreCtrl[notif.args.playerId].incValue(5);
+            }
+        });
 
         document.getElementById('pearlMasterToken').classList.add('highlight');
     }

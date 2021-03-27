@@ -930,6 +930,7 @@ var Conspiracy = /** @class */ (function () {
     //                  You can use this method to perform some user interface changes at this moment.
     //
     Conspiracy.prototype.onEnteringState = function (stateName, args) {
+        var _this = this;
         console.log('Entering state: ' + stateName, args.args);
         switch (stateName) {
             case 'lordStackSelection':
@@ -948,6 +949,7 @@ var Conspiracy = /** @class */ (function () {
                 this.onEnteringLocationSelection(args.args);
                 break;
             case 'showScore':
+                Object.keys(this.gamedatas.players).forEach(function (playerId) { return _this.scoreCtrl[playerId].setValue(0); });
                 this.onEnteringShowScore();
                 break;
         }
@@ -1253,22 +1255,31 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.notif_scoreLords = function (notif) {
         console.log('notif_scoreLords', notif.args);
         this.setScore(notif.args.playerId, 1, notif.args.points);
+        this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightTopLords();
     };
     Conspiracy.prototype.notif_scoreLocations = function (notif) {
         console.log('notif_scoreLocations', notif.args);
         this.setScore(notif.args.playerId, 2, notif.args.points);
+        this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightLocations();
     };
     Conspiracy.prototype.notif_scoreCoalition = function (notif) {
         console.log('notif_scoreCoalition', notif.args);
         this.setScore(notif.args.playerId, 3, notif.args.points);
+        this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightCoalition(notif.args.coalition);
     };
     Conspiracy.prototype.notif_scorePearlMaster = function (notif) {
         var _this = this;
         console.log('notif_scorePearlMaster', notif.args);
-        Object.keys(this.gamedatas.players).forEach(function (playerId) { return _this.setScore(playerId, 4, notif.args.playerId == Number(playerId) ? 5 : 0); });
+        Object.keys(this.gamedatas.players).forEach(function (playerId) {
+            var isPearlMaster = notif.args.playerId == Number(playerId);
+            _this.setScore(playerId, 4, isPearlMaster ? 5 : 0);
+            if (isPearlMaster) {
+                _this.scoreCtrl[notif.args.playerId].incValue(5);
+            }
+        });
         document.getElementById('pearlMasterToken').classList.add('highlight');
     };
     Conspiracy.prototype.notif_scoreTotal = function (notif) {
