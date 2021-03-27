@@ -38,8 +38,11 @@
   cursor: default;
 }
 
+.pick-stock {
+  border: 3px dashed transparent;
+}
 .pick-stock.selectable {
-  border: 3px dashed white;
+  border-color: white;
 }
 .pick-stock.selectable .stockitem {
   cursor: pointer;
@@ -64,9 +67,10 @@
   display: inline-block;
   margin-right: 10px;
   position: relative;
+  border: 3px dashed transparent;
 }
 #lord-stacks #lord-visible-stocks > div.selectable {
-  border: 3px dashed white;
+  border-color: white;
   cursor: pointer;
 }
 
@@ -79,9 +83,10 @@
 }
 #location-stacks #location-visible-stock {
   flex: 1;
+  border: 3px dashed transparent;
 }
 #location-stacks #location-visible-stock.selectable {
-  border: 3px dashed white;
+  border-color: white;
   cursor: pointer;
 }
 
@@ -313,26 +318,25 @@
   justify-content: center;
 }
 #score table {
-  width: 620px;
+  width: 492px;
   background: url("img/score.jpg");
   box-shadow: 2px 2px 5px 5px black;
 }
 #score table tr {
-  height: 125px;
-}
-#score table tr:first-of-type {
-  height: 122px;
+  height: 74px;
 }
 #score table tr td {
-  width: 105px;
-  max-width: 105px;
+  width: 62px;
+  max-width: 62px;
   text-align: center;
 }
 #score table tr td:not(:first-child) {
-  font-size: 150%;
+  font-size: 130%;
   text-shadow: 1px 1px 1px white;
 }
 #score table tr td.player-name {
+  width: 181px;
+  max-width: 181px;
   font-weight: bold;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
   word-break: break-all;

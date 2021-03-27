@@ -45,8 +45,9 @@
 }
 
 .pick-stock {
+    border: 3px dashed transparent;
     &.selectable {
-        border: 3px dashed white;
+        border-color: white;
 
         .stockitem {
             cursor: pointer;
@@ -77,8 +78,9 @@
             margin-right: 10px;
             position: relative;
 
+            border: 3px dashed transparent;
             &.selectable {
-                border: 3px dashed white;
+                border-color: white;
                 cursor: pointer;
             }
         }
@@ -98,8 +100,9 @@
     #location-visible-stock {
         flex: 1;
 
+        border: 3px dashed transparent;
         &.selectable {
-            border: 3px dashed white;
+            border-color: white;
             cursor: pointer;
         }
     }
