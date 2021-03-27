@@ -65,7 +65,6 @@ abstract class AbstractStacks<T extends Card> {
         this.pickDiv.classList[action]('selectable');
         this.pickSelectable = pickSelectable;
         collection?.filter(item => !this.pickStock.items.some(i => i.id === `${item.id}`)).forEach(item => {
-            console.log(item, this.pickStock.items);
             const from = this.getStockContaining(`${item.id}`);
 
             if (from) {

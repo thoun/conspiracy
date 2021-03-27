@@ -428,7 +428,6 @@ var AbstractStacks = /** @class */ (function () {
         this.pickDiv.classList[action]('selectable');
         this.pickSelectable = pickSelectable;
         collection === null || collection === void 0 ? void 0 : collection.filter(function (item) { return !_this.pickStock.items.some(function (i) { return i.id === "" + item.id; }); }).forEach(function (item) {
-            console.log(item, _this.pickStock.items);
             var from = _this.getStockContaining("" + item.id);
             if (from) {
                 moveToAnotherStock(from, _this.pickStock, _this.getCardUniqueId(item), "" + item.id);
@@ -895,6 +894,8 @@ GUILD_COLOR[2] = '#770405';
 GUILD_COLOR[3] = '#097138';
 GUILD_COLOR[4] = '#011d4d';
 GUILD_COLOR[5] = '#522886';
+var isDebug = window.location.host == 'studio.boardgamearena.com';
+var log = isDebug ? console.log.bind(window.console) : function () { };
 var Conspiracy = /** @class */ (function () {
     function Conspiracy() {
         this.playersTables = [];
@@ -915,9 +916,9 @@ var Conspiracy = /** @class */ (function () {
         "gamedatas" argument contains all datas retrieved by your "getAllDatas" PHP method.
     */
     Conspiracy.prototype.setup = function (gamedatas) {
-        console.log("Starting game setup");
+        log("Starting game setup");
         this.gamedatas = gamedatas;
-        console.log('gamedatas', gamedatas);
+        log('gamedatas', gamedatas);
         this.createPlayerPanels(gamedatas);
         this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords, gamedatas.pickLords);
         this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations, gamedatas.pickLocations);
@@ -927,7 +928,7 @@ var Conspiracy = /** @class */ (function () {
         }
         this.addHelp();
         this.setupNotifications();
-        console.log("Ending game setup");
+        log("Ending game setup");
     };
     ///////////////////////////////////////////////////
     //// Game & client states
@@ -936,7 +937,7 @@ var Conspiracy = /** @class */ (function () {
     //
     Conspiracy.prototype.onEnteringState = function (stateName, args) {
         var _this = this;
-        console.log('Entering state: ' + stateName, args.args);
+        log('Entering state: ' + stateName, args.args);
         switch (stateName) {
             case 'lordStackSelection':
                 this.onEnteringLordStackSelection(args.args);
@@ -1004,7 +1005,7 @@ var Conspiracy = /** @class */ (function () {
     //                 You can use this method to perform some user interface changes at this moment.
     //
     Conspiracy.prototype.onLeavingState = function (stateName) {
-        console.log('Leaving state: ' + stateName);
+        log('Leaving state: ' + stateName);
         switch (stateName) {
             case 'lordStackSelection':
                 this.onLeavingLordStackSelection();
@@ -1193,7 +1194,7 @@ var Conspiracy = /** @class */ (function () {
 
     */
     Conspiracy.prototype.setupNotifications = function () {
-        //console.log( 'notifications subscriptions setup' );
+        //log( 'notifications subscriptions setup' );
         var _this = this;
         var notifs = [
             ['lordPlayed', ANIMATION_MS],
@@ -1248,12 +1249,12 @@ var Conspiracy = /** @class */ (function () {
         this.lordsStacks.discardVisible();
     };
     Conspiracy.prototype.notif_discardLordPick = function (notif) {
-        // console.log('notif_discardLordPick', notif.args);
+        // log('notif_discardLordPick', notif.args);
         this.lordsStacks.discardPick(notif.args.discardedLords);
         this.lordsStacks.setPick(false, false);
     };
     Conspiracy.prototype.notif_discardLocationPick = function (notif) {
-        // console.log('notif_discardLordPick', notif.args);
+        // log('notif_discardLordPick', notif.args);
         this.locationsStacks.discardPick(notif.args.discardedLocations);
         this.locationsStacks.setPick(false, false);
     };
@@ -1264,26 +1265,26 @@ var Conspiracy = /** @class */ (function () {
         this.placePearlMasterToken(notif.args.playerId);
     };
     Conspiracy.prototype.notif_scoreLords = function (notif) {
-        console.log('notif_scoreLords', notif.args);
+        log('notif_scoreLords', notif.args);
         this.setScore(notif.args.playerId, 1, notif.args.points);
         this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightTopLords();
     };
     Conspiracy.prototype.notif_scoreLocations = function (notif) {
-        console.log('notif_scoreLocations', notif.args);
+        log('notif_scoreLocations', notif.args);
         this.setScore(notif.args.playerId, 2, notif.args.points);
         this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightLocations();
     };
     Conspiracy.prototype.notif_scoreCoalition = function (notif) {
-        console.log('notif_scoreCoalition', notif.args);
+        log('notif_scoreCoalition', notif.args);
         this.setScore(notif.args.playerId, 3, notif.args.points);
         this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightCoalition(notif.args.coalition);
     };
     Conspiracy.prototype.notif_scorePearlMaster = function (notif) {
         var _this = this;
-        console.log('notif_scorePearlMaster', notif.args);
+        log('notif_scorePearlMaster', notif.args);
         Object.keys(this.gamedatas.players).forEach(function (playerId) {
             var isPearlMaster = notif.args.playerId == Number(playerId);
             _this.setScore(playerId, 4, isPearlMaster ? 5 : 0);
@@ -1294,7 +1295,7 @@ var Conspiracy = /** @class */ (function () {
         document.getElementById('pearlMasterToken').classList.add('highlight');
     };
     Conspiracy.prototype.notif_scoreTotal = function (notif) {
-        console.log('notif_scoreTotal', notif.args);
+        log('notif_scoreTotal', notif.args);
         this.setScore(notif.args.playerId, 5, notif.args.points);
     };
     /* This enable to inject translatable styled things to logs or action bar */

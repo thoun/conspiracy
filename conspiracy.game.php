@@ -320,7 +320,7 @@ class Conspiracy extends Table
 
     function chooseLordDeckStack(int $number) {
         self::checkAction('chooseDeckStack'); 
-        self::debug('[GBA] chooseLordDeckStack');
+        // self::debug('[GBA] chooseLordDeckStack');
 
         $count = $this->lords->countCardInLocation('deck');
         if ($number > $count) {
@@ -343,7 +343,7 @@ class Conspiracy extends Table
 
     function chooseVisibleStack(int $guild) {
         self::checkAction('chooseVisibleStack'); 
-        self::debug('[GBA] chooseLordVisibleStack');
+        // self::debug('[GBA] chooseLordVisibleStack');
 
         $number = $this->lords->countCardInLocation('table', $guild);
 
@@ -362,7 +362,7 @@ class Conspiracy extends Table
     }
 
     function pickLord(int $id) {
-        self::debug('[GBA] pickLord');
+        // self::debug('[GBA] pickLord');
 
         $lord = $this->getLordFromDb($this->lords->getCard($id));
         if ($lord->location !== 'lord_selection') {
@@ -406,7 +406,7 @@ class Conspiracy extends Table
 
     function chooseLocationDeckStack(int $number) {
         self::checkAction('chooseDeckStack'); 
-        self::debug('[GBA] chooseLocationDeckStack');
+        // self::debug('[GBA] chooseLocationDeckStack');
 
         $count = $this->locations->countCardInLocation('deck');
         if ($number > $count || $count == 0) {
@@ -454,7 +454,7 @@ class Conspiracy extends Table
     }
 
     function chooseVisibleLocation(int $id) {        
-        self::debug('[GBA] chooseVisibleLocation');
+        // self::debug('[GBA] chooseVisibleLocation');
         
         $this->locations->moveCard($id, 'location_pick');
 
@@ -556,8 +556,6 @@ class Conspiracy extends Table
                 $guild = $location->passivePowerGuild;
                 $points += count(array_values(array_filter($lords, function($lord) use ($guild) { return $lord->guild == $guild; })));
             }
-
-            self::debug('location points after '.$location->type.' : ' . $points . '.');
         }
 
         return $points;
@@ -692,7 +690,6 @@ class Conspiracy extends Table
             $remainingLords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
         }
 
-        self::debug('[GBA] points '.$topLordPoints. ' '.$lord->points);
         $points = 0;
         if ($lord->points > $topLordPoints) {
             $points = $lord->points - $topLordPoints;

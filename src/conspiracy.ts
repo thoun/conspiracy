@@ -17,6 +17,10 @@ GUILD_COLOR[3] = '#097138';
 GUILD_COLOR[4] = '#011d4d';
 GUILD_COLOR[5] = '#522886';
 
+
+const isDebug = window.location.host == 'studio.boardgamearena.com';
+const log = isDebug ? console.log.bind(window.console) : function () { };
+
 class Conspiracy implements ConspiracyGame {
     private gamedatas: ConspiracyGamedatas;
     private lordsStacks: LordsStacks;
@@ -45,11 +49,11 @@ class Conspiracy implements ConspiracyGame {
 
     public setup(gamedatas: ConspiracyGamedatas) {
         
-        console.log( "Starting game setup" );
+        log( "Starting game setup" );
         
         this.gamedatas = gamedatas;
 
-        console.log('gamedatas', gamedatas);
+        log('gamedatas', gamedatas);
 
         this.createPlayerPanels(gamedatas);
 
@@ -66,7 +70,7 @@ class Conspiracy implements ConspiracyGame {
 
         this.setupNotifications();
 
-        console.log( "Ending game setup" );
+        log( "Ending game setup" );
     }
 
     ///////////////////////////////////////////////////
@@ -76,7 +80,7 @@ class Conspiracy implements ConspiracyGame {
     //                  You can use this method to perform some user interface changes at this moment.
     //
     public onEnteringState(stateName: string, args: any) {
-        console.log( 'Entering state: '+stateName , args.args );
+        log( 'Entering state: '+stateName , args.args );
 
         switch (stateName) {
             case 'lordStackSelection':
@@ -168,7 +172,7 @@ class Conspiracy implements ConspiracyGame {
     //                 You can use this method to perform some user interface changes at this moment.
     //
     public onLeavingState(stateName: string) {
-        console.log( 'Leaving state: '+stateName );
+        log( 'Leaving state: '+stateName );
 
         switch (stateName) {
             case 'lordStackSelection':
@@ -415,7 +419,7 @@ class Conspiracy implements ConspiracyGame {
 
     */
     setupNotifications() {
-        //console.log( 'notifications subscriptions setup' );
+        //log( 'notifications subscriptions setup' );
 
         const notifs = [
             ['lordPlayed', ANIMATION_MS],
@@ -481,13 +485,13 @@ class Conspiracy implements ConspiracyGame {
     }
 
     notif_discardLordPick(notif: Notif<NotifDiscardLordPickArgs>) {
-        // console.log('notif_discardLordPick', notif.args);
+        // log('notif_discardLordPick', notif.args);
         this.lordsStacks.discardPick(notif.args.discardedLords);
         this.lordsStacks.setPick(false, false);
     }
     
     notif_discardLocationPick(notif: Notif<NotifDiscardLocationPickArgs>) {
-        // console.log('notif_discardLordPick', notif.args);
+        // log('notif_discardLordPick', notif.args);
         this.locationsStacks.discardPick(notif.args.discardedLocations);
         this.locationsStacks.setPick(false, false);
     }
@@ -501,28 +505,28 @@ class Conspiracy implements ConspiracyGame {
     }
 
     notif_scoreLords(notif: Notif<NotifScorePointArgs>) {
-        console.log('notif_scoreLords', notif.args);
+        log('notif_scoreLords', notif.args);
         this.setScore(notif.args.playerId, 1, notif.args.points);
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightTopLords();
     }
 
     notif_scoreLocations(notif: Notif<NotifScorePointArgs>) {
-        console.log('notif_scoreLocations', notif.args);
+        log('notif_scoreLocations', notif.args);
         this.setScore(notif.args.playerId, 2, notif.args.points);
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightLocations();
     }
 
     notif_scoreCoalition(notif: Notif<NotifScoreCoalitionArgs>) {
-        console.log('notif_scoreCoalition', notif.args);
+        log('notif_scoreCoalition', notif.args);
         this.setScore(notif.args.playerId, 3, notif.args.points);
         (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightCoalition(notif.args.coalition);
     }
 
     notif_scorePearlMaster(notif: Notif<NotifScorePearlMasterArgs>) {
-        console.log('notif_scorePearlMaster', notif.args);
+        log('notif_scorePearlMaster', notif.args);
         Object.keys(this.gamedatas.players).forEach(playerId => {
             const isPearlMaster = notif.args.playerId == Number(playerId);
             this.setScore(playerId, 4, isPearlMaster ? 5 : 0);
@@ -535,7 +539,7 @@ class Conspiracy implements ConspiracyGame {
     }
 
     notif_scoreTotal(notif: Notif<NotifScorePointArgs>) {
-        console.log('notif_scoreTotal', notif.args);
+        log('notif_scoreTotal', notif.args);
         this.setScore(notif.args.playerId, 5, notif.args.points);
     }
 
