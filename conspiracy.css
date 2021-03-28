@@ -23,6 +23,12 @@
 .stacks .hidden-pile .button.eye {
   background: url("img/eye-shadow.png") center no-repeat;
 }
+.stacks .hidden-pile .button.left-radius {
+  border-radius: 10px 0 0 10px;
+}
+.stacks .hidden-pile .button.right-radius {
+  border-radius: 0 10px 10px 0;
+}
 .stacks .hidden-pile.selectable .button {
   display: flex;
   cursor: pointer;

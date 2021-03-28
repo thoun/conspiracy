@@ -25,6 +25,15 @@
             }
         }
 
+        .button {
+            &.left-radius {
+                border-radius: 10px 0 0 10px;
+            }
+            &.right-radius {
+                border-radius: 0 10px 10px 0;
+            }
+        }
+
         &.selectable .button {
             display: flex;
             cursor: pointer;

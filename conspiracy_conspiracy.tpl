@@ -20,9 +20,9 @@
 <div id="stacks">
     <div id="lord-stacks" class="stacks whiteblock">
         <div id="lord-hidden-pile" class="hidden-pile lord-hidden-pile-tooltip">
-            <div class="button lord-hidden-pile-tooltip" data-number="1">1</div>
-            <div class="button lord-hidden-pile-tooltip" data-number="2">2</div>
-            <div class="button lord-hidden-pile-tooltip" data-number="3">3</div>
+            <div id="lord-hidden-pile1" class="button left-radius lord-hidden-pile-tooltip" data-number="1">1</div>
+            <div id="lord-hidden-pile2" class="button lord-hidden-pile-tooltip" data-number="2">2</div>
+            <div id="lord-hidden-pile3" class="button right-radius lord-hidden-pile-tooltip" data-number="3">3</div>
         </div>
         <div id="lord-visible-stocks">
             <div id="lord-visible-stock1"></div>
@@ -38,9 +38,9 @@
 
     <div id="location-stacks" class="stacks whiteblock">
         <div id="location-hidden-pile" class="hidden-pile location-hidden-pile-tooltip">
-            <div class="button location-hidden-pile-tooltip" data-number="1">1</div>
-            <div class="button location-hidden-pile-tooltip" data-number="2">2</div>
-            <div class="button location-hidden-pile-tooltip" data-number="3">3</div>
+            <div id="location-hidden-pile1" class="button left-radius location-hidden-pile-tooltip" data-number="1">1</div>
+            <div id="location-hidden-pile2" class="button location-hidden-pile-tooltip" data-number="2">2</div>
+            <div id="location-hidden-pile3" class="button right-radius location-hidden-pile-tooltip" data-number="3">3</div>
         </div>
         <div id="location-visible-stock"></div>
     </div>

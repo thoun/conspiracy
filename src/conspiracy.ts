@@ -144,10 +144,10 @@ class Conspiracy implements ConspiracyGame {
 
             dojo.place(`<tr id="score${player.id}">
                 <td class="player-name" style="color: #${player.color}">${player.name}</td>
-                <td class="score-number lords-score">${detailedScore?.lords !== undefined ? detailedScore.lords : ''}</td>
-                <td class="score-number locations-score">${detailedScore?.locations !== undefined ? detailedScore.locations : ''}</td>
-                <td class="score-number coalition-score">${detailedScore?.coalition !== undefined ? detailedScore.coalition : ''}</td>
-                <td class="score-number masterPearl-score">${detailedScore?.pearlMaster !== undefined ? detailedScore.pearlMaster : ''}</td>
+                <td id="lords-score${player.id}" class="score-number lords-score">${detailedScore?.lords !== undefined ? detailedScore.lords : ''}</td>
+                <td id="locations-score${player.id}" class="score-number locations-score">${detailedScore?.locations !== undefined ? detailedScore.locations : ''}</td>
+                <td id="coalition-score${player.id}" class="score-number coalition-score">${detailedScore?.coalition !== undefined ? detailedScore.coalition : ''}</td>
+                <td id="masterPearl-score${player.id}" class="score-number masterPearl-score">${detailedScore?.pearlMaster !== undefined ? detailedScore.pearlMaster : ''}</td>
                 <td class="score-number total">${detailedScore?.total !== undefined ? detailedScore.total : ''}</td>
             </tr>`, 'score-table-body');
         });
@@ -244,11 +244,11 @@ class Conspiracy implements ConspiracyGame {
             // Lord & pearl counters
 
             dojo.place(`<div class="counters">
-                <div class="lord-counter">
+                <div id="lord-counter-wrapper-${player.id}" class="lord-counter">
                     <div class="token lord"></div> 
                     <span id="lord-counter-${player.id}"></span>&nbsp;/&nbsp;15
                 </div>
-                <div class="pearl-counter">
+                <div id="pearl-counter-wrapper-${player.id}" class="pearl-counter">
                     <div class="token pearl"></div> 
                     <span id="pearl-counter-${player.id}"></span>
                 </div>
