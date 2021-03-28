@@ -803,7 +803,7 @@ var PlayerTable = /** @class */ (function () {
         var _this = this;
         this.game = game;
         this.spotsStock = [];
-        this.swapSpots = [];
+        this.swapSpots = null;
         this.playerId = Number(player.id);
         dojo.place("<div class=\"player-table-wrapper\">\n            <div class=\"player-table-mat mat" + player.mat + "\">\n                <div id=\"player-table-" + this.playerId + "\" class=\"player-table\">\n                    <div class=\"player-name mat" + player.mat + "\" style=\"color: #" + player.color + ";\">\n                        " + player.name + "\n                    </div>\n                </div>\n            </div>\n        </div>", 'players-tables');
         SPOTS_NUMBERS.forEach(function (spotNumber) {
@@ -835,6 +835,7 @@ var PlayerTable = /** @class */ (function () {
     };
     PlayerTable.prototype.setSelectableForSwap = function (selectable) {
         var _this = this;
+        this.swapSpots = selectable ? [] : null;
         SPOTS_NUMBERS.forEach(function (spotNumber) { return _this.spotsStock[spotNumber].setSelectableForSwap(selectable); });
     };
     PlayerTable.prototype.removeSelectedSpot = function (spot) {
@@ -901,7 +902,6 @@ var Conspiracy = /** @class */ (function () {
         this.playersTables = [];
         this.lordCounters = [];
         this.pearlCounters = [];
-        this.swapSpots = [];
     }
     /*
         setup:
@@ -971,6 +971,7 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.onEnteringLordSwap = function () {
         if (this.isCurrentPlayerActive()) {
+            this.swapSpots = [];
             this.playersTables[this.player_id].setSelectableForSwap(true);
         }
     };
@@ -1034,6 +1035,7 @@ var Conspiracy = /** @class */ (function () {
         if (this.isCurrentPlayerActive()) {
             this.playersTables[this.player_id].setSelectableForSwap(false);
         }
+        this.swapSpots = null;
     };
     Conspiracy.prototype.onLeavingLocationStackSelection = function () {
         this.locationsStacks.setSelectable(false);

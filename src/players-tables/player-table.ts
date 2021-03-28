@@ -4,7 +4,7 @@ class PlayerTable {
     private playerId: number;
     private spotsStock: PlayerTableSpotStock[] = [];
 
-    private swapSpots: number[] = [];
+    private swapSpots: number[] = null;
 
     constructor(
         private game: ConspiracyGame, 
@@ -57,6 +57,7 @@ class PlayerTable {
     }
 
     public setSelectableForSwap(selectable: boolean) {
+        this.swapSpots = selectable ? [] : null;
         SPOTS_NUMBERS.forEach(spotNumber => this.spotsStock[spotNumber].setSelectableForSwap(selectable));
     }
 

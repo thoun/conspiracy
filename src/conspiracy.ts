@@ -28,7 +28,7 @@ class Conspiracy implements ConspiracyGame {
     private playersTables: PlayerTable[] = [];
     private lordCounters: Counter[] = [];
     private pearlCounters: Counter[] = [];
-    private swapSpots: number[] = [];
+    private swapSpots: number[];
     private helpDialog: any;
 
     constructor() {
@@ -118,8 +118,9 @@ class Conspiracy implements ConspiracyGame {
         this.lordsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.lords);
     }
 
-    onEnteringLordSwap() {        
+    onEnteringLordSwap() {    
         if ((this as any).isCurrentPlayerActive()) {
+            this.swapSpots = [];
             this.playersTables[(this as any).player_id].setSelectableForSwap(true);
         }
     }
@@ -206,6 +207,7 @@ class Conspiracy implements ConspiracyGame {
         if ((this as any).isCurrentPlayerActive()) {
             this.playersTables[(this as any).player_id].setSelectableForSwap(false);
         }
+        this.swapSpots = null;
     }
 
     onLeavingLocationStackSelection() {
