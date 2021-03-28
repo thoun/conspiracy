@@ -613,11 +613,11 @@ class Conspiracy extends Table
     function getGuildName(int $guild) {
         $guildName = null;
         switch ($guild) {
-            case 1: $guildName = clienttranslate('Farmer'); break;
-            case 2: $guildName = clienttranslate('Military'); break;
-            case 3: $guildName = clienttranslate('Merchant'); break;
-            case 4: $guildName = clienttranslate('Politician'); break;
-            case 5: $guildName = clienttranslate('Mage'); break;
+            case 1: $guildName = _('Farmer'); break;
+            case 2: $guildName = _('Military'); break;
+            case 3: $guildName = _('Merchant'); break;
+            case 4: $guildName = _('Politician'); break;
+            case 5: $guildName = _('Mage'); break;
         }
         return $guildName;
     }
