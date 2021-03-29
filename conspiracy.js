@@ -1,13 +1,16 @@
-function slideToObjectAndAttach(game, object, destinationId) {
+function slideToObjectAndAttach(game, object, destinationId, posX, posY) {
     var destination = document.getElementById(destinationId);
     if (destination.contains(object)) {
         return;
     }
-    var animation = game.slideToObject(object, destinationId);
+    object.style.zIndex = '10';
+    var animation = (posX || posY) ?
+        game.slideToObjectPos(object, destinationId, posX, posY) :
+        game.slideToObject(object, destinationId);
     dojo.connect(animation, 'onEnd', dojo.hitch(this, function () {
         object.style.top = 'unset';
         object.style.left = 'unset';
-        object.style.position = 'unset';
+        object.style.position = 'relative';
         object.style.zIndex = 'unset';
         destination.appendChild(object);
     }));
