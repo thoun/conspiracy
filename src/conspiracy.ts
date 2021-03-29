@@ -84,6 +84,7 @@ class Conspiracy implements ConspiracyGame {
 
         switch (stateName) {
             case 'lordStackSelection':
+                this.setGamestateDescription(args.args, 'limitToHidden');
                 this.onEnteringLordStackSelection(args.args);
                 break;
             case 'lordSelection':
@@ -94,6 +95,7 @@ class Conspiracy implements ConspiracyGame {
                 break;
 
             case 'locationStackSelection':
+                this.setGamestateDescription(args.args, 'allHidden');
                 this.onEnteringLocationStackSelection(args.args);
                 break;
             case 'locationSelection':
@@ -105,6 +107,12 @@ class Conspiracy implements ConspiracyGame {
                 this.onEnteringShowScore();
                 break;
         }
+    }
+    private setGamestateDescription(args:  EnteringLocationStackSelectionArgs | EnteringLocationSelectionArgs, property: string) {
+        const originalState = this.gamedatas.gamestates[this.gamedatas.gamestate.id];
+        this.gamedatas.gamestate.description = `${originalState['description' + (args[property] ? property : '')]}`; 
+        this.gamedatas.gamestate.descriptionmyturn = `${originalState['descriptionmyturn' + (args[property] ? property : '')]}`; 
+        (this as any).updatePageTitle();        
     }
 
     onEnteringLordStackSelection(args: EnteringLordStackSelectionArgs) {

@@ -943,6 +943,7 @@ var Conspiracy = /** @class */ (function () {
         log('Entering state: ' + stateName, args.args);
         switch (stateName) {
             case 'lordStackSelection':
+                this.setGamestateDescription(args.args, 'limitToHidden');
                 this.onEnteringLordStackSelection(args.args);
                 break;
             case 'lordSelection':
@@ -952,6 +953,7 @@ var Conspiracy = /** @class */ (function () {
                 this.onEnteringLordSwap();
                 break;
             case 'locationStackSelection':
+                this.setGamestateDescription(args.args, 'allHidden');
                 this.onEnteringLocationStackSelection(args.args);
                 break;
             case 'locationSelection':
@@ -962,6 +964,12 @@ var Conspiracy = /** @class */ (function () {
                 this.onEnteringShowScore();
                 break;
         }
+    };
+    Conspiracy.prototype.setGamestateDescription = function (args, property) {
+        var originalState = this.gamedatas.gamestates[this.gamedatas.gamestate.id];
+        this.gamedatas.gamestate.description = "" + originalState['description' + (args[property] ? property : '')];
+        this.gamedatas.gamestate.descriptionmyturn = "" + originalState['descriptionmyturn' + (args[property] ? property : '')];
+        this.updatePageTitle();
     };
     Conspiracy.prototype.onEnteringLordStackSelection = function (args) {
         this.lordsStacks.setMax(args.max);
