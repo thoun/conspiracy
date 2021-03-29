@@ -84,7 +84,8 @@ class Conspiracy implements ConspiracyGame {
 
         switch (stateName) {
             case 'lordStackSelection':
-                this.setGamestateDescription(args.args, 'limitToHidden');
+                const limitToHidden = (args.args as EnteringLordStackSelectionArgs).limitToHidden;
+                this.setGamestateDescription(limitToHidden ? `limitToHidden${limitToHidden}` : '');
                 this.onEnteringLordStackSelection(args.args);
                 break;
             case 'lordSelection':
@@ -95,7 +96,8 @@ class Conspiracy implements ConspiracyGame {
                 break;
 
             case 'locationStackSelection':
-                this.setGamestateDescription(args.args, 'allHidden');
+                const allHidden = (args.args as EnteringLocationStackSelectionArgs).allHidden;
+                this.setGamestateDescription(allHidden ? 'allHidden' : '');
                 this.onEnteringLocationStackSelection(args.args);
                 break;
             case 'locationSelection':
@@ -108,10 +110,10 @@ class Conspiracy implements ConspiracyGame {
                 break;
         }
     }
-    private setGamestateDescription(args:  EnteringLocationStackSelectionArgs | EnteringLocationSelectionArgs, property: string) {
+    private setGamestateDescription(property: string = '') {
         const originalState = this.gamedatas.gamestates[this.gamedatas.gamestate.id];
-        this.gamedatas.gamestate.description = `${originalState['description' + (args[property] ? property : '')]}`; 
-        this.gamedatas.gamestate.descriptionmyturn = `${originalState['descriptionmyturn' + (args[property] ? property : '')]}`; 
+        this.gamedatas.gamestate.description = `${originalState['description' + property]}`; 
+        this.gamedatas.gamestate.descriptionmyturn = `${originalState['descriptionmyturn' + property]}`; 
         (this as any).updatePageTitle();        
     }
 

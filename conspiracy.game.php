@@ -133,6 +133,10 @@ class Conspiracy extends Table
         
         // show the first location
         $this->locations->pickCardForLocation('deck', 'table');
+        //$testedCard = $this->getLocationsFromDb($this->locations->getCardsOfType(9))[0];
+        //$this->locations->moveCard($testedCard->id, 'table');
+        //$testedCard = $this->getLocationsFromDb($this->locations->getCardsOfType(10))[0];
+        //$this->locations->moveCard($testedCard->id, 'table');
         //$testedCard = $this->getLocationsFromDb($this->locations->getCardsOfType(14))[0];
         //$this->locations->moveCard($testedCard->id, 'table');
 

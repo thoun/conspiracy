@@ -946,7 +946,8 @@ var Conspiracy = /** @class */ (function () {
         log('Entering state: ' + stateName, args.args);
         switch (stateName) {
             case 'lordStackSelection':
-                this.setGamestateDescription(args.args, 'limitToHidden');
+                var limitToHidden = args.args.limitToHidden;
+                this.setGamestateDescription(limitToHidden ? "limitToHidden" + limitToHidden : '');
                 this.onEnteringLordStackSelection(args.args);
                 break;
             case 'lordSelection':
@@ -956,7 +957,8 @@ var Conspiracy = /** @class */ (function () {
                 this.onEnteringLordSwap();
                 break;
             case 'locationStackSelection':
-                this.setGamestateDescription(args.args, 'allHidden');
+                var allHidden = args.args.allHidden;
+                this.setGamestateDescription(allHidden ? 'allHidden' : '');
                 this.onEnteringLocationStackSelection(args.args);
                 break;
             case 'locationSelection':
@@ -968,10 +970,11 @@ var Conspiracy = /** @class */ (function () {
                 break;
         }
     };
-    Conspiracy.prototype.setGamestateDescription = function (args, property) {
+    Conspiracy.prototype.setGamestateDescription = function (property) {
+        if (property === void 0) { property = ''; }
         var originalState = this.gamedatas.gamestates[this.gamedatas.gamestate.id];
-        this.gamedatas.gamestate.description = "" + originalState['description' + (args[property] ? property : '')];
-        this.gamedatas.gamestate.descriptionmyturn = "" + originalState['descriptionmyturn' + (args[property] ? property : '')];
+        this.gamedatas.gamestate.description = "" + originalState['description' + property];
+        this.gamedatas.gamestate.descriptionmyturn = "" + originalState['descriptionmyturn' + property];
         this.updatePageTitle();
     };
     Conspiracy.prototype.onEnteringLordStackSelection = function (args) {
