@@ -422,7 +422,10 @@ var AbstractStacks = /** @class */ (function () {
     };
     AbstractStacks.prototype.setPick = function (showPick, pickSelectable, collection) {
         var _this = this;
-        collection === null || collection === void 0 ? void 0 : collection.filter(function (item) { return !_this.pickStock.items.some(function (i) { return i.id === "" + item.id; }); }).forEach(function (item) { return _this.pickStock.removeFromStockById("" + item.id); });
+        if (collection) {
+            this.pickStock.items.filter(function (item) { return !collection.some(function (i) { return item.id === "" + i.id; }); }).forEach(function (item) { return _this.pickStock.removeFromStockById("" + item.id); });
+            setTimeout(function () { return _this.pickStock.updateDisplay(); }, 100);
+        }
         this.pickDiv.style.display = showPick ? 'block' : 'none';
         var action = pickSelectable ? 'add' : 'remove';
         this.pickDiv.classList[action]('selectable');

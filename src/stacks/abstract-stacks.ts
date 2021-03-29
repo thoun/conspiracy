@@ -56,9 +56,12 @@ abstract class AbstractStacks<T extends Card> {
     }
 
     public setPick(showPick: boolean, pickSelectable: boolean, collection?: T[]) {
-        collection?.filter(item => !this.pickStock.items.some(i => i.id === `${item.id}`)).forEach(
-            item => this.pickStock.removeFromStockById(`${item.id}`)
-        );
+        if (collection) {
+            this.pickStock.items.filter(item => !collection.some(i => item.id === `${i.id}`)).forEach(
+                item => this.pickStock.removeFromStockById(`${item.id}`)
+            );
+            setTimeout(() => this.pickStock.updateDisplay(), 100);
+        }
 
         this.pickDiv.style.display = showPick ? 'block' : 'none';
         const action = pickSelectable ? 'add' : 'remove';

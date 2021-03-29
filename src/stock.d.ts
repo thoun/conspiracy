@@ -20,7 +20,7 @@ interface Stock {
     setSelectionMode: (selectionMode: number) => void;            
     centerItems: boolean;
     image_items_per_row: number;
-    updateDisplay: (from: string) => void;
+    updateDisplay: (from?: string) => void;
     setSelectionAppearance: (appearance: string) => void;            
     onItemCreate: ($itemDiv: any, itemType, itemDivId: string) => void; 
     addToStock: (cardUniqueId: number) => void;
