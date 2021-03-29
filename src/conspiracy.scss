@@ -5,6 +5,7 @@
 @import 'tokens';
 @import 'score';
 @import 'help';
+@import 'popin-playermat';
 
 html {
     background: url('img/background.jpg') #0D111A;
@@ -27,6 +28,19 @@ html {
 .player_board_content {    
   font-family: 'MoolBoran';
   font-size: 120%;
+}
+
+.player-board .show-playermat-button {
+    position: absolute;
+    top: 0;
+    right: 36px;
+    height: 40px;
+    width: 25px;
+    cursor: pointer;
+
+    &:hover {
+        color: grey;
+    }
 }
 
 .pearlMasterWrapper {

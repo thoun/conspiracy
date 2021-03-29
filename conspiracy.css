@@ -106,11 +106,15 @@
   justify-content: space-evenly;
   flex-wrap: wrap;
 }
-#players-tables .player-table-wrapper.scaled-down {
+
+.player-table-wrapper.scaled-down {
   animation-duration: 1s;
   animation: scale-down-wrapper 1s 1 forwards;
 }
-#players-tables .player-table-wrapper .player-name {
+.player-table-wrapper.scaled-down .player-table-mat {
+  animation: scale-down-mat 1s 1 forwards;
+}
+.player-table-wrapper .player-name {
   text-align: center;
   min-width: 150px;
   font-weight: bold;
@@ -126,7 +130,7 @@
   background-repeat: no-repeat;
   background-position: center -110px;
 }
-#players-tables .player-table-wrapper .player-table-mat {
+.player-table-wrapper .player-table-mat {
   display: flex;
   justify-content: center;
   background-repeat: no-repeat;
@@ -137,43 +141,40 @@
   min-width: 1096px;
   margin-top: 40px;
 }
-#players-tables .player-table-wrapper .player-table-mat .player-table {
+.player-table-wrapper .player-table-mat .player-table {
   position: relative;
   width: 1096.3px;
   height: 1105px;
   margin-top: 5px;
 }
-#players-tables .player-table-wrapper .player-table-mat.scaled-down {
-  animation: scale-down-mat 1s 1 forwards;
-}
-#players-tables .player-table-wrapper .mat1 {
+.player-table-wrapper .mat1 {
   background-image: url("img/playmat_1.jpg");
 }
-#players-tables .player-table-wrapper .mat2 {
+.player-table-wrapper .mat2 {
   background-image: url("img/playmat_2.jpg");
 }
-#players-tables .player-table-wrapper .mat3 {
+.player-table-wrapper .mat3 {
   background-image: url("img/playmat_3.jpg");
 }
-#players-tables .player-table-wrapper .mat4 {
+.player-table-wrapper .mat4 {
   background-image: url("img/playmat_4.jpg");
 }
-#players-tables .player-table-wrapper .mat5 {
+.player-table-wrapper .mat5 {
   background-image: url("img/playmat_5.jpg");
 }
-#players-tables .player-table-wrapper .mat6 {
+.player-table-wrapper .mat6 {
   background-image: url("img/playmat_6.jpg");
 }
-#players-tables .player-table-wrapper .mat7 {
+.player-table-wrapper .mat7 {
   background-image: url("img/playmat_7.jpg");
 }
-#players-tables .player-table-wrapper .mat8 {
+.player-table-wrapper .mat8 {
   background-image: url("img/playmat_8.jpg");
 }
-#players-tables .player-table-wrapper .mat9 {
+.player-table-wrapper .mat9 {
   background-image: url("img/playmat_9.jpg");
 }
-#players-tables .player-table-wrapper .mat10 {
+.player-table-wrapper .mat10 {
   background-image: url("img/playmat_10.jpg");
 }
 
@@ -496,6 +497,76 @@
   background-position: -2200% 0%;
 }
 
+#popin_showPlayermat_container {
+  display: none;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 1903px;
+  max-width: 100vw;
+  height: 2525.19px;
+  /*max-height: 100vh; */
+}
+
+#popin_showPlayermat_underlay {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 949;
+  opacity: 0.7;
+  background-color: white;
+}
+
+#popin_showPlayermat_wrapper {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100vw;
+  height: 100vh;
+  z-index: 950;
+  opacity: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  transform-origin: left top;
+}
+
+#popin_showPlayermat {
+  z-index: 2000;
+  margin-top: 30px;
+  max-width: 99%;
+  width: 1096.3px;
+  height: 1105px;
+}
+
+.conspiracy_popin {
+  width: 80%;
+  position: relative;
+}
+.conspiracy_popin .conspiracy_popin_closeicon {
+  background-color: #0094bb;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: absolute;
+  top: 40px;
+  right: -10px;
+  font-size: 100%;
+  color: white;
+  z-index: 1;
+}
+.conspiracy_popin .conspiracy_popin_closeicon:hover {
+  text-decoration: none;
+  color: #E2FFFF;
+  transform: scale(1.1);
+}
+
 html {
   background: url("img/background.jpg") #0D111A;
   background-size: contain;
@@ -517,6 +588,18 @@ html {
 .player_board_content {
   font-family: "MoolBoran";
   font-size: 120%;
+}
+
+.player-board .show-playermat-button {
+  position: absolute;
+  top: 0;
+  right: 36px;
+  height: 40px;
+  width: 25px;
+  cursor: pointer;
+}
+.player-board .show-playermat-button:hover {
+  color: grey;
 }
 
 .pearlMasterWrapper {
