@@ -1307,7 +1307,7 @@ var Conspiracy = /** @class */ (function () {
             if (log && args && !args.processed) {
                 // Representation of the color of a card
                 if (args.guild !== undefined && args.guild_name !== undefined && args.guild_name[0] !== '<') {
-                    args.guild_name = "<span class='log-guild-name' style='color: " + GUILD_COLOR[args.guild] + "'>" + args.guild_name + "</span>";
+                    args.guild_name = "<span class='log-guild-name' style='color: " + GUILD_COLOR[args.guild] + "'>" + _(args.guild_name) + "</span>";
                 }
             }
         }
