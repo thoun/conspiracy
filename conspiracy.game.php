@@ -737,7 +737,9 @@ class Conspiracy extends Table
             ]);
         }
 
-        $this->checkPearlMaster($player_id);
+        if ($lord->pearls > 0) {
+            $this->checkPearlMaster($player_id);
+        }
 
         self::incStat(1, 'played_lords', $player_id);
 
@@ -783,7 +785,11 @@ class Conspiracy extends Table
             'pearls' => $pearls,
         ]);
 
-        $this->checkPearlMaster($player_id);
+        
+
+        if ($location->pearls > 0) {
+            $this->checkPearlMaster($player_id);
+        }
 
         if ($location->activePower == AP_DISCARD_LORDS && $this->lords->countCardInLocation("table") > 0) {
             $this->lords->moveAllCardsInLocation('table', 'deck');
