@@ -32,7 +32,7 @@ class Conspiracy implements ConspiracyGame {
     private helpDialog: any;
     private playerInPopin: number | null = null;
 
-    constructor() {
+    constructor() {     
     }
     
     /*
@@ -49,6 +49,10 @@ class Conspiracy implements ConspiracyGame {
     */
 
     public setup(gamedatas: ConspiracyGamedatas) {
+        // ignore loading of some pictures
+        (this as any).dontPreloadImage('eye-shadow.png');
+        (this as any).dontPreloadImage('publisher.png');
+        [1,2,3,4,5,6,7,8,9,10].filter(i => !Object.values(gamedatas.players).some(player => Number((player as any).mat) === i)).forEach(i => (this as any).dontPreloadImage(`playmat_${i}.jpg`));
         
         log( "Starting game setup" );
         

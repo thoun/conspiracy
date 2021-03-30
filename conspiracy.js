@@ -918,6 +918,11 @@ var Conspiracy = /** @class */ (function () {
         "gamedatas" argument contains all datas retrieved by your "getAllDatas" PHP method.
     */
     Conspiracy.prototype.setup = function (gamedatas) {
+        var _this = this;
+        // ignore loading of some pictures
+        this.dontPreloadImage('eye-shadow.png');
+        this.dontPreloadImage('publisher.png');
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(function (i) { return !Object.values(gamedatas.players).some(function (player) { return Number(player.mat) === i; }); }).forEach(function (i) { return _this.dontPreloadImage("playmat_" + i + ".jpg"); });
         log("Starting game setup");
         this.gamedatas = gamedatas;
         log('gamedatas', gamedatas);
