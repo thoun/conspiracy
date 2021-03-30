@@ -13,6 +13,7 @@ class LordsStacks extends AbstractStacks<Lord> {
         this.pickStock.selectionClass = 'no-visible-selection';
         this.pickStock.create( this.game, this.pickDiv.children[0], LORD_WIDTH, LORD_HEIGHT );
         this.pickStock.centerItems = true;
+        this.pickStock.image_items_per_row = 16;
         this.pickStock.onItemCreate = dojo.hitch(this, 'setupNewLordCard'); 
         setupLordCards([this.pickStock]);
         this.setPickStockClick();

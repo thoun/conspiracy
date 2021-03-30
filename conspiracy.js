@@ -331,6 +331,7 @@ var LordStock = /** @class */ (function () {
         this.stock.create(this.lordsStacks.game, this.div, LORD_WIDTH, LORD_HEIGHT);
         this.stock.setSelectionMode(0);
         this.stock.onItemCreate = dojo.hitch(this, 'setupNewLordCard');
+        this.stock.image_items_per_row = 16;
         this.stock.updateDisplay = function (from) {
             updateDisplay.apply(_this.stock, [from]);
             _this.updateSize();
@@ -478,6 +479,7 @@ var LordsStacks = /** @class */ (function (_super) {
         _this.pickStock.selectionClass = 'no-visible-selection';
         _this.pickStock.create(_this.game, _this.pickDiv.children[0], LORD_WIDTH, LORD_HEIGHT);
         _this.pickStock.centerItems = true;
+        _this.pickStock.image_items_per_row = 16;
         _this.pickStock.onItemCreate = dojo.hitch(_this, 'setupNewLordCard');
         setupLordCards([_this.pickStock]);
         _this.setPickStockClick();
@@ -582,6 +584,7 @@ var LocationsStacks = /** @class */ (function (_super) {
         _this.visibleLocationsStock.create(_this.game, $('location-visible-stock'), LOCATION_WIDTH, LOCATION_HEIGHT);
         _this.visibleLocationsStock.setSelectionMode(0);
         _this.visibleLocationsStock.onItemCreate = dojo.hitch(_this, 'setupNewLocationCard');
+        _this.visibleLocationsStock.image_items_per_row = 13;
         dojo.connect(_this.visibleLocationsStock, 'onChangeSelection', _this, 'onVisibleLocationClick');
         _this.pickStock = new ebg.stock();
         _this.pickStock.setSelectionAppearance('class');
@@ -589,6 +592,7 @@ var LocationsStacks = /** @class */ (function (_super) {
         _this.pickStock.create(_this.game, _this.pickDiv.children[0], LOCATION_WIDTH, LOCATION_HEIGHT);
         _this.pickStock.centerItems = true;
         _this.pickStock.onItemCreate = dojo.hitch(_this, 'setupNewLocationCard');
+        _this.pickStock.image_items_per_row = 13;
         _this.setPickStockClick();
         setupLocationCards([_this.visibleLocationsStock, _this.pickStock]);
         visibleLocations.forEach(function (location) { return _this.visibleLocationsStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
@@ -685,6 +689,7 @@ var PlayerTableSpotStock = /** @class */ (function () {
         this.lordsStock.setSelectionMode(0);
         this.lordsStock.setSelectionAppearance('class');
         this.lordsStock.onItemCreate = dojo.hitch(this, 'setupNewLordCard');
+        this.lordsStock.image_items_per_row = 16;
         dojo.connect(this.lordsStock, 'onChangeSelection', this, 'onLordSelection');
         setupLordCards([this.lordsStock]);
         var lord = spot.lord;
@@ -695,6 +700,7 @@ var PlayerTableSpotStock = /** @class */ (function () {
         this.locationsStock.create(this.game, $("player" + this.playerId + "-spot" + spotNumber + "-location-stock"), LOCATION_WIDTH, LOCATION_HEIGHT);
         this.locationsStock.setSelectionMode(0);
         this.locationsStock.onItemCreate = dojo.hitch(this, 'setupNewLocationCard');
+        this.locationsStock.image_items_per_row = 13;
         setupLocationCards([this.locationsStock]);
         var location = spot.location;
         if (location) {
@@ -1003,6 +1009,7 @@ var Conspiracy = /** @class */ (function () {
         this.locationsStacks.setPick(true, this.isCurrentPlayerActive(), args.locations);
     };
     Conspiracy.prototype.onEnteringShowScore = function () {
+        this.closePopin();
         document.getElementById('stacks').style.display = 'none';
         document.getElementById('score').style.display = 'flex';
         Object.values(this.gamedatas.players).forEach(function (player) {
@@ -1090,6 +1097,9 @@ var Conspiracy = /** @class */ (function () {
         document.getElementById('playermat-container-modal').appendChild(document.getElementById("player-table-mat-" + playerId));
     };
     Conspiracy.prototype.closePopin = function () {
+        if (!this.playerInPopin) {
+            return;
+        }
         document.getElementById('popin_showPlayermat_container').style.display = 'none';
         document.getElementById("player-table-wrapper-" + this.playerInPopin).appendChild(document.getElementById("player-table-mat-" + this.playerInPopin));
         this.playerInPopin = null;

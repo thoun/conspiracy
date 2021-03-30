@@ -150,6 +150,7 @@ class LordStock {
         this.stock.create(this.lordsStacks.game, this.div, LORD_WIDTH, LORD_HEIGHT);
         this.stock.setSelectionMode(0);
         this.stock.onItemCreate = dojo.hitch(this, 'setupNewLordCard'); 
+        this.stock.image_items_per_row = 16;
         this.stock.updateDisplay = (from: string) => {
             updateDisplay.apply(this.stock, [from]);
             this.updateSize();

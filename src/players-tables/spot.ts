@@ -23,6 +23,7 @@ class PlayerTableSpotStock {
         this.lordsStock.setSelectionMode(0);
         this.lordsStock.setSelectionAppearance('class');
         this.lordsStock.onItemCreate = dojo.hitch(this, 'setupNewLordCard'); 
+        this.lordsStock.image_items_per_row = 16;
         dojo.connect(this.lordsStock, 'onChangeSelection', this, 'onLordSelection');
         setupLordCards([this.lordsStock]);
 
@@ -35,6 +36,7 @@ class PlayerTableSpotStock {
         this.locationsStock.create( this.game, $(`player${this.playerId}-spot${spotNumber}-location-stock`), LOCATION_WIDTH, LOCATION_HEIGHT );
         this.locationsStock.setSelectionMode(0);
         this.locationsStock.onItemCreate = dojo.hitch(this, 'setupNewLocationCard'); 
+        this.locationsStock.image_items_per_row = 13;
         setupLocationCards([this.locationsStock]);
 
         

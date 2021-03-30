@@ -152,6 +152,8 @@ class Conspiracy implements ConspiracyGame {
     }   
 
     onEnteringShowScore() {
+        this.closePopin();
+
         document.getElementById('stacks').style.display = 'none';
         document.getElementById('score').style.display = 'flex';
 
@@ -280,6 +282,10 @@ class Conspiracy implements ConspiracyGame {
     }
 
     private closePopin() {
+        if (!this.playerInPopin) {
+            return;
+        }
+        
         document.getElementById('popin_showPlayermat_container').style.display = 'none';
 
         document.getElementById(`player-table-wrapper-${this.playerInPopin}`).appendChild(document.getElementById(`player-table-mat-${this.playerInPopin}`));
