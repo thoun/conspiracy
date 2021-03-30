@@ -30,7 +30,7 @@ class Conspiracy implements ConspiracyGame {
     private pearlCounters: Counter[] = [];
     private swapSpots: number[];
     private helpDialog: any;
-    private playerInPopin: string | null = null;
+    private playerInPopin: number | null = null;
 
     constructor() {
     }
@@ -252,21 +252,22 @@ class Conspiracy implements ConspiracyGame {
             <div id="popin_showPlayermat_underlay" class="conspiracy_popin_underlay"></div>
                 <div id="popin_showPlayermat_wrapper" class="conspiracy_popin_wrapper">
                 <div id="popin_showPlayermat" class="conspiracy_popin">
-                    <h2 id="popin_showPlayermat_title" class="conspiracy_popin_title">Feuille de marque de Grinsegans</h2>
-                    <a id="popin_showPlayermat_close" class="conspiracy_popin_closeicon"><i class="fa fa-times fa-2x" aria-hidden="true"></i></a>
+                    <a id="popin_showPlayermat_close" class="closeicon"><i class="fa fa-times fa-2x" aria-hidden="true"></i></a>
+                    <a id="popin_showPlayermat_left" class="left arrow"></a>
+                    <a id="popin_showPlayermat_right" class="right arrow"></a>
                                 
-                    <div id="popin_showPlayermat_contents" class="conspiracy_popin_contents">
-                    
-                        <div id="playermat-container-modal" class="player-table-wrapper" style="touch-action: pan-y; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></div>            
+                    <div id="playermat-container-modal" class="player-table-wrapper" style="touch-action: pan-y; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
                     </div>
                 </div>
             </div>
         </div>`, $(document.body));
 
         dojo.connect($(`popin_showPlayermat_close`), 'onclick', this, () => this.closePopin());
+        dojo.connect($(`popin_showPlayermat_left`), 'onclick', this, () => this.changePopinPlayer(-1));
+        dojo.connect($(`popin_showPlayermat_right`), 'onclick', this, () => this.changePopinPlayer(1));
     }
 
-    private movePlayerTableToPopin(playerId: string) {
+    private movePlayerTableToPopin(playerId: number) {
         document.getElementById('playermat-container-modal').style.zoom = document.getElementById('page-content').style.zoom;
         this.playerInPopin = playerId;
         document.getElementById('popin_showPlayermat_container').style.display = 'block';
@@ -280,6 +281,15 @@ class Conspiracy implements ConspiracyGame {
         document.getElementById(`player-table-wrapper-${this.playerInPopin}`).appendChild(document.getElementById(`player-table-mat-${this.playerInPopin}`));
 
         this.playerInPopin = null;
+    }
+
+    private changePopinPlayer(delta: number) {
+        document.getElementById(`player-table-wrapper-${this.playerInPopin}`).appendChild(document.getElementById(`player-table-mat-${this.playerInPopin}`));
+        
+        const playerIds = this.gamedatas.playerorder.map(val => Number(val));
+        this.playerInPopin = playerIds[(playerIds.indexOf(this.playerInPopin) + delta) % playerIds.length];
+
+        document.getElementById('playermat-container-modal').appendChild(document.getElementById(`player-table-mat-${this.playerInPopin}`));
     }
 
     private createPlayerPanels(gamedatas: ConspiracyGamedatas) {
@@ -332,7 +342,7 @@ class Conspiracy implements ConspiracyGame {
                     <path fill="currentColor" d="M 1.6,144.19321 C 0.72,143.31321 0,141.90343 0,141.06039 0,140.21734 5.019,125.35234 11.15333,108.02704 L 22.30665,76.526514 14.626511,68.826524 C 8.70498,62.889705 6.45637,59.468243 4.80652,53.884537 0.057,37.810464 3.28288,23.775161 14.266011,12.727735 23.2699,3.6711383 31.24961,0.09115725 42.633001,0.00129225 c 15.633879,-0.123414 29.7242,8.60107205 36.66277,22.70098475 8.00349,16.263927 4.02641,36.419057 -9.54327,48.363567 l -6.09937,5.36888 10.8401,30.526466 c 5.96206,16.78955 10.84011,32.03102 10.84011,33.86992 0,1.8389 -0.94908,3.70766 -2.10905,4.15278 -1.15998,0.44513 -19.63998,0.80932 -41.06667,0.80932 -28.52259,0 -39.386191,-0.42858 -40.557621,-1.6 z M 58.000011,54.483815 c 3.66666,-1.775301 9.06666,-5.706124 11.99999,-8.735161 l 5.33334,-5.507342 -6.66667,-6.09345 C 59.791321,26.035633 53.218971,23.191944 43.2618,23.15582 33.50202,23.12041 24.44122,27.164681 16.83985,34.94919 c -4.926849,5.045548 -5.023849,5.323672 -2.956989,8.478106 3.741259,5.709878 15.032709,12.667218 24.11715,14.860013 4.67992,1.129637 13.130429,-0.477436 20,-3.803494 z m -22.33337,-2.130758 c -2.8907,-1.683676 -6.3333,-8.148479 -6.3333,-11.893186 0,-11.58942 14.57544,-17.629692 22.76923,-9.435897 8.41012,8.410121 2.7035,22.821681 -9,22.728685 -2.80641,-0.0223 -6.15258,-0.652121 -7.43593,-1.399602 z m 14.6667,-6.075289 c 3.72801,-4.100734 3.78941,-7.121364 0.23656,-11.638085 -2.025061,-2.574448 -3.9845,-3.513145 -7.33333,-3.513145 -10.93129,0 -13.70837,13.126529 -3.90323,18.44946 3.50764,1.904196 7.30574,0.765377 11,-3.29823 z m -11.36999,0.106494 c -3.74071,-2.620092 -4.07008,-7.297494 -0.44716,-6.350078 3.2022,0.837394 4.87543,-1.760912 2.76868,-4.29939 -1.34051,-1.615208 -1.02878,-1.94159 1.85447,-1.94159 4.67573,0 8.31873,5.36324 6.2582,9.213366 -1.21644,2.27295 -5.30653,5.453301 -7.0132,5.453301 -0.25171,0 -1.79115,-0.934022 -3.42099,-2.075605 z"></path>
                     </svg>
                 </div>`, `player_board_${player.id}`);
-                dojo.connect($(`show-playermat-${player.id}`), 'onclick', this, () => this.movePlayerTableToPopin(player.id));
+                dojo.connect($(`show-playermat-${player.id}`), 'onclick', this, () => this.movePlayerTableToPopin(Number(player.id)));
             /*}*/
         });
 
