@@ -214,9 +214,14 @@ class Conspiracy extends Table
         }
 
         $result['pearlMasterPlayer'] = intval(self::getGameStateValue('pearlMasterPlayer'));
+        $result['lastTurn'] = intval(self::getGameStateValue('pearlMasterPlayer'));
 
         $stateName = $this->gamestate->state()['name']; 
         $isEnd = $stateName === 'showScore' || $stateName === 'gameEnd';
+        if (!$isEnd) {
+            $result['endTurn'] = self::getGameStateValue('endTurn') > 0;
+            
+        }
 
         foreach ($result['players'] as $player_id => $playerDb) {
             $detailedScore = new stdClass();
@@ -653,7 +658,10 @@ class Conspiracy extends Table
     
     function argLordSelection() {
         $lords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
-        return [ 'lords' => $lords ];
+        return [
+            'lords' => $lords,
+            'multiple' => self::getGameStateValue('stackSelection') != 1,
+        ];
     }
     
     function argLocationStackSelection() {

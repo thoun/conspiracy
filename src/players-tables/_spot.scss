@@ -58,7 +58,7 @@
     .player-table-spot-location {
         position: absolute;
         top: $lord-height - $location-height;
-        left: $lord-width - $location-width;
+        left: -10px;
     }
 
     .player-table-spot-token {

@@ -62,6 +62,9 @@ class PlayerTable {
     }
 
     public removeSelectedSpot(spot: number) {
+        if (!this.swapSpots) {
+            return false;
+        }
         const index = this.swapSpots.indexOf(spot);
         if (index !== -1) {
             this.swapSpots.splice(index, 1);
@@ -70,6 +73,9 @@ class PlayerTable {
     }
 
     public addSelectedSpot(spot: number) {
+        if (!this.swapSpots) {
+            return false;
+        }
         if (!this.swapSpots.some(val => val === spot)) {
             this.swapSpots.push(spot);
             this.setCanSwap();

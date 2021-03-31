@@ -8,7 +8,7 @@ declare const g_gamethemeurl;
 declare const board: HTMLDivElement;
 
 const ANIMATION_MS = 500;
-const SCORE_MS = 1500;
+const SCORE_MS = 2500;
 
 const GUILD_COLOR = [];
 GUILD_COLOR[1] = '#c1950b';
@@ -53,7 +53,7 @@ class Conspiracy implements ConspiracyGame {
         (this as any).dontPreloadImage('eye-shadow.png');
         (this as any).dontPreloadImage('publisher.png');
         [1,2,3,4,5,6,7,8,9,10].filter(i => !Object.values(gamedatas.players).some(player => Number((player as any).mat) === i)).forEach(i => (this as any).dontPreloadImage(`playmat_${i}.jpg`));
-        
+
         log( "Starting game setup" );
         
         this.gamedatas = gamedatas;
@@ -66,6 +66,10 @@ class Conspiracy implements ConspiracyGame {
         this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations, gamedatas.pickLocations);
 
         this.createPlayerTables(gamedatas);
+
+        if (gamedatas.endTurn) {
+            this.notif_lastTurn();
+        }
 
         if (Number(gamedatas.gamestate.id) >= 80) { // score or end
             this.onEnteringShowScore();
@@ -94,6 +98,9 @@ class Conspiracy implements ConspiracyGame {
                 this.onEnteringLordStackSelection(args.args);
                 break;
             case 'lordSelection':
+                const multiple = (args.args as EnteringLordSelectionArgs).multiple;
+                const number = (args.args as EnteringLordSelectionArgs).lords?.length;
+                this.setGamestateDescription(multiple ? (number > 1 ? 'multiple' : 'last') : '');
                 this.onEnteringLordSelection(args.args);
                 break;
             case 'lordSwap':
@@ -153,6 +160,10 @@ class Conspiracy implements ConspiracyGame {
 
     onEnteringShowScore() {
         this.closePopin();
+        const lastTurnBar = document.getElementById('last-round');
+        if (lastTurnBar) {
+            lastTurnBar.style.display = 'none';
+        }
 
         document.getElementById('stacks').style.display = 'none';
         document.getElementById('score').style.display = 'flex';
@@ -448,7 +459,9 @@ class Conspiracy implements ConspiracyGame {
     }
 
     private setScore(playerId: number | string, column: number, score: number) { // column 1 for lord ... 5 for pearl master
-        (document.getElementById(`score${playerId}`).getElementsByTagName('td')[column] as HTMLTableDataCellElement).innerHTML = `${score}`;
+        const cell = (document.getElementById(`score${playerId}`).getElementsByTagName('td')[column] as HTMLTableDataCellElement);
+        cell.innerHTML = `${score}`;
+        cell.classList.add('highlight');
     }
 
     private addHelp() {
@@ -510,6 +523,7 @@ class Conspiracy implements ConspiracyGame {
             ['newPearlMaster', 1],
             ['discardLordPick', 1],
             ['discardLocationPick', 1],
+            ['lastTurn', 1],
             ['scoreLords', SCORE_MS],
             ['scoreLocations', SCORE_MS],
             ['scoreCoalition', SCORE_MS],
@@ -581,6 +595,12 @@ class Conspiracy implements ConspiracyGame {
 
     notif_newPearlMaster(notif: Notif<NotifNewPearlMasterArgs>) {
         this.placePearlMasterToken(notif.args.playerId);
+    }
+
+    notif_lastTurn() {
+        dojo.place(`<div id="last-round">
+            ${_("This is the last round of the game!")}
+        </div>`, 'page-title');
     }
 
     notif_scoreLords(notif: Notif<NotifScorePointArgs>) {

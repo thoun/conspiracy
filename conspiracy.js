@@ -851,6 +851,9 @@ var PlayerTable = /** @class */ (function () {
         SPOTS_NUMBERS.forEach(function (spotNumber) { return _this.spotsStock[spotNumber].setSelectableForSwap(selectable); });
     };
     PlayerTable.prototype.removeSelectedSpot = function (spot) {
+        if (!this.swapSpots) {
+            return false;
+        }
         var index = this.swapSpots.indexOf(spot);
         if (index !== -1) {
             this.swapSpots.splice(index, 1);
@@ -858,6 +861,9 @@ var PlayerTable = /** @class */ (function () {
         }
     };
     PlayerTable.prototype.addSelectedSpot = function (spot) {
+        if (!this.swapSpots) {
+            return false;
+        }
         if (!this.swapSpots.some(function (val) { return val === spot; })) {
             this.swapSpots.push(spot);
             this.setCanSwap();
@@ -895,7 +901,7 @@ var PlayerTable = /** @class */ (function () {
     return PlayerTable;
 }());
 var ANIMATION_MS = 500;
-var SCORE_MS = 1500;
+var SCORE_MS = 2500;
 var GUILD_COLOR = [];
 GUILD_COLOR[1] = '#c1950b';
 GUILD_COLOR[2] = '#770405';
@@ -936,6 +942,9 @@ var Conspiracy = /** @class */ (function () {
         this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords, gamedatas.pickLords);
         this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations, gamedatas.pickLocations);
         this.createPlayerTables(gamedatas);
+        if (gamedatas.endTurn) {
+            this.notif_lastTurn();
+        }
         if (Number(gamedatas.gamestate.id) >= 80) { // score or end
             this.onEnteringShowScore();
         }
@@ -950,6 +959,7 @@ var Conspiracy = /** @class */ (function () {
     //
     Conspiracy.prototype.onEnteringState = function (stateName, args) {
         var _this = this;
+        var _a;
         log('Entering state: ' + stateName, args.args);
         switch (stateName) {
             case 'lordStackSelection':
@@ -958,6 +968,9 @@ var Conspiracy = /** @class */ (function () {
                 this.onEnteringLordStackSelection(args.args);
                 break;
             case 'lordSelection':
+                var multiple = args.args.multiple;
+                var number = (_a = args.args.lords) === null || _a === void 0 ? void 0 : _a.length;
+                this.setGamestateDescription(multiple ? (number > 1 ? 'multiple' : 'last') : '');
                 this.onEnteringLordSelection(args.args);
                 break;
             case 'lordSwap':
@@ -1010,6 +1023,10 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.onEnteringShowScore = function () {
         this.closePopin();
+        var lastTurnBar = document.getElementById('last-round');
+        if (lastTurnBar) {
+            lastTurnBar.style.display = 'none';
+        }
         document.getElementById('stacks').style.display = 'none';
         document.getElementById('score').style.display = 'flex';
         Object.values(this.gamedatas.players).forEach(function (player) {
@@ -1219,7 +1236,9 @@ var Conspiracy = /** @class */ (function () {
         this.takeAction('dontSwap');
     };
     Conspiracy.prototype.setScore = function (playerId, column, score) {
-        document.getElementById("score" + playerId).getElementsByTagName('td')[column].innerHTML = "" + score;
+        var cell = document.getElementById("score" + playerId).getElementsByTagName('td')[column];
+        cell.innerHTML = "" + score;
+        cell.classList.add('highlight');
     };
     Conspiracy.prototype.addHelp = function () {
         var _this = this;
@@ -1266,6 +1285,7 @@ var Conspiracy = /** @class */ (function () {
             ['newPearlMaster', 1],
             ['discardLordPick', 1],
             ['discardLocationPick', 1],
+            ['lastTurn', 1],
             ['scoreLords', SCORE_MS],
             ['scoreLocations', SCORE_MS],
             ['scoreCoalition', SCORE_MS],
@@ -1323,6 +1343,9 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.notif_newPearlMaster = function (notif) {
         this.placePearlMasterToken(notif.args.playerId);
+    };
+    Conspiracy.prototype.notif_lastTurn = function () {
+        dojo.place("<div id=\"last-round\">\n            " + _("This is the last round of the game!") + "\n        </div>", 'page-title');
     };
     Conspiracy.prototype.notif_scoreLords = function (notif) {
         log('notif_scoreLords', notif.args);

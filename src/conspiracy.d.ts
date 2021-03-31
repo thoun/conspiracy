@@ -54,6 +54,7 @@ interface ConspiracyGamedatas {
     pickLocations: Location[];
     pearlMasterPlayer: number;
     playersTables: { [playerId: number]: PlayerTableSpot[] };
+    endTurn: boolean;
 }
 
 interface ConspiracyGame extends Game {
@@ -74,6 +75,7 @@ interface EnteringLordStackSelectionArgs extends EnteringStackSelectionArgs {
 
 interface EnteringLordSelectionArgs {
     lords: Lord[];
+    multiple: boolean;
 }
 
 interface EnteringLocationStackSelectionArgs extends EnteringStackSelectionArgs {

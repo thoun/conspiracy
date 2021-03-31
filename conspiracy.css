@@ -273,7 +273,7 @@
 .player-table-spot .player-table-spot-location {
   position: absolute;
   top: 83px;
-  left: 21.02px;
+  left: -10px;
 }
 .player-table-spot .player-table-spot-token {
   position: absolute;
@@ -305,6 +305,8 @@
 .token#pearlMasterToken {
   background-position: 100% 0%;
   border-radius: 50%;
+  width: 48px;
+  height: 48px;
 }
 .token.guild1 {
   background-position: 50% 100%;
@@ -596,6 +598,12 @@ html {
   background-repeat: no-repeat;
 }
 
+#last-round {
+  margin: 5px -5px -5px;
+  text-align: center;
+  background-color: #900;
+}
+
 #stacks, #score .score-number {
   font-family: "MoolBoran";
 }
@@ -636,11 +644,20 @@ html {
 }
 
 .highlight {
-  animation: highlight-animation 0.75s alternate 2;
+  animation: highlight-animation 1.25s alternate 2;
+}
+
+td.highlight {
+  animation: td-highlight-animation 1.25s alternate 2;
 }
 
 @keyframes highlight-animation {
   100% {
     box-shadow: 0 0 30px 15px white;
+  }
+}
+@keyframes td-highlight-animation {
+  100% {
+    background: white;
   }
 }
