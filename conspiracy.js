@@ -1342,7 +1342,10 @@ var Conspiracy = /** @class */ (function () {
         this.locationsStacks.discardVisible();
     };
     Conspiracy.prototype.notif_newPearlMaster = function (notif) {
+        var _a;
         this.placePearlMasterToken(notif.args.playerId);
+        this.scoreCtrl[notif.args.playerId].incValue(5);
+        (_a = this.scoreCtrl[notif.args.previousPlayerId]) === null || _a === void 0 ? void 0 : _a.incValue(-5);
     };
     Conspiracy.prototype.notif_lastTurn = function () {
         dojo.place("<div id=\"last-round\">\n            " + _("This is the last round of the game!") + "\n        </div>", 'page-title');

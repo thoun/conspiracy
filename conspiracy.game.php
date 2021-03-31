@@ -483,7 +483,8 @@ class Conspiracy extends Table
                 self::setGameStateValue('pearlMasterPlayer', $player_id);
                 self::notifyAllPlayers('newPearlMaster', clienttranslate('${player_name} becomes the new Pearl Master'), [
                     'playerId' => $player_id,
-                    'player_name' => self::getActivePlayerName()
+                    'player_name' => self::getActivePlayerName(),
+                    'previousPlayerId' => $pearlMasterPlayer,
                 ]);
             }
         }

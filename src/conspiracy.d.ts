@@ -125,6 +125,7 @@ interface NotifLocationPlayedArgs {
 
 interface NotifNewPearlMasterArgs {
     playerId: number;
+    previousPlayerId: number;
 }
 
 interface NotifScorePointArgs {

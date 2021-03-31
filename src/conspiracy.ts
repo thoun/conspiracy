@@ -595,6 +595,8 @@ class Conspiracy implements ConspiracyGame {
 
     notif_newPearlMaster(notif: Notif<NotifNewPearlMasterArgs>) {
         this.placePearlMasterToken(notif.args.playerId);
+        (this as any).scoreCtrl[notif.args.playerId].incValue(5);
+        (this as any).scoreCtrl[notif.args.previousPlayerId]?.incValue(-5);
     }
 
     notif_lastTurn() {
