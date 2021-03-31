@@ -541,7 +541,7 @@ class Conspiracy implements ConspiracyGame {
         const from = this.lordsStacks.getStockContaining(`${notif.args.lord.id}`);
         
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord, from);
-        (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
+        (this as any).scoreCtrl[notif.args.playerId].toValue(notif.args.newScore);
         this.lordCounters[notif.args.playerId].incValue(1);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         
@@ -553,6 +553,7 @@ class Conspiracy implements ConspiracyGame {
 
     notif_lordSwapped(notif: Notif<NotifLordSwappedArgs>) {
         this.playersTables[notif.args.playerId].lordSwapped(notif.args);
+        (this as any).scoreCtrl[notif.args.playerId].toValue(notif.args.newScore);
     }
 
     notif_extraLordRevealed(notif: Notif<NotifExtraLordRevealedArgs>) {
@@ -563,7 +564,7 @@ class Conspiracy implements ConspiracyGame {
         const from = this.locationsStacks.getStockContaining(`${notif.args.location.id}`);
 
         this.playersTables[notif.args.playerId].addLocation(notif.args.spot, notif.args.location, from);
-        (this as any).scoreCtrl[notif.args.playerId].incValue(notif.args.points);
+        (this as any).scoreCtrl[notif.args.playerId].toValue(notif.args.newScore);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
 
         if (notif.args.discardedLocations?.length) {

@@ -100,7 +100,7 @@ interface NotifLordPlayedArgs {
     spot: number;
     stackSelection: boolean;
     discardedLords: Lord[];
-    points: number;
+    newScore: number;
     pearls: number;
 }
 
@@ -108,6 +108,7 @@ interface NotifLordSwappedArgs {
     playerId: number;
     spot1: number;
     spot2: number;
+    newScore: number;
 }
 
 interface NotifExtraLordRevealedArgs {
@@ -119,7 +120,7 @@ interface NotifLocationPlayedArgs {
     location: Location;
     spot: number;
     discardedLocations: Location[];
-    points: number;
+    newScore: number;
     pearls: number;
 }
 

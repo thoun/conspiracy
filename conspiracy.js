@@ -1300,7 +1300,7 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.notif_lordPlayed = function (notif) {
         var from = this.lordsStacks.getStockContaining("" + notif.args.lord.id);
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord, from);
-        this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
+        this.scoreCtrl[notif.args.playerId].toValue(notif.args.newScore);
         this.lordCounters[notif.args.playerId].incValue(1);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         if (notif.args.stackSelection || !notif.args.discardedLords.length) {
@@ -1310,6 +1310,7 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.notif_lordSwapped = function (notif) {
         this.playersTables[notif.args.playerId].lordSwapped(notif.args);
+        this.scoreCtrl[notif.args.playerId].toValue(notif.args.newScore);
     };
     Conspiracy.prototype.notif_extraLordRevealed = function (notif) {
         this.lordsStacks.addLords([notif.args.lord]);
@@ -1318,7 +1319,7 @@ var Conspiracy = /** @class */ (function () {
         var _a;
         var from = this.locationsStacks.getStockContaining("" + notif.args.location.id);
         this.playersTables[notif.args.playerId].addLocation(notif.args.spot, notif.args.location, from);
-        this.scoreCtrl[notif.args.playerId].incValue(notif.args.points);
+        this.scoreCtrl[notif.args.playerId].toValue(notif.args.newScore);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         if ((_a = notif.args.discardedLocations) === null || _a === void 0 ? void 0 : _a.length) {
             this.locationsStacks.discardPick(notif.args.discardedLocations);
