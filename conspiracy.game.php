@@ -914,6 +914,9 @@ class Conspiracy extends Table
         $sql = "SELECT player_id id, player_name, player_score_aux pearls FROM player ORDER BY player_no ASC";
         $players = self::getCollectionFromDb($sql);
 
+        // we reinit points as we gave points for lords & locations
+        self::DbQuery("UPDATE player SET player_score = 0"); // TODO remove
+
         $playersPoints = [];
 
         // lords 
@@ -921,7 +924,8 @@ class Conspiracy extends Table
             $points = $this->getScoreLords($player_id);
 
             $playersPoints[$player_id] = $points;
-            self::DbQuery("UPDATE player SET player_score_lords = $points WHERE player_id = $player_id");
+            self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_lords = $points WHERE player_id = $player_id");
+            // TODO self::DbQuery("UPDATE player SET player_score_lords = $points WHERE player_id = $player_id");
 
             self::notifyAllPlayers('scoreLords', clienttranslate('${player_name} wins ${points} points with lords'), [
                 'playerId' => $player_id,
@@ -937,7 +941,8 @@ class Conspiracy extends Table
             $points = $this->getScoreLocations($player_id, intval($playerDb['pearls']));
 
             $playersPoints[$player_id] += $points;
-            self::DbQuery("UPDATE player SET player_score_locations = $points WHERE player_id = $player_id");
+            self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_locations = $points WHERE player_id = $player_id");
+            // TODO self::DbQuery("UPDATE player SET player_score_locations = $points WHERE player_id = $player_id");
 
             self::notifyAllPlayers('scoreLocations', clienttranslate('${player_name} wins ${points} points with locations'), [
                 'playerId' => $player_id,
@@ -954,7 +959,8 @@ class Conspiracy extends Table
             $points = $coalition->size * 3;
 
             $playersPoints[$player_id] += $points;
-            self::DbQuery("UPDATE player SET player_score_coalition = $points WHERE player_id = $player_id");
+            self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_coalition = $points WHERE player_id = $player_id");
+            // TODO self::DbQuery("UPDATE player SET player_score_coalition = $points WHERE player_id = $player_id");
 
             self::notifyAllPlayers('scoreCoalition', clienttranslate('${player_name} wins ${points} points with greatest Lords Coalition'), [
                 'playerId' => $player_id,
@@ -971,6 +977,7 @@ class Conspiracy extends Table
         $playerDb = array_values(array_filter($players, function($player) use ($pearlMaster) { return intval($player['id']) == $pearlMaster; }))[0];
 
         $playersPoints[$pearlMaster] += 5;
+        self::DbQuery("UPDATE player SET player_score = player_score + 5 WHERE player_id = $pearlMaster"); // TODO remove
 
         self::notifyAllPlayers('scorePearlMaster', clienttranslate('${player_name} is the Pearl Master and wins 5 points'), [
             'playerId' => $pearlMaster,
