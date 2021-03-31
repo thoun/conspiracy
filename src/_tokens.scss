@@ -14,6 +14,19 @@
     background-position: 50% 0%;
   }
 
+  &.key {
+    background-image: url('img/keys.png');
+    background-size: auto 100%;
+
+    &.silver {
+      background-position: 0% 0%;
+    }
+  
+    &.gold {
+      background-position: 100% 0%;
+    }
+  }
+
   &#pearlMasterToken {
     background-position: 100% 0%;
     border-radius: 50%;
@@ -50,14 +63,18 @@
 .counters {
   display: flex;
   align-items: center;
+  margin: 5px 0;
 
-  .lord-counter, .pearl-counter {
+  .lord-counter, .pearl-counter, .key-counter {
     flex: 1;
     display: flex;
     align-items: center;
 
-    span {
+    span.left {
       margin-left: 10px;
+    }
+    span.small {
+      font-size: 80%;
     }
   }
 }

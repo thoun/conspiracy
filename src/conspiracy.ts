@@ -28,6 +28,10 @@ class Conspiracy implements ConspiracyGame {
     private playersTables: PlayerTable[] = [];
     private lordCounters: Counter[] = [];
     private pearlCounters: Counter[] = [];
+    private availableSilverKeyCounters: Counter[] = [];
+    private availableGoldKeyCounters: Counter[] = [];
+    private totalSilverKeyCounters: Counter[] = [];
+    private totalGoldKeyCounters: Counter[] = [];
     private swapSpots: number[];
     private helpDialog: any;
     private playerInPopin: number | null = null;
@@ -318,29 +322,69 @@ class Conspiracy implements ConspiracyGame {
 
         Object.values(gamedatas.players).forEach(player => {
             const playerId = Number(player.id);
+            const playerTable = Object.values(gamedatas.playersTables[playerId]);
 
             // Lord & pearl counters
 
             dojo.place(`<div class="counters">
                 <div id="lord-counter-wrapper-${player.id}" class="lord-counter">
                     <div class="token lord"></div> 
-                    <span id="lord-counter-${player.id}"></span>&nbsp;/&nbsp;15
+                    <span id="lord-counter-${player.id}" class="left"></span>&nbsp;/&nbsp;15
                 </div>
                 <div id="pearl-counter-wrapper-${player.id}" class="pearl-counter">
                     <div class="token pearl"></div> 
-                    <span id="pearl-counter-${player.id}"></span>
+                    <span id="pearl-counter-${player.id}" class="left"></span>
                 </div>
             </div>`, `player_board_${player.id}`);
 
             const lordCounter = new ebg.counter();
             lordCounter.create(`lord-counter-${player.id}`);
-            lordCounter.setValue(Object.values(gamedatas.playersTables[playerId]).filter((spot: PlayerTableSpot) => !!spot.lord).length);
+            lordCounter.setValue(playerTable.filter((spot: PlayerTableSpot) => !!spot.lord).length);
             this.lordCounters[playerId] = lordCounter;
 
             const pearlCounter = new ebg.counter();
             pearlCounter.create(`pearl-counter-${player.id}`);
             pearlCounter.setValue((player as any).pearls);
             this.pearlCounters[playerId] = pearlCounter;
+
+            // keys counters
+
+            dojo.place(`<div class="counters">
+                <div id="silver-key-counter-wrapper-${player.id}" class="key-counter silver-key-counter">
+                    <div class="token silver key"></div> 
+                    <span id="available-silver-key-counter-${player.id}" class="left"></span>
+                    <span class="left small">
+                        (<span id="total-silver-key-counter-${player.id}"></span>)
+                    </span>
+                </div>
+                <div id="gold-key-counter-wrapper-${player.id}" class="key-counter gold-key-counter">
+                    <div class="token gold key"></div> 
+                    <span id="available-gold-key-counter-${player.id}" class="left"></span>
+                    <span class="left small">
+                        (<span id="total-gold-key-counter-${player.id}"></span>)
+                    </span>
+                </div>
+            </div>`, `player_board_${player.id}`);
+
+            const lastLocationSpotIndex = playerTable.map((spot: PlayerTableSpot, spotIndex: number) => spot.location ? spotIndex : -1).reduce((a, b) => a > b ? a : b, -1);
+
+            const availableSilverKeyCounter = new ebg.counter();
+            availableSilverKeyCounter.create(`available-silver-key-counter-${player.id}`);
+            availableSilverKeyCounter.setValue(playerTable.filter((spot: PlayerTableSpot, spotIndex: number) => spotIndex > lastLocationSpotIndex && spot.lord?.key === 1).length);
+            this.availableSilverKeyCounters[playerId] = availableSilverKeyCounter;
+            const totalSilverKeyCounter = new ebg.counter();
+            totalSilverKeyCounter.create(`total-silver-key-counter-${player.id}`);
+            totalSilverKeyCounter.setValue(playerTable.filter((spot: PlayerTableSpot) => spot.lord?.key === 1).length);
+            this.totalSilverKeyCounters[playerId] = totalSilverKeyCounter;
+
+            const availableGoldKeyCounter = new ebg.counter();
+            availableGoldKeyCounter.create(`available-gold-key-counter-${player.id}`);
+            availableGoldKeyCounter.setValue(playerTable.filter((spot: PlayerTableSpot, spotIndex: number) => spotIndex > lastLocationSpotIndex && spot.lord?.key === 2).length);
+            this.availableGoldKeyCounters[playerId] = availableGoldKeyCounter;            
+            const totalGoldKeyCounter = new ebg.counter();
+            totalGoldKeyCounter.create(`total-gold-key-counter-${player.id}`);
+            totalGoldKeyCounter.setValue(playerTable.filter((spot: PlayerTableSpot) => spot.lord?.key === 2).length);
+            this.totalGoldKeyCounters[playerId] = totalGoldKeyCounter;
 
             // top lord tokens
 
@@ -369,7 +413,24 @@ class Conspiracy implements ConspiracyGame {
 
         (this as any).addTooltipHtmlToClass('lord-counter', _("Number of lords in player table"));
         (this as any).addTooltipHtmlToClass('pearl-counter', _("Number of pearls"));
+        (this as any).addTooltipHtmlToClass('silver-key-counter', _("Number of available silver keys (total number of silver keys)"));
+        (this as any).addTooltipHtmlToClass('gold-key-counter', _("Number of available gold keys (total number of gold keys)"));
         GUILD_IDS.forEach(guild => (this as any).addTooltipHtmlToClass(`token-guild${guild}`, _("The Coat of Arms token indicates the most influential Lord of each color.")));
+    }
+
+    private updateKeysForPlayer(playerId: number) {
+        const playerTable = this.playersTables[playerId];
+        const lastLocationSpotIndex = playerTable.spotsStock.map((spotStock: PlayerTableSpotStock, spotIndex: number) => spotStock.hasLocation() ? spotIndex : -1).reduce((a, b) => a > b ? a : b, -1);
+
+        const availableSilverKey = playerTable.spotsStock.filter((spotStock: PlayerTableSpotStock, spotIndex: number) => spotIndex > lastLocationSpotIndex && spotStock.getLord()?.key === 1).length;
+        this.availableSilverKeyCounters[playerId].toValue(availableSilverKey);
+        const totalSilverKeyCounter = playerTable.spotsStock.filter((spotStock: PlayerTableSpotStock) => spotStock.getLord()?.key === 1).length;
+        this.totalSilverKeyCounters[playerId].toValue(totalSilverKeyCounter);
+
+        const availableGoldKeyCounter = playerTable.spotsStock.filter((spotStock: PlayerTableSpotStock, spotIndex: number) => spotIndex > lastLocationSpotIndex && spotStock.getLord()?.key === 2).length;
+        this.availableGoldKeyCounters[playerId].toValue(availableGoldKeyCounter);        
+        const totalGoldKeyCounter = playerTable.spotsStock.filter((spotStock: PlayerTableSpotStock) => spotStock.getLord()?.key === 2).length;
+        this.totalGoldKeyCounters[playerId].toValue(totalGoldKeyCounter);
     }
 
     private createPlayerTables(gamedatas: ConspiracyGamedatas) {
@@ -549,6 +610,10 @@ class Conspiracy implements ConspiracyGame {
             this.lordsStacks.discardPick(notif.args.discardedLords);
             this.lordsStacks.setPick(false, false);
         }
+
+        if (notif.args.lord.key) {
+            this.updateKeysForPlayer(notif.args.playerId);
+        }
     }
 
     notif_lordSwapped(notif: Notif<NotifLordSwappedArgs>) {
@@ -572,6 +637,8 @@ class Conspiracy implements ConspiracyGame {
         }
 
         this.locationsStacks.setPick(false, false);
+
+        this.updateKeysForPlayer(notif.args.playerId);
     }
 
     notif_discardLords() {

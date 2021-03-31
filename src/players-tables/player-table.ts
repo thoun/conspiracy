@@ -2,7 +2,7 @@ const SPOTS_NUMBERS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
 
 class PlayerTable {
     private playerId: number;
-    private spotsStock: PlayerTableSpotStock[] = [];
+    public spotsStock: PlayerTableSpotStock[] = [];
 
     private swapSpots: number[] = null;
 

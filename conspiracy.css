@@ -273,7 +273,7 @@
 .player-table-spot .player-table-spot-location {
   position: absolute;
   top: 83px;
-  left: -10px;
+  left: 21.02px;
 }
 .player-table-spot .player-table-spot-token {
   position: absolute;
@@ -301,6 +301,16 @@
 }
 .token.lord {
   background-position: 50% 0%;
+}
+.token.key {
+  background-image: url("img/keys.png");
+  background-size: auto 100%;
+}
+.token.key.silver {
+  background-position: 0% 0%;
+}
+.token.key.gold {
+  background-position: 100% 0%;
 }
 .token#pearlMasterToken {
   background-position: 100% 0%;
@@ -335,14 +345,18 @@
 .counters {
   display: flex;
   align-items: center;
+  margin: 5px 0;
 }
-.counters .lord-counter, .counters .pearl-counter {
+.counters .lord-counter, .counters .pearl-counter, .counters .key-counter {
   flex: 1;
   display: flex;
   align-items: center;
 }
-.counters .lord-counter span, .counters .pearl-counter span {
+.counters .lord-counter span.left, .counters .pearl-counter span.left, .counters .key-counter span.left {
   margin-left: 10px;
+}
+.counters .lord-counter span.small, .counters .pearl-counter span.small, .counters .key-counter span.small {
+  font-size: 80%;
 }
 
 #score {
