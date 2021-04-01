@@ -288,6 +288,51 @@
   filter: drop-shadow(0 0 5px white);
 }
 
+.highlight-guild1 {
+  animation: highlight-guild1-animation 1.25s alternate 2;
+}
+
+.highlight-guild2 {
+  animation: highlight-guild2-animation 1.25s alternate 2;
+}
+
+.highlight-guild3 {
+  animation: highlight-guild3-animation 1.25s alternate 2;
+}
+
+.highlight-guild4 {
+  animation: highlight-guild4-animation 1.25s alternate 2;
+}
+
+.highlight-guild5 {
+  animation: highlight-guild5-animation 1.25s alternate 2;
+}
+
+@keyframes highlight-guild1-animation {
+  100% {
+    box-shadow: 0 0 30px 15px #c1950b;
+  }
+}
+@keyframes highlight-guild2-animation {
+  100% {
+    box-shadow: 0 0 30px 15px #770405;
+  }
+}
+@keyframes highlight-guild3-animation {
+  100% {
+    box-shadow: 0 0 30px 15px #097138;
+  }
+}
+@keyframes highlight-guild4-animation {
+  100% {
+    box-shadow: 0 0 30px 15px #011d4d;
+  }
+}
+@keyframes highlight-guild5-animation {
+  100% {
+    box-shadow: 0 0 30px 15px #522886;
+  }
+}
 .token {
   display: inline-block;
   position: relative;
@@ -305,12 +350,39 @@
 .token.key {
   background-image: url("img/keys.png");
   background-size: auto 100%;
+  opacity: 0.5;
 }
 .token.key.silver {
   background-position: 0% 0%;
 }
+.token.key.silver.available {
+  animation: available-silver-key-animation 1.5s 1 forwards;
+}
 .token.key.gold {
   background-position: 100% 0%;
+}
+.token.key.available {
+  animation: available-gold-key-animation 1.5s 1 forwards;
+}
+@keyframes available-silver-key-animation {
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 10px gray);
+  }
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 1px gray);
+  }
+}
+@keyframes available-gold-key-animation {
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 10px gold);
+  }
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 1px gold);
+  }
 }
 .token#pearlMasterToken {
   background-position: 100% 0%;

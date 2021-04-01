@@ -106,7 +106,7 @@ class PlayerTable {
 
     public highlightCoalition(coalition: Coalition) {
         this.spotsStock.filter(spotStock => spotStock.hasLord()).forEach(spotStock => spotStock.clearLordHighlight());
-        coalition.alreadyCounted.forEach(spotNumber => this.spotsStock[spotNumber].highlightLord());
+        coalition.alreadyCounted.forEach(spotNumber => this.spotsStock[spotNumber].highlightLord(coalition.guild));
     }
 
     public highlightLocations() {

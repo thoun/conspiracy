@@ -75,3 +75,17 @@
         }
     }
 }
+
+
+
+@for $i from 1 through 5 {
+    .highlight-guild#{$i} {
+        animation: highlight-guild#{$i}-animation 1.25s alternate 2;
+    }
+}
+
+@keyframes highlight-guild1-animation { 100% { box-shadow: 0 0 30px 15px #c1950b; }}
+@keyframes highlight-guild2-animation { 100% { box-shadow: 0 0 30px 15px #770405; }}
+@keyframes highlight-guild3-animation { 100% { box-shadow: 0 0 30px 15px #097138; }}
+@keyframes highlight-guild4-animation { 100% { box-shadow: 0 0 30px 15px #011d4d; }}
+@keyframes highlight-guild5-animation { 100% { box-shadow: 0 0 30px 15px #522886; }}

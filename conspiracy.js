@@ -792,10 +792,11 @@ var PlayerTableSpotStock = /** @class */ (function () {
     PlayerTableSpotStock.prototype.getTokenDiv = function () {
         return this.tokenWrapper.getElementsByTagName('div')[0];
     };
-    PlayerTableSpotStock.prototype.highlightLord = function () {
+    PlayerTableSpotStock.prototype.highlightLord = function (guild) {
         var _a;
+        if (guild === void 0) { guild = null; }
         var cardId = (_a = this.lordsStock.items[0]) === null || _a === void 0 ? void 0 : _a.id;
-        cardId && document.getElementById(this.lordsStock.container_div.id + "_item_" + cardId).classList.add('highlight');
+        cardId && document.getElementById(this.lordsStock.container_div.id + "_item_" + cardId).classList.add("highlight" + (guild ? "-guild" + guild : ''));
     };
     PlayerTableSpotStock.prototype.clearLordHighlight = function () {
         var _a;
@@ -890,7 +891,7 @@ var PlayerTable = /** @class */ (function () {
     PlayerTable.prototype.highlightCoalition = function (coalition) {
         var _this = this;
         this.spotsStock.filter(function (spotStock) { return spotStock.hasLord(); }).forEach(function (spotStock) { return spotStock.clearLordHighlight(); });
-        coalition.alreadyCounted.forEach(function (spotNumber) { return _this.spotsStock[spotNumber].highlightLord(); });
+        coalition.alreadyCounted.forEach(function (spotNumber) { return _this.spotsStock[spotNumber].highlightLord(coalition.guild); });
     };
     PlayerTable.prototype.highlightLocations = function () {
         this.spotsStock.filter(function (spotStock) { return spotStock.hasLocation(); }).forEach(function (spotStock) { return spotStock.highlightLocation(); });
@@ -915,10 +916,8 @@ var Conspiracy = /** @class */ (function () {
         this.playersTables = [];
         this.lordCounters = [];
         this.pearlCounters = [];
-        this.availableSilverKeyCounters = [];
-        this.availableGoldKeyCounters = [];
-        this.totalSilverKeyCounters = [];
-        this.totalGoldKeyCounters = [];
+        this.silverKeyCounters = [];
+        this.goldKeyCounters = [];
         this.playerInPopin = null;
     }
     /*
@@ -1148,24 +1147,20 @@ var Conspiracy = /** @class */ (function () {
             pearlCounter.setValue(player.pearls);
             _this.pearlCounters[playerId] = pearlCounter;
             // keys counters
-            dojo.place("<div class=\"counters\">\n                <div id=\"silver-key-counter-wrapper-" + player.id + "\" class=\"key-counter silver-key-counter\">\n                    <div class=\"token silver key\"></div> \n                    <span id=\"available-silver-key-counter-" + player.id + "\" class=\"left\"></span>\n                    <span class=\"left small\">\n                        (<span id=\"total-silver-key-counter-" + player.id + "\"></span>)\n                    </span>\n                </div>\n                <div id=\"gold-key-counter-wrapper-" + player.id + "\" class=\"key-counter gold-key-counter\">\n                    <div class=\"token gold key\"></div> \n                    <span id=\"available-gold-key-counter-" + player.id + "\" class=\"left\"></span>\n                    <span class=\"left small\">\n                        (<span id=\"total-gold-key-counter-" + player.id + "\"></span>)\n                    </span>\n                </div>\n            </div>", "player_board_" + player.id);
+            dojo.place("<div class=\"counters\">\n                <div id=\"silver-key-counter-wrapper-" + player.id + "\" class=\"key-counter silver-key-counter\">\n                    <div id=\"silver-key-" + player.id + "\" class=\"token silver key\"></div> \n                    <span id=\"silver-key-counter-" + player.id + "\" class=\"left\"></span>\n                </div>\n                <div id=\"gold-key-counter-wrapper-" + player.id + "\" class=\"key-counter gold-key-counter\">\n                    <div id=\"gold-key-" + player.id + "\"  class=\"token gold key\"></div> \n                    <span id=\"gold-key-counter-" + player.id + "\" class=\"left\"></span>\n                </div>\n            </div>", "player_board_" + player.id);
             var lastLocationSpotIndex = playerTable.map(function (spot, spotIndex) { return spot.location ? spotIndex : -1; }).reduce(function (a, b) { return a > b ? a : b; }, -1);
-            var availableSilverKeyCounter = new ebg.counter();
-            availableSilverKeyCounter.create("available-silver-key-counter-" + player.id);
-            availableSilverKeyCounter.setValue(playerTable.filter(function (spot, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length);
-            _this.availableSilverKeyCounters[playerId] = availableSilverKeyCounter;
-            var totalSilverKeyCounter = new ebg.counter();
-            totalSilverKeyCounter.create("total-silver-key-counter-" + player.id);
-            totalSilverKeyCounter.setValue(playerTable.filter(function (spot) { var _a; return ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length);
-            _this.totalSilverKeyCounters[playerId] = totalSilverKeyCounter;
-            var availableGoldKeyCounter = new ebg.counter();
-            availableGoldKeyCounter.create("available-gold-key-counter-" + player.id);
-            availableGoldKeyCounter.setValue(playerTable.filter(function (spot, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 2; }).length);
-            _this.availableGoldKeyCounters[playerId] = availableGoldKeyCounter;
-            var totalGoldKeyCounter = new ebg.counter();
-            totalGoldKeyCounter.create("total-gold-key-counter-" + player.id);
-            totalGoldKeyCounter.setValue(playerTable.filter(function (spot) { var _a; return ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 2; }).length);
-            _this.totalGoldKeyCounters[playerId] = totalGoldKeyCounter;
+            var silverKeyAvailable = playerTable.filter(function (spot, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length > 0;
+            dojo.toggleClass("silver-key-" + player.id, 'available', silverKeyAvailable);
+            var silverKeyCounter = new ebg.counter();
+            silverKeyCounter.create("silver-key-counter-" + player.id);
+            silverKeyCounter.setValue(playerTable.filter(function (spot) { var _a; return ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length);
+            _this.silverKeyCounters[playerId] = silverKeyCounter;
+            var goldKeyAvailable = playerTable.filter(function (spot, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 2; }).length > 0;
+            dojo.toggleClass("gold-key-" + player.id, 'available', goldKeyAvailable);
+            var goldKeyCounter = new ebg.counter();
+            goldKeyCounter.create("gold-key-counter-" + player.id);
+            goldKeyCounter.setValue(playerTable.filter(function (spot) { var _a; return ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 2; }).length);
+            _this.goldKeyCounters[playerId] = goldKeyCounter;
             // top lord tokens
             var html = "<div class=\"top-lord-tokens\">";
             GUILD_IDS.forEach(function (guild) { return html += "<div class=\"token guild" + guild + " token-guild" + guild + "\" id=\"top-lord-token-" + guild + "-" + player.id + "\"></div>"; });
@@ -1184,21 +1179,21 @@ var Conspiracy = /** @class */ (function () {
         });
         this.addTooltipHtmlToClass('lord-counter', _("Number of lords in player table"));
         this.addTooltipHtmlToClass('pearl-counter', _("Number of pearls"));
-        this.addTooltipHtmlToClass('silver-key-counter', _("Number of available silver keys (total number of silver keys)"));
-        this.addTooltipHtmlToClass('gold-key-counter', _("Number of available gold keys (total number of gold keys)"));
+        this.addTooltipHtmlToClass('silver-key-counter', _("Number of silver keys (highlighted if a silver key is available)"));
+        this.addTooltipHtmlToClass('gold-key-counter', _("Number of gold keys (highlighted if a gold key is available)"));
         GUILD_IDS.forEach(function (guild) { return _this.addTooltipHtmlToClass("token-guild" + guild, _("The Coat of Arms token indicates the most influential Lord of each color.")); });
     };
     Conspiracy.prototype.updateKeysForPlayer = function (playerId) {
         var playerTable = this.playersTables[playerId];
         var lastLocationSpotIndex = playerTable.spotsStock.map(function (spotStock, spotIndex) { return spotStock.hasLocation() ? spotIndex : -1; }).reduce(function (a, b) { return a > b ? a : b; }, -1);
-        var availableSilverKey = playerTable.spotsStock.filter(function (spotStock, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spotStock.getLord()) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length;
-        this.availableSilverKeyCounters[playerId].toValue(availableSilverKey);
+        var silverKeyAvailable = playerTable.spotsStock.filter(function (spotStock, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spotStock.getLord()) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length > 0;
+        dojo.toggleClass("silver-key-" + playerId, 'available', silverKeyAvailable);
         var totalSilverKeyCounter = playerTable.spotsStock.filter(function (spotStock) { var _a; return ((_a = spotStock.getLord()) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length;
-        this.totalSilverKeyCounters[playerId].toValue(totalSilverKeyCounter);
-        var availableGoldKeyCounter = playerTable.spotsStock.filter(function (spotStock, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spotStock.getLord()) === null || _a === void 0 ? void 0 : _a.key) === 2; }).length;
-        this.availableGoldKeyCounters[playerId].toValue(availableGoldKeyCounter);
+        this.silverKeyCounters[playerId].toValue(totalSilverKeyCounter);
+        var goldKeyAvailable = playerTable.spotsStock.filter(function (spotStock, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spotStock.getLord()) === null || _a === void 0 ? void 0 : _a.key) === 2; }).length > 0;
+        dojo.toggleClass("gold-key-" + playerId, 'available', goldKeyAvailable);
         var totalGoldKeyCounter = playerTable.spotsStock.filter(function (spotStock) { var _a; return ((_a = spotStock.getLord()) === null || _a === void 0 ? void 0 : _a.key) === 2; }).length;
-        this.totalGoldKeyCounters[playerId].toValue(totalGoldKeyCounter);
+        this.goldKeyCounters[playerId].toValue(totalGoldKeyCounter);
     };
     Conspiracy.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;

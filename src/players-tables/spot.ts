@@ -139,9 +139,9 @@ class PlayerTableSpotStock {
         return this.tokenWrapper.getElementsByTagName('div')[0] as HTMLDivElement;
     }
     
-    public highlightLord() {
+    public highlightLord(guild: number = null) {
         const cardId = this.lordsStock.items[0]?.id;
-        cardId && document.getElementById(`${this.lordsStock.container_div.id}_item_${cardId}`).classList.add('highlight');
+        cardId && document.getElementById(`${this.lordsStock.container_div.id}_item_${cardId}`).classList.add(`highlight${guild ? `-guild${guild}` : ''}`);
     }
 
     public clearLordHighlight() {

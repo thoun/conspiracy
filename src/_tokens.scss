@@ -17,14 +17,45 @@
   &.key {
     background-image: url('img/keys.png');
     background-size: auto 100%;
+    opacity: 0.5;
 
     &.silver {
       background-position: 0% 0%;
+
+      &.available {
+        animation: available-silver-key-animation 1.5s 1 forwards;
+      }
     }
   
     &.gold {
       background-position: 100% 0%;
     }
+
+    &.available {
+      animation: available-gold-key-animation 1.5s 1 forwards;
+    }
+  }
+    
+  @keyframes available-silver-key-animation {
+      50% {
+        opacity: 1;
+        filter: drop-shadow(0 0 10px gray);
+      }
+      100% { 
+        opacity: 1;
+        filter: drop-shadow(0 0 1px gray);
+      }
+  }
+    
+  @keyframes available-gold-key-animation {
+      50% {
+        opacity: 1;
+        filter: drop-shadow(0 0 10px gold);
+      }
+      100% { 
+        opacity: 1;
+        filter: drop-shadow(0 0 1px gold);
+      }
   }
 
   &#pearlMasterToken {

@@ -28,10 +28,8 @@ class Conspiracy implements ConspiracyGame {
     private playersTables: PlayerTable[] = [];
     private lordCounters: Counter[] = [];
     private pearlCounters: Counter[] = [];
-    private availableSilverKeyCounters: Counter[] = [];
-    private availableGoldKeyCounters: Counter[] = [];
-    private totalSilverKeyCounters: Counter[] = [];
-    private totalGoldKeyCounters: Counter[] = [];
+    private silverKeyCounters: Counter[] = [];
+    private goldKeyCounters: Counter[] = [];
     private swapSpots: number[];
     private helpDialog: any;
     private playerInPopin: number | null = null;
@@ -351,40 +349,30 @@ class Conspiracy implements ConspiracyGame {
 
             dojo.place(`<div class="counters">
                 <div id="silver-key-counter-wrapper-${player.id}" class="key-counter silver-key-counter">
-                    <div class="token silver key"></div> 
-                    <span id="available-silver-key-counter-${player.id}" class="left"></span>
-                    <span class="left small">
-                        (<span id="total-silver-key-counter-${player.id}"></span>)
-                    </span>
+                    <div id="silver-key-${player.id}" class="token silver key"></div> 
+                    <span id="silver-key-counter-${player.id}" class="left"></span>
                 </div>
                 <div id="gold-key-counter-wrapper-${player.id}" class="key-counter gold-key-counter">
-                    <div class="token gold key"></div> 
-                    <span id="available-gold-key-counter-${player.id}" class="left"></span>
-                    <span class="left small">
-                        (<span id="total-gold-key-counter-${player.id}"></span>)
-                    </span>
+                    <div id="gold-key-${player.id}"  class="token gold key"></div> 
+                    <span id="gold-key-counter-${player.id}" class="left"></span>
                 </div>
             </div>`, `player_board_${player.id}`);
 
             const lastLocationSpotIndex = playerTable.map((spot: PlayerTableSpot, spotIndex: number) => spot.location ? spotIndex : -1).reduce((a, b) => a > b ? a : b, -1);
 
-            const availableSilverKeyCounter = new ebg.counter();
-            availableSilverKeyCounter.create(`available-silver-key-counter-${player.id}`);
-            availableSilverKeyCounter.setValue(playerTable.filter((spot: PlayerTableSpot, spotIndex: number) => spotIndex > lastLocationSpotIndex && spot.lord?.key === 1).length);
-            this.availableSilverKeyCounters[playerId] = availableSilverKeyCounter;
-            const totalSilverKeyCounter = new ebg.counter();
-            totalSilverKeyCounter.create(`total-silver-key-counter-${player.id}`);
-            totalSilverKeyCounter.setValue(playerTable.filter((spot: PlayerTableSpot) => spot.lord?.key === 1).length);
-            this.totalSilverKeyCounters[playerId] = totalSilverKeyCounter;
+            const silverKeyAvailable = playerTable.filter((spot: PlayerTableSpot, spotIndex: number) => spotIndex > lastLocationSpotIndex && spot.lord?.key === 1).length > 0;
+            dojo.toggleClass(`silver-key-${player.id}`, 'available', silverKeyAvailable);
+            const silverKeyCounter = new ebg.counter();
+            silverKeyCounter.create(`silver-key-counter-${player.id}`);
+            silverKeyCounter.setValue(playerTable.filter((spot: PlayerTableSpot) => spot.lord?.key === 1).length);
+            this.silverKeyCounters[playerId] = silverKeyCounter;
 
-            const availableGoldKeyCounter = new ebg.counter();
-            availableGoldKeyCounter.create(`available-gold-key-counter-${player.id}`);
-            availableGoldKeyCounter.setValue(playerTable.filter((spot: PlayerTableSpot, spotIndex: number) => spotIndex > lastLocationSpotIndex && spot.lord?.key === 2).length);
-            this.availableGoldKeyCounters[playerId] = availableGoldKeyCounter;            
-            const totalGoldKeyCounter = new ebg.counter();
-            totalGoldKeyCounter.create(`total-gold-key-counter-${player.id}`);
-            totalGoldKeyCounter.setValue(playerTable.filter((spot: PlayerTableSpot) => spot.lord?.key === 2).length);
-            this.totalGoldKeyCounters[playerId] = totalGoldKeyCounter;
+            const goldKeyAvailable = playerTable.filter((spot: PlayerTableSpot, spotIndex: number) => spotIndex > lastLocationSpotIndex && spot.lord?.key === 2).length > 0;
+            dojo.toggleClass(`gold-key-${player.id}`, 'available', goldKeyAvailable);
+            const goldKeyCounter = new ebg.counter();
+            goldKeyCounter.create(`gold-key-counter-${player.id}`);
+            goldKeyCounter.setValue(playerTable.filter((spot: PlayerTableSpot) => spot.lord?.key === 2).length);
+            this.goldKeyCounters[playerId] = goldKeyCounter;
 
             // top lord tokens
 
@@ -413,8 +401,8 @@ class Conspiracy implements ConspiracyGame {
 
         (this as any).addTooltipHtmlToClass('lord-counter', _("Number of lords in player table"));
         (this as any).addTooltipHtmlToClass('pearl-counter', _("Number of pearls"));
-        (this as any).addTooltipHtmlToClass('silver-key-counter', _("Number of available silver keys (total number of silver keys)"));
-        (this as any).addTooltipHtmlToClass('gold-key-counter', _("Number of available gold keys (total number of gold keys)"));
+        (this as any).addTooltipHtmlToClass('silver-key-counter', _("Number of silver keys (highlighted if a silver key is available)"));
+        (this as any).addTooltipHtmlToClass('gold-key-counter', _("Number of gold keys (highlighted if a gold key is available)"));
         GUILD_IDS.forEach(guild => (this as any).addTooltipHtmlToClass(`token-guild${guild}`, _("The Coat of Arms token indicates the most influential Lord of each color.")));
     }
 
@@ -422,15 +410,15 @@ class Conspiracy implements ConspiracyGame {
         const playerTable = this.playersTables[playerId];
         const lastLocationSpotIndex = playerTable.spotsStock.map((spotStock: PlayerTableSpotStock, spotIndex: number) => spotStock.hasLocation() ? spotIndex : -1).reduce((a, b) => a > b ? a : b, -1);
 
-        const availableSilverKey = playerTable.spotsStock.filter((spotStock: PlayerTableSpotStock, spotIndex: number) => spotIndex > lastLocationSpotIndex && spotStock.getLord()?.key === 1).length;
-        this.availableSilverKeyCounters[playerId].toValue(availableSilverKey);
+        const silverKeyAvailable = playerTable.spotsStock.filter((spotStock: PlayerTableSpotStock, spotIndex: number) => spotIndex > lastLocationSpotIndex && spotStock.getLord()?.key === 1).length > 0;
+        dojo.toggleClass(`silver-key-${playerId}`, 'available', silverKeyAvailable);
         const totalSilverKeyCounter = playerTable.spotsStock.filter((spotStock: PlayerTableSpotStock) => spotStock.getLord()?.key === 1).length;
-        this.totalSilverKeyCounters[playerId].toValue(totalSilverKeyCounter);
+        this.silverKeyCounters[playerId].toValue(totalSilverKeyCounter);
 
-        const availableGoldKeyCounter = playerTable.spotsStock.filter((spotStock: PlayerTableSpotStock, spotIndex: number) => spotIndex > lastLocationSpotIndex && spotStock.getLord()?.key === 2).length;
-        this.availableGoldKeyCounters[playerId].toValue(availableGoldKeyCounter);        
+        const goldKeyAvailable = playerTable.spotsStock.filter((spotStock: PlayerTableSpotStock, spotIndex: number) => spotIndex > lastLocationSpotIndex && spotStock.getLord()?.key === 2).length > 0;
+        dojo.toggleClass(`gold-key-${playerId}`, 'available', goldKeyAvailable); 
         const totalGoldKeyCounter = playerTable.spotsStock.filter((spotStock: PlayerTableSpotStock) => spotStock.getLord()?.key === 2).length;
-        this.totalGoldKeyCounters[playerId].toValue(totalGoldKeyCounter);
+        this.goldKeyCounters[playerId].toValue(totalGoldKeyCounter);
     }
 
     private createPlayerTables(gamedatas: ConspiracyGamedatas) {
