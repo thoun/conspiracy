@@ -60,11 +60,11 @@ html {
 }
 
 .highlight {
-    animation: highlight-animation 1.25s alternate 2;
+    animation: highlight-animation 0.75s alternate 2;
 }
 
 td.highlight {
-    animation: td-highlight-animation 1.25s alternate 2;
+    animation: td-highlight-animation 0.75s alternate 2;
 }
 
 @keyframes highlight-animation {

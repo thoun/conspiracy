@@ -80,7 +80,7 @@
 
 @for $i from 1 through 5 {
     .highlight-guild#{$i} {
-        animation: highlight-guild#{$i}-animation 1.25s alternate 2;
+        animation: highlight-guild#{$i}-animation 0.75s alternate 2;
     }
 }
 

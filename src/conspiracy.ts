@@ -8,7 +8,7 @@ declare const g_gamethemeurl;
 declare const board: HTMLDivElement;
 
 const ANIMATION_MS = 500;
-const SCORE_MS = 2500;
+const SCORE_MS = 1500;
 
 const GUILD_COLOR = [];
 GUILD_COLOR[1] = '#c1950b';
@@ -124,6 +124,7 @@ class Conspiracy implements ConspiracyGame {
                 break;
         }
     }
+    
     private setGamestateDescription(property: string = '') {
         const originalState = this.gamedatas.gamestates[this.gamedatas.gamestate.id];
         this.gamedatas.gamestate.description = `${originalState['description' + property]}`; 

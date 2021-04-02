@@ -902,7 +902,7 @@ var PlayerTable = /** @class */ (function () {
     return PlayerTable;
 }());
 var ANIMATION_MS = 500;
-var SCORE_MS = 2500;
+var SCORE_MS = 1500;
 var GUILD_COLOR = [];
 GUILD_COLOR[1] = '#c1950b';
 GUILD_COLOR[2] = '#770405';
