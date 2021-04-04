@@ -523,13 +523,13 @@
   background-position: -1500% 0%;
 }
 #help-popin #help-lords #lord4 {
-  background-position: -1600% 0%;
+  background-position: -1600% 100%;
 }
 #help-popin #help-lords #lord5 {
-  background-position: -1700% 0%;
+  background-position: -1700% 100%;
 }
 #help-popin #help-lords #lord6 {
-  background-position: -1800% 0%;
+  background-position: -1800% 100%;
 }
 #help-popin #help-locations .location {
   width: 186.24px;
@@ -573,16 +573,16 @@
   background-position: -1200% 0%;
 }
 #help-popin #help-locations #location13 {
-  background-position: -1300% 0%;
+  background-position: -1300% 100%;
 }
 #help-popin #help-locations #location14 {
-  background-position: -1400% 0%;
+  background-position: -1400% 100%;
 }
 #help-popin #help-locations #location100 {
-  background-position: -1700% 0%;
+  background-position: -1700% 100%;
 }
 #help-popin #help-locations #location101 {
-  background-position: -2200% 0%;
+  background-position: -2200% 100%;
 }
 
 #popin_showPlayermat_container {

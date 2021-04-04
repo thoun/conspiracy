@@ -55,9 +55,14 @@
             height: $lord-height;
             background-image: url('img/lords.jpg');
         }
-        @for $i from 1 through 6 {
+        @for $i from 1 through 3 {
             #lord#{$i} {
                 background-position: (-1200% - $i * 100%) 0%;
+            }
+        }
+        @for $i from 4 through 6 {
+            #lord#{$i} {
+                background-position: (-1200% - $i * 100%) 100%;
             }
         }
     }
@@ -68,16 +73,21 @@
             height: $location-height;
             background-image: url('img/locations.jpg');
         }
-        @for $i from 1 through 14 {
+        @for $i from 1 through 12 {
             #location#{$i} {
                 background-position: (- $i * 100%) 0%;
             }
         }
+        @for $i from 13 through 14 {
+            #location#{$i} {
+                background-position: (- $i * 100%) 100%;
+            }
+        }
         #location100 {        
-            background-position: -1700% 0%;
+            background-position: -1700% 100%;
         }
         #location101 {        
-            background-position: -2200% 0%;
+            background-position: -2200% 100%;
         }
 }
 }
