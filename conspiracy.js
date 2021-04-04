@@ -1211,7 +1211,7 @@ var Conspiracy = /** @class */ (function () {
                 newScore: player.newScore
             });
         });
-        this.addTooltipHtmlToClass('lord-counter', _("Lords played in player table"));
+        this.addTooltipHtmlToClass('lord-counter', _("Number of lords in player table"));
         this.addTooltipHtmlToClass('pearl-counter', _("Number of pearls"));
         this.addTooltipHtmlToClass('silver-key-counter', _("Number of silver keys (highlighted if a silver key is available)"));
         this.addTooltipHtmlToClass('gold-key-counter', _("Number of gold keys (highlighted if a gold key is available)"));
@@ -1221,11 +1221,11 @@ var Conspiracy = /** @class */ (function () {
         var playerTable = this.playersTables[playerId];
         var lastLocationSpotIndex = playerTable.spotsStock.map(function (spotStock, spotIndex) { return spotStock.hasLocation() ? spotIndex : -1; }).reduce(function (a, b) { return a > b ? a : b; }, -1);
         var silverKeyAvailable = playerTable.spotsStock.filter(function (spotStock, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spotStock.getLord()) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length > 0;
-        dojo.toggleClass("silver-key-" + playerId, 'available', silverKeyAvailable);
+        dojo.toggleClass("silver-key-counter-wrapper-" + playerId, 'available', silverKeyAvailable);
         var totalSilverKeyCounter = playerTable.spotsStock.filter(function (spotStock) { var _a; return ((_a = spotStock.getLord()) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length;
         this.silverKeyCounters[playerId].toValue(totalSilverKeyCounter);
         var goldKeyAvailable = playerTable.spotsStock.filter(function (spotStock, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spotStock.getLord()) === null || _a === void 0 ? void 0 : _a.key) === 2; }).length > 0;
-        dojo.toggleClass("gold-key-" + playerId, 'available', goldKeyAvailable);
+        dojo.toggleClass("gold-key-counter-wrapper-" + playerId, 'available', goldKeyAvailable);
         var totalGoldKeyCounter = playerTable.spotsStock.filter(function (spotStock) { var _a; return ((_a = spotStock.getLord()) === null || _a === void 0 ? void 0 : _a.key) === 2; }).length;
         this.goldKeyCounters[playerId].toValue(totalGoldKeyCounter);
     };

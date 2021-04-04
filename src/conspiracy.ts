@@ -409,12 +409,12 @@ class Conspiracy implements ConspiracyGame {
         const lastLocationSpotIndex = playerTable.spotsStock.map((spotStock: PlayerTableSpotStock, spotIndex: number) => spotStock.hasLocation() ? spotIndex : -1).reduce((a, b) => a > b ? a : b, -1);
 
         const silverKeyAvailable = playerTable.spotsStock.filter((spotStock: PlayerTableSpotStock, spotIndex: number) => spotIndex > lastLocationSpotIndex && spotStock.getLord()?.key === 1).length > 0;
-        dojo.toggleClass(`silver-key-${playerId}`, 'available', silverKeyAvailable);
+        dojo.toggleClass(`silver-key-counter-wrapper-${playerId}`, 'available', silverKeyAvailable);
         const totalSilverKeyCounter = playerTable.spotsStock.filter((spotStock: PlayerTableSpotStock) => spotStock.getLord()?.key === 1).length;
         this.silverKeyCounters[playerId].toValue(totalSilverKeyCounter);
 
         const goldKeyAvailable = playerTable.spotsStock.filter((spotStock: PlayerTableSpotStock, spotIndex: number) => spotIndex > lastLocationSpotIndex && spotStock.getLord()?.key === 2).length > 0;
-        dojo.toggleClass(`gold-key-${playerId}`, 'available', goldKeyAvailable); 
+        dojo.toggleClass(`gold-key-counter-wrapper-${playerId}`, 'available', goldKeyAvailable); 
         const totalGoldKeyCounter = playerTable.spotsStock.filter((spotStock: PlayerTableSpotStock) => spotStock.getLord()?.key === 2).length;
         this.goldKeyCounters[playerId].toValue(totalGoldKeyCounter);
     }
