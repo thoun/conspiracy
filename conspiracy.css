@@ -355,34 +355,8 @@
 .token.key.silver {
   background-position: 0% 0%;
 }
-.token.key.silver.available {
-  animation: available-silver-key-animation 1.5s 1 forwards;
-}
 .token.key.gold {
   background-position: 100% 0%;
-}
-.token.key.available {
-  animation: available-gold-key-animation 1.5s 1 forwards;
-}
-@keyframes available-silver-key-animation {
-  50% {
-    opacity: 1;
-    filter: drop-shadow(0 0 10px gray);
-  }
-  100% {
-    opacity: 1;
-    filter: drop-shadow(0 0 1px gray);
-  }
-}
-@keyframes available-gold-key-animation {
-  50% {
-    opacity: 1;
-    filter: drop-shadow(0 0 10px gold);
-  }
-  100% {
-    opacity: 1;
-    filter: drop-shadow(0 0 1px gold);
-  }
 }
 .token#pearlMasterToken {
   background-position: 100% 0%;
@@ -414,6 +388,42 @@
   margin-right: 10px;
 }
 
+.available .silver {
+  animation: available-silver-key-animation 1.5s 1 forwards;
+}
+.available .gold {
+  animation: available-gold-key-animation 1.5s 1 forwards;
+}
+.available span {
+  font-weight: bold;
+}
+.available.silver-key-counter {
+  color: #4B587C;
+}
+.available.gold-key-counter {
+  color: #734532;
+}
+
+@keyframes available-silver-key-animation {
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 10px gray);
+  }
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 1px gray);
+  }
+}
+@keyframes available-gold-key-animation {
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 10px gold);
+  }
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 1px gold);
+  }
+}
 .counters {
   display: flex;
   align-items: center;

@@ -361,14 +361,14 @@ class Conspiracy implements ConspiracyGame {
             const lastLocationSpotIndex = playerTable.map((spot: PlayerTableSpot, spotIndex: number) => spot.location ? spotIndex : -1).reduce((a, b) => a > b ? a : b, -1);
 
             const silverKeyAvailable = playerTable.filter((spot: PlayerTableSpot, spotIndex: number) => spotIndex > lastLocationSpotIndex && spot.lord?.key === 1).length > 0;
-            dojo.toggleClass(`silver-key-${player.id}`, 'available', silverKeyAvailable);
+            dojo.toggleClass(`silver-key-counter-wrapper-${player.id}`, 'available', silverKeyAvailable);
             const silverKeyCounter = new ebg.counter();
             silverKeyCounter.create(`silver-key-counter-${player.id}`);
             silverKeyCounter.setValue(playerTable.filter((spot: PlayerTableSpot) => spot.lord?.key === 1).length);
             this.silverKeyCounters[playerId] = silverKeyCounter;
 
             const goldKeyAvailable = playerTable.filter((spot: PlayerTableSpot, spotIndex: number) => spotIndex > lastLocationSpotIndex && spot.lord?.key === 2).length > 0;
-            dojo.toggleClass(`gold-key-${player.id}`, 'available', goldKeyAvailable);
+            dojo.toggleClass(`gold-key-counter-wrapper-${player.id}`, 'available', goldKeyAvailable);
             const goldKeyCounter = new ebg.counter();
             goldKeyCounter.create(`gold-key-counter-${player.id}`);
             goldKeyCounter.setValue(playerTable.filter((spot: PlayerTableSpot) => spot.lord?.key === 2).length);
@@ -686,7 +686,9 @@ class Conspiracy implements ConspiracyGame {
 
         
         (this as any).scoreCtrl[notif.args.previousPlayerId]?.incValue(-5);
-        (this.gamedatas.players[notif.args.previousPlayerId] as any).newScore.pearlMaster = 0;
+        if (this.gamedatas.players[notif.args.previousPlayerId]) {
+            (this.gamedatas.players[notif.args.previousPlayerId] as any).newScore.pearlMaster = 0;
+        }
         this.setNewScoreTooltip(notif.args.previousPlayerId);
     }
 

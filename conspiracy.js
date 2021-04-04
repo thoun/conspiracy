@@ -1150,13 +1150,13 @@ var Conspiracy = /** @class */ (function () {
             dojo.place("<div class=\"counters\">\n                <div id=\"silver-key-counter-wrapper-" + player.id + "\" class=\"key-counter silver-key-counter\">\n                    <div id=\"silver-key-" + player.id + "\" class=\"token silver key\"></div> \n                    <span id=\"silver-key-counter-" + player.id + "\" class=\"left\"></span>\n                </div>\n                <div id=\"gold-key-counter-wrapper-" + player.id + "\" class=\"key-counter gold-key-counter\">\n                    <div id=\"gold-key-" + player.id + "\"  class=\"token gold key\"></div> \n                    <span id=\"gold-key-counter-" + player.id + "\" class=\"left\"></span>\n                </div>\n            </div>", "player_board_" + player.id);
             var lastLocationSpotIndex = playerTable.map(function (spot, spotIndex) { return spot.location ? spotIndex : -1; }).reduce(function (a, b) { return a > b ? a : b; }, -1);
             var silverKeyAvailable = playerTable.filter(function (spot, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length > 0;
-            dojo.toggleClass("silver-key-" + player.id, 'available', silverKeyAvailable);
+            dojo.toggleClass("silver-key-counter-wrapper-" + player.id, 'available', silverKeyAvailable);
             var silverKeyCounter = new ebg.counter();
             silverKeyCounter.create("silver-key-counter-" + player.id);
             silverKeyCounter.setValue(playerTable.filter(function (spot) { var _a; return ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length);
             _this.silverKeyCounters[playerId] = silverKeyCounter;
             var goldKeyAvailable = playerTable.filter(function (spot, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 2; }).length > 0;
-            dojo.toggleClass("gold-key-" + player.id, 'available', goldKeyAvailable);
+            dojo.toggleClass("gold-key-counter-wrapper-" + player.id, 'available', goldKeyAvailable);
             var goldKeyCounter = new ebg.counter();
             goldKeyCounter.create("gold-key-counter-" + player.id);
             goldKeyCounter.setValue(playerTable.filter(function (spot) { var _a; return ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 2; }).length);
@@ -1405,7 +1405,9 @@ var Conspiracy = /** @class */ (function () {
         this.gamedatas.players[notif.args.playerId].newScore.pearlMaster = 5;
         this.setNewScoreTooltip(notif.args.playerId);
         (_a = this.scoreCtrl[notif.args.previousPlayerId]) === null || _a === void 0 ? void 0 : _a.incValue(-5);
-        this.gamedatas.players[notif.args.previousPlayerId].newScore.pearlMaster = 0;
+        if (this.gamedatas.players[notif.args.previousPlayerId]) {
+            this.gamedatas.players[notif.args.previousPlayerId].newScore.pearlMaster = 0;
+        }
         this.setNewScoreTooltip(notif.args.previousPlayerId);
     };
     Conspiracy.prototype.notif_lastTurn = function () {

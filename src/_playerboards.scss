@@ -1,0 +1,63 @@
+.available {
+    .silver {
+      animation: available-silver-key-animation 1.5s 1 forwards;
+    }
+  
+    .gold {
+      animation: available-gold-key-animation 1.5s 1 forwards;
+    }
+
+    span {
+      font-weight: bold;
+    }
+    
+    &.silver-key-counter {
+      color: #4B587C;
+    }
+
+    &.gold-key-counter {
+      color: #734532;
+    }
+
+  }
+    
+@keyframes available-silver-key-animation {
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 10px gray);
+  }
+  100% { 
+    opacity: 1;
+    filter: drop-shadow(0 0 1px gray);
+  }
+}
+  
+@keyframes available-gold-key-animation {
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 10px gold);
+  }
+  100% { 
+    opacity: 1;
+    filter: drop-shadow(0 0 1px gold);
+  }
+}
+
+.counters {
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+
+  .lord-counter, .pearl-counter, .key-counter {
+    flex: 1;
+    display: flex;
+    align-items: center;
+
+    span.left {
+      margin-left: 10px;
+    }
+    span.small {
+      font-size: 80%;
+    }
+  }
+}
