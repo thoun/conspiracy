@@ -10,23 +10,22 @@ declare const board: HTMLDivElement;
 const ANIMATION_MS = 500;
 const SCORE_MS = 1500;
 
-const GUILD_COLOR = [];
-GUILD_COLOR[1] = '#c1950b';
-GUILD_COLOR[2] = '#770405';
-GUILD_COLOR[3] = '#097138';
-GUILD_COLOR[4] = '#011d4d';
-GUILD_COLOR[5] = '#522886';
-
-
 const isDebug = window.location.host == 'studio.boardgamearena.com';
 const log = isDebug ? console.log.bind(window.console) : function () { };
+
+const LOG_GUILD_COLOR = [];
+LOG_GUILD_COLOR[1] = '#c1950b';
+LOG_GUILD_COLOR[2] = '#770405';
+LOG_GUILD_COLOR[3] = '#097138';
+LOG_GUILD_COLOR[4] = '#011d4d';
+LOG_GUILD_COLOR[5] = '#522886';
 
 class Conspiracy implements ConspiracyGame {
     private gamedatas: ConspiracyGamedatas;
     private lordsStacks: LordsStacks;
     private locationsStacks: LocationsStacks;
     private playersTables: PlayerTable[] = [];
-    private lordCounters: Counter[] = [];
+    private minimaps: Minimap[] = [];
     private pearlCounters: Counter[] = [];
     private silverKeyCounters: Counter[] = [];
     private goldKeyCounters: Counter[] = [];
@@ -320,25 +319,19 @@ class Conspiracy implements ConspiracyGame {
 
         Object.values(gamedatas.players).forEach(player => {
             const playerId = Number(player.id);
-            const playerTable = Object.values(gamedatas.playersTables[playerId]);
+            const playerTable = Object.values(gamedatas.playersTables[playerId]);         
 
             // Lord & pearl counters
 
             dojo.place(`<div class="counters">
-                <div id="lord-counter-wrapper-${player.id}" class="lord-counter">
-                    <div class="token lord"></div> 
-                    <span id="lord-counter-${player.id}" class="left"></span>&nbsp;/&nbsp;15
-                </div>
+                <div id="lord-counter-wrapper-${player.id}" class="lord-counter"></div>
                 <div id="pearl-counter-wrapper-${player.id}" class="pearl-counter">
                     <div class="token pearl"></div> 
                     <span id="pearl-counter-${player.id}" class="left"></span>
                 </div>
             </div>`, `player_board_${player.id}`);
 
-            const lordCounter = new ebg.counter();
-            lordCounter.create(`lord-counter-${player.id}`);
-            lordCounter.setValue(playerTable.filter((spot: PlayerTableSpot) => !!spot.lord).length);
-            this.lordCounters[playerId] = lordCounter;
+            this.minimaps[playerId] = new Minimap(playerId, playerTable);
 
             const pearlCounter = new ebg.counter();
             pearlCounter.create(`pearl-counter-${player.id}`);
@@ -618,8 +611,8 @@ class Conspiracy implements ConspiracyGame {
         const from = this.lordsStacks.getStockContaining(`${notif.args.lord.id}`);
         
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord, from);
+        this.minimaps[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);
         this.setNewScore(notif.args);
-        this.lordCounters[notif.args.playerId].incValue(1);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         
         if (notif.args.stackSelection || !notif.args.discardedLords.length) {
@@ -634,6 +627,7 @@ class Conspiracy implements ConspiracyGame {
 
     notif_lordSwapped(notif: Notif<NotifLordSwappedArgs>) {
         this.playersTables[notif.args.playerId].lordSwapped(notif.args);
+        this.minimaps[notif.args.playerId].lordSwapped(notif.args);
         this.setNewScore(notif.args);
     }
 
@@ -744,7 +738,7 @@ class Conspiracy implements ConspiracyGame {
             if (log && args && !args.processed) {
                 // Representation of the color of a card
                 if (args.guild !== undefined && args.guild_name !== undefined && args.guild_name[0] !== '<') {
-                    args.guild_name = `<span class='log-guild-name' style='color: ${GUILD_COLOR[args.guild]}'>${_(args.guild_name)}</span>`;
+                    args.guild_name = `<span class='log-guild-name' style='color: ${LOG_GUILD_COLOR[args.guild]}'>${_(args.guild_name)}</span>`;
                 }
             }
         } catch (e) {

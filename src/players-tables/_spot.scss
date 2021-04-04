@@ -1,8 +1,8 @@
 .player-table-spot {
     position: absolute;
     display: inline-block;
-    width: 207.26px;
-    height: 209px;
+    width: $lord-width;
+    height: $lord-height;
 
     @for $i from 1 through 5 {
         &.spot#{$i} {

@@ -901,20 +901,53 @@ var PlayerTable = /** @class */ (function () {
     };
     return PlayerTable;
 }());
+var GUILD_COLOR = [];
+GUILD_COLOR[1] = '#E0CA4E';
+GUILD_COLOR[2] = '#DB6646';
+GUILD_COLOR[3] = '#00A879';
+GUILD_COLOR[4] = '#0096D2';
+GUILD_COLOR[5] = '#74549F';
+var Minimap = /** @class */ (function () {
+    function Minimap(playerId, spots) {
+        var _this = this;
+        this.playerId = playerId;
+        console.log(spots);
+        var html = "<div id=\"minimap-" + playerId + "\" class=\"minimap\">";
+        SPOTS_NUMBERS.forEach(function (spotNumber) {
+            return html += "<div class=\"player-table-spot spot" + spotNumber + "\"></div>";
+        });
+        html += "</div>";
+        dojo.place(html, "lord-counter-wrapper-" + playerId);
+        SPOTS_NUMBERS.filter(function (spotNumber) { return !!spots[spotNumber - 1].lord; }).forEach(function (spotNumber) { return _this.setGuildToSpot(spotNumber, spots[spotNumber - 1].lord.guild); });
+    }
+    Minimap.prototype.setGuildToSpot = function (spotNumber, guild) {
+        document.getElementById("minimap-" + this.playerId).getElementsByClassName("spot" + spotNumber)[0].style.background = GUILD_COLOR[guild];
+    };
+    Minimap.prototype.addLord = function (spot, lord) {
+        this.setGuildToSpot(spot, lord.guild);
+    };
+    Minimap.prototype.lordSwapped = function (args) {
+        var colorLordSpot1 = document.getElementById("minimap-" + this.playerId).getElementsByClassName("spot" + args.spot1)[0].style.background;
+        var colorLordSpot2 = document.getElementById("minimap-" + this.playerId).getElementsByClassName("spot" + args.spot2)[0].style.background;
+        document.getElementById("minimap-" + this.playerId).getElementsByClassName("spot" + args.spot1)[0].style.background = colorLordSpot2;
+        document.getElementById("minimap-" + this.playerId).getElementsByClassName("spot" + args.spot2)[0].style.background = colorLordSpot1;
+    };
+    return Minimap;
+}());
 var ANIMATION_MS = 500;
 var SCORE_MS = 1500;
-var GUILD_COLOR = [];
-GUILD_COLOR[1] = '#c1950b';
-GUILD_COLOR[2] = '#770405';
-GUILD_COLOR[3] = '#097138';
-GUILD_COLOR[4] = '#011d4d';
-GUILD_COLOR[5] = '#522886';
 var isDebug = window.location.host == 'studio.boardgamearena.com';
 var log = isDebug ? console.log.bind(window.console) : function () { };
+var LOG_GUILD_COLOR = [];
+LOG_GUILD_COLOR[1] = '#c1950b';
+LOG_GUILD_COLOR[2] = '#770405';
+LOG_GUILD_COLOR[3] = '#097138';
+LOG_GUILD_COLOR[4] = '#011d4d';
+LOG_GUILD_COLOR[5] = '#522886';
 var Conspiracy = /** @class */ (function () {
     function Conspiracy() {
         this.playersTables = [];
-        this.lordCounters = [];
+        this.minimaps = [];
         this.pearlCounters = [];
         this.silverKeyCounters = [];
         this.goldKeyCounters = [];
@@ -1137,11 +1170,8 @@ var Conspiracy = /** @class */ (function () {
             var playerId = Number(player.id);
             var playerTable = Object.values(gamedatas.playersTables[playerId]);
             // Lord & pearl counters
-            dojo.place("<div class=\"counters\">\n                <div id=\"lord-counter-wrapper-" + player.id + "\" class=\"lord-counter\">\n                    <div class=\"token lord\"></div> \n                    <span id=\"lord-counter-" + player.id + "\" class=\"left\"></span>&nbsp;/&nbsp;15\n                </div>\n                <div id=\"pearl-counter-wrapper-" + player.id + "\" class=\"pearl-counter\">\n                    <div class=\"token pearl\"></div> \n                    <span id=\"pearl-counter-" + player.id + "\" class=\"left\"></span>\n                </div>\n            </div>", "player_board_" + player.id);
-            var lordCounter = new ebg.counter();
-            lordCounter.create("lord-counter-" + player.id);
-            lordCounter.setValue(playerTable.filter(function (spot) { return !!spot.lord; }).length);
-            _this.lordCounters[playerId] = lordCounter;
+            dojo.place("<div class=\"counters\">\n                <div id=\"lord-counter-wrapper-" + player.id + "\" class=\"lord-counter\"></div>\n                <div id=\"pearl-counter-wrapper-" + player.id + "\" class=\"pearl-counter\">\n                    <div class=\"token pearl\"></div> \n                    <span id=\"pearl-counter-" + player.id + "\" class=\"left\"></span>\n                </div>\n            </div>", "player_board_" + player.id);
+            _this.minimaps[playerId] = new Minimap(playerId, playerTable);
             var pearlCounter = new ebg.counter();
             pearlCounter.create("pearl-counter-" + player.id);
             pearlCounter.setValue(player.pearls);
@@ -1181,7 +1211,7 @@ var Conspiracy = /** @class */ (function () {
                 newScore: player.newScore
             });
         });
-        this.addTooltipHtmlToClass('lord-counter', _("Number of lords in player table"));
+        this.addTooltipHtmlToClass('lord-counter', _("Lords played in player table"));
         this.addTooltipHtmlToClass('pearl-counter', _("Number of pearls"));
         this.addTooltipHtmlToClass('silver-key-counter', _("Number of silver keys (highlighted if a silver key is available)"));
         this.addTooltipHtmlToClass('gold-key-counter', _("Number of gold keys (highlighted if a gold key is available)"));
@@ -1352,8 +1382,8 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.notif_lordPlayed = function (notif) {
         var from = this.lordsStacks.getStockContaining("" + notif.args.lord.id);
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord, from);
+        this.minimaps[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);
         this.setNewScore(notif.args);
-        this.lordCounters[notif.args.playerId].incValue(1);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         if (notif.args.stackSelection || !notif.args.discardedLords.length) {
             this.lordsStacks.discardPick(notif.args.discardedLords);
@@ -1365,6 +1395,7 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.notif_lordSwapped = function (notif) {
         this.playersTables[notif.args.playerId].lordSwapped(notif.args);
+        this.minimaps[notif.args.playerId].lordSwapped(notif.args);
         this.setNewScore(notif.args);
     };
     Conspiracy.prototype.notif_extraLordRevealed = function (notif) {
@@ -1454,7 +1485,7 @@ var Conspiracy = /** @class */ (function () {
             if (log && args && !args.processed) {
                 // Representation of the color of a card
                 if (args.guild !== undefined && args.guild_name !== undefined && args.guild_name[0] !== '<') {
-                    args.guild_name = "<span class='log-guild-name' style='color: " + GUILD_COLOR[args.guild] + "'>" + _(args.guild_name) + "</span>";
+                    args.guild_name = "<span class='log-guild-name' style='color: " + LOG_GUILD_COLOR[args.guild] + "'>" + _(args.guild_name) + "</span>";
                 }
             }
         }

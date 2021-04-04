@@ -20,6 +20,7 @@
         "src/stacks/locations-stacks.ts",
         "src/players-tables/spot.ts",
         "src/players-tables/player-table.ts",
+        "src/minimap.ts",
         "src/conspiracy.ts",
         "src/define.ts"
     ]
