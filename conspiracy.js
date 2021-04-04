@@ -949,7 +949,7 @@ var Conspiracy = /** @class */ (function () {
             this.notif_lastTurn();
         }
         if (Number(gamedatas.gamestate.id) >= 80) { // score or end
-            this.onEnteringShowScore();
+            this.onEnteringShowScore(true);
         }
         this.addHelp();
         this.setupNotifications();
@@ -1024,7 +1024,8 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.onEnteringLocationSelection = function (args) {
         this.locationsStacks.setPick(true, this.isCurrentPlayerActive(), args.locations);
     };
-    Conspiracy.prototype.onEnteringShowScore = function () {
+    Conspiracy.prototype.onEnteringShowScore = function (fromReload) {
+        if (fromReload === void 0) { fromReload = false; }
         this.closePopin();
         var lastTurnBar = document.getElementById('last-round');
         if (lastTurnBar) {
@@ -1033,8 +1034,9 @@ var Conspiracy = /** @class */ (function () {
         document.getElementById('stacks').style.display = 'none';
         document.getElementById('score').style.display = 'flex';
         Object.values(this.gamedatas.players).forEach(function (player) {
-            var detailedScore = player.detailedScore;
-            dojo.place("<tr id=\"score" + player.id + "\">\n                <td class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</td>\n                <td id=\"lords-score" + player.id + "\" class=\"score-number lords-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.lords) !== undefined ? detailedScore.lords : '') + "</td>\n                <td id=\"locations-score" + player.id + "\" class=\"score-number locations-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.locations) !== undefined ? detailedScore.locations : '') + "</td>\n                <td id=\"coalition-score" + player.id + "\" class=\"score-number coalition-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.coalition) !== undefined ? detailedScore.coalition : '') + "</td>\n                <td id=\"masterPearl-score" + player.id + "\" class=\"score-number masterPearl-score\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.pearlMaster) !== undefined ? detailedScore.pearlMaster : '') + "</td>\n                <td class=\"score-number total\">" + ((detailedScore === null || detailedScore === void 0 ? void 0 : detailedScore.total) !== undefined ? detailedScore.total : '') + "</td>\n            </tr>", 'score-table-body');
+            //if we are a reload of end state, we display values, else we wait for notifications
+            var score = fromReload ? player.newScore : null;
+            dojo.place("<tr id=\"score" + player.id + "\">\n                <td class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</td>\n                <td id=\"lords-score" + player.id + "\" class=\"score-number lords-score\">" + ((score === null || score === void 0 ? void 0 : score.lords) !== undefined ? score.lords : '') + "</td>\n                <td id=\"locations-score" + player.id + "\" class=\"score-number locations-score\">" + ((score === null || score === void 0 ? void 0 : score.locations) !== undefined ? score.locations : '') + "</td>\n                <td id=\"coalition-score" + player.id + "\" class=\"score-number coalition-score\">" + ((score === null || score === void 0 ? void 0 : score.coalition) !== undefined ? score.coalition : '') + "</td>\n                <td id=\"masterPearl-score" + player.id + "\" class=\"score-number masterPearl-score\">" + ((score === null || score === void 0 ? void 0 : score.pearlMaster) !== undefined ? score.pearlMaster : '') + "</td>\n                <td class=\"score-number total\">" + ((score === null || score === void 0 ? void 0 : score.total) !== undefined ? score.total : '') + "</td>\n            </tr>", 'score-table-body');
         });
         this.addTooltipHtmlToClass('lords-score', _("The total of Influence Points from the Lords with the Coat of Arms tokens (the most influential Lord of each color in your Senate Chamber)."));
         this.addTooltipHtmlToClass('locations-score', _("The total of Influence Points from the Locations you control."));
@@ -1042,9 +1044,7 @@ var Conspiracy = /** @class */ (function () {
         this.addTooltipHtmlToClass('masterPearl-score', _("The player who has the Pearl Master token gains a bonus of 5 Influence Points."));
         if (!document.getElementById('page-content').style.zoom) {
             // scale down 
-            Array.from(document.getElementsByClassName('player-table-wrapper')).forEach(function (elem) {
-                return elem.classList.add('scaled-down');
-            });
+            Array.from(document.getElementsByClassName('player-table-wrapper')).forEach(function (elem) { return elem.classList.add('scaled-down'); });
         }
     };
     // onLeavingState: this method is called each time we are leaving a game state.
@@ -1176,6 +1176,10 @@ var Conspiracy = /** @class */ (function () {
             dojo.place("<div id=\"show-playermat-" + player.id + "\" class=\"show-playermat-button\">\n                    <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 85.333343 145.79321\">\n                    <path fill=\"currentColor\" d=\"M 1.6,144.19321 C 0.72,143.31321 0,141.90343 0,141.06039 0,140.21734 5.019,125.35234 11.15333,108.02704 L 22.30665,76.526514 14.626511,68.826524 C 8.70498,62.889705 6.45637,59.468243 4.80652,53.884537 0.057,37.810464 3.28288,23.775161 14.266011,12.727735 23.2699,3.6711383 31.24961,0.09115725 42.633001,0.00129225 c 15.633879,-0.123414 29.7242,8.60107205 36.66277,22.70098475 8.00349,16.263927 4.02641,36.419057 -9.54327,48.363567 l -6.09937,5.36888 10.8401,30.526466 c 5.96206,16.78955 10.84011,32.03102 10.84011,33.86992 0,1.8389 -0.94908,3.70766 -2.10905,4.15278 -1.15998,0.44513 -19.63998,0.80932 -41.06667,0.80932 -28.52259,0 -39.386191,-0.42858 -40.557621,-1.6 z M 58.000011,54.483815 c 3.66666,-1.775301 9.06666,-5.706124 11.99999,-8.735161 l 5.33334,-5.507342 -6.66667,-6.09345 C 59.791321,26.035633 53.218971,23.191944 43.2618,23.15582 33.50202,23.12041 24.44122,27.164681 16.83985,34.94919 c -4.926849,5.045548 -5.023849,5.323672 -2.956989,8.478106 3.741259,5.709878 15.032709,12.667218 24.11715,14.860013 4.67992,1.129637 13.130429,-0.477436 20,-3.803494 z m -22.33337,-2.130758 c -2.8907,-1.683676 -6.3333,-8.148479 -6.3333,-11.893186 0,-11.58942 14.57544,-17.629692 22.76923,-9.435897 8.41012,8.410121 2.7035,22.821681 -9,22.728685 -2.80641,-0.0223 -6.15258,-0.652121 -7.43593,-1.399602 z m 14.6667,-6.075289 c 3.72801,-4.100734 3.78941,-7.121364 0.23656,-11.638085 -2.025061,-2.574448 -3.9845,-3.513145 -7.33333,-3.513145 -10.93129,0 -13.70837,13.126529 -3.90323,18.44946 3.50764,1.904196 7.30574,0.765377 11,-3.29823 z m -11.36999,0.106494 c -3.74071,-2.620092 -4.07008,-7.297494 -0.44716,-6.350078 3.2022,0.837394 4.87543,-1.760912 2.76868,-4.29939 -1.34051,-1.615208 -1.02878,-1.94159 1.85447,-1.94159 4.67573,0 8.31873,5.36324 6.2582,9.213366 -1.21644,2.27295 -5.30653,5.453301 -7.0132,5.453301 -0.25171,0 -1.79115,-0.934022 -3.42099,-2.075605 z\"></path>\n                    </svg>\n                </div>", "player_board_" + player.id);
             dojo.connect($("show-playermat-" + player.id), 'onclick', _this, function () { return _this.movePlayerTableToPopin(Number(player.id)); });
             /*}*/
+            _this.setNewScore({
+                playerId: playerId,
+                newScore: player.newScore
+            });
         });
         this.addTooltipHtmlToClass('lord-counter', _("Number of lords in player table"));
         this.addTooltipHtmlToClass('pearl-counter', _("Number of pearls"));
@@ -1294,6 +1298,21 @@ var Conspiracy = /** @class */ (function () {
         }
         this.helpDialog.show();
     };
+    Conspiracy.prototype.setNewScoreTooltip = function (playerId) {
+        var score = this.gamedatas.players[playerId].newScore;
+        var html = "\n            " + _("Lords points") + " : <strong>" + score.lords + "</strong><br>\n            " + _("Locations points") + " : <strong>" + score.locations + "</strong><br>\n            " + _("Coalition points") + " : <strong>" + score.coalition + "</strong><br>\n            " + _("Pearl Master points") + " : <strong>" + score.pearlMaster + "</strong><br>\n        ";
+        this.addTooltipHtml("player_score_" + playerId, html);
+        this.addTooltipHtml("icon_point_" + playerId, html);
+    };
+    Conspiracy.prototype.setNewScore = function (args) {
+        var _a;
+        var score = args.newScore;
+        this.gamedatas.players[args.playerId].newScore = score;
+        if (!isNaN(score.total)) {
+            (_a = this.scoreCtrl[args.playerId]) === null || _a === void 0 ? void 0 : _a.toValue(score.total);
+        }
+        this.setNewScoreTooltip(args.playerId);
+    };
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
     /*
@@ -1333,7 +1352,7 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.notif_lordPlayed = function (notif) {
         var from = this.lordsStacks.getStockContaining("" + notif.args.lord.id);
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord, from);
-        this.scoreCtrl[notif.args.playerId].toValue(notif.args.newScore);
+        this.setNewScore(notif.args);
         this.lordCounters[notif.args.playerId].incValue(1);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         if (notif.args.stackSelection || !notif.args.discardedLords.length) {
@@ -1346,7 +1365,7 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.notif_lordSwapped = function (notif) {
         this.playersTables[notif.args.playerId].lordSwapped(notif.args);
-        this.scoreCtrl[notif.args.playerId].toValue(notif.args.newScore);
+        this.setNewScore(notif.args);
     };
     Conspiracy.prototype.notif_extraLordRevealed = function (notif) {
         this.lordsStacks.addLords([notif.args.lord]);
@@ -1355,7 +1374,7 @@ var Conspiracy = /** @class */ (function () {
         var _a;
         var from = this.locationsStacks.getStockContaining("" + notif.args.location.id);
         this.playersTables[notif.args.playerId].addLocation(notif.args.spot, notif.args.location, from);
-        this.scoreCtrl[notif.args.playerId].toValue(notif.args.newScore);
+        this.setNewScore(notif.args);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         if ((_a = notif.args.discardedLocations) === null || _a === void 0 ? void 0 : _a.length) {
             this.locationsStacks.discardPick(notif.args.discardedLocations);
@@ -1383,7 +1402,11 @@ var Conspiracy = /** @class */ (function () {
         var _a;
         this.placePearlMasterToken(notif.args.playerId);
         this.scoreCtrl[notif.args.playerId].incValue(5);
+        this.gamedatas.players[notif.args.playerId].newScore.pearlMaster = 5;
+        this.setNewScoreTooltip(notif.args.playerId);
         (_a = this.scoreCtrl[notif.args.previousPlayerId]) === null || _a === void 0 ? void 0 : _a.incValue(-5);
+        this.gamedatas.players[notif.args.previousPlayerId].newScore.pearlMaster = 0;
+        this.setNewScoreTooltip(notif.args.previousPlayerId);
     };
     Conspiracy.prototype.notif_lastTurn = function () {
         dojo.place("<div id=\"last-round\">\n            " + _("This is the last round of the game!") + "\n        </div>", 'page-title');

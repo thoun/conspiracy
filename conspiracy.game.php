@@ -25,6 +25,7 @@ require_once( 'modules/constants.inc.php' );
 require_once( 'modules/lord.php' );
 require_once( 'modules/location.php' );
 require_once( 'modules/player-table-spot.php' );
+require_once( 'modules/score.php' );
 
 
 class Conspiracy extends Table
@@ -224,16 +225,7 @@ class Conspiracy extends Table
         }
 
         foreach ($result['players'] as $player_id => $playerDb) {
-            $detailedScore = new stdClass();
-            if ($isEnd) {
-                $detailedScore->lords = intval($playerDb['lords']);
-                $detailedScore->locations = intval($playerDb['locations']);
-                $detailedScore->coalition = intval($playerDb['coalition']);
-                $detailedScore->pearlMaster = $result['pearlMasterPlayer'] == $player_id ? 5 : 0;
-                $detailedScore->total = intval($playerDb['score']);
-            }
-
-            $result['players'][$player_id]['detailedScore'] = $detailedScore;
+            $result['players'][$player_id]['newScore'] = $this->getPlayerScore($player_id);
         }
   
         return $result;
@@ -640,22 +632,32 @@ class Conspiracy extends Table
         return $guildName;
     }
 
-    function getAndSavePlayerScore($player_id) {
+    function getPlayerScore($player_id) {
+        $score = new Score();
+
         // lords 
-        $points = $this->getScoreLords($player_id);
+        $score->lords = $this->getScoreLords($player_id);
         // locations
         $currentPlayerPearls = intval(self::getUniqueValueFromDB( "SELECT player_score_aux FROM `player` WHERE player_id = $player_id"));
-        $points += $this->getScoreLocations($player_id, $currentPlayerPearls);
+        $score->locations = $this->getScoreLocations($player_id, $currentPlayerPearls);
         // coalition
         $coalition = $this->getScoreTopCoalition($player_id);
-        $points += $coalition->size * 3;
+        $score->coalition = $coalition ? $coalition->size * 3 : 0;
         // pearl master
-        if (intval(self::getGameStateValue('pearlMasterPlayer')) == $player_id) {
-            $points += 5;
-        }
+        $score->pearlMaster = intval(self::getGameStateValue('pearlMasterPlayer')) == $player_id ? 5 : 0;
+
+        $points = $score->getTotal();
+
+        return $score;
+    }
+
+    function getAndSavePlayerScore($player_id) {
+        $score = $this->getPlayerScore($player_id);
+
+        $points = $score->getTotal();
         self::DbQuery("UPDATE player SET player_score = $points WHERE player_id = $player_id");
 
-        return $points;
+        return $score;
     }
     
 //////////////////////////////////////////////////////////////////////////////
@@ -929,7 +931,7 @@ class Conspiracy extends Table
 
             self::notifyAllPlayers('scoreLords', clienttranslate('${player_name} wins ${points} points with lords'), [
                 'playerId' => $player_id,
-                'player_name' => self::getActivePlayerName(),
+                'player_name' => $playerDb['player_name'],
                 'points' => $points,
             ]);
 
@@ -946,7 +948,7 @@ class Conspiracy extends Table
 
             self::notifyAllPlayers('scoreLocations', clienttranslate('${player_name} wins ${points} points with locations'), [
                 'playerId' => $player_id,
-                'player_name' => self::getActivePlayerName(),
+                'player_name' => $playerDb['player_name'],
                 'points' => $points,
             ]);
             
@@ -964,7 +966,7 @@ class Conspiracy extends Table
 
             self::notifyAllPlayers('scoreCoalition', clienttranslate('${player_name} wins ${points} points with greatest Lords Coalition'), [
                 'playerId' => $player_id,
-                'player_name' => self::getActivePlayerName(),
+                'player_name' => $playerDb['player_name'],
                 'points' => $points,
                 'coalition' => $coalition,
             ]);
@@ -981,7 +983,7 @@ class Conspiracy extends Table
 
         self::notifyAllPlayers('scorePearlMaster', clienttranslate('${player_name} is the Pearl Master and wins 5 points'), [
             'playerId' => $pearlMaster,
-            'player_name' => self::getActivePlayerName()
+            'player_name' => $playerDb['player_name'],
         ]);
 
         foreach ($players as $player_id => $playerDb) {
@@ -994,7 +996,7 @@ class Conspiracy extends Table
             $points = $playersPoints[$player_id];
             self::notifyAllPlayers('scoreTotal', clienttranslate('${player_name} has ${points} points in total'), [
                 'playerId' => $player_id,
-                'player_name' => self::getActivePlayerName(),
+                'player_name' => $playerDb['player_name'],
                 'points' => $points,
             ]);
 

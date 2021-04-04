@@ -74,7 +74,7 @@ class Conspiracy implements ConspiracyGame {
         }
 
         if (Number(gamedatas.gamestate.id) >= 80) { // score or end
-            this.onEnteringShowScore();
+            this.onEnteringShowScore(true);
         }
 
         this.addHelp();
@@ -161,7 +161,7 @@ class Conspiracy implements ConspiracyGame {
         this.locationsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.locations);
     }   
 
-    onEnteringShowScore() {
+    onEnteringShowScore(fromReload: boolean = false) {
         this.closePopin();
         const lastTurnBar = document.getElementById('last-round');
         if (lastTurnBar) {
@@ -172,15 +172,16 @@ class Conspiracy implements ConspiracyGame {
         document.getElementById('score').style.display = 'flex';
 
         Object.values(this.gamedatas.players).forEach(player => {
-            const detailedScore: DetailedScore = (player as any).detailedScore;
+            //if we are a reload of end state, we display values, else we wait for notifications
+            const score: Score = fromReload ? (player as any).newScore : null;
 
             dojo.place(`<tr id="score${player.id}">
                 <td class="player-name" style="color: #${player.color}">${player.name}</td>
-                <td id="lords-score${player.id}" class="score-number lords-score">${detailedScore?.lords !== undefined ? detailedScore.lords : ''}</td>
-                <td id="locations-score${player.id}" class="score-number locations-score">${detailedScore?.locations !== undefined ? detailedScore.locations : ''}</td>
-                <td id="coalition-score${player.id}" class="score-number coalition-score">${detailedScore?.coalition !== undefined ? detailedScore.coalition : ''}</td>
-                <td id="masterPearl-score${player.id}" class="score-number masterPearl-score">${detailedScore?.pearlMaster !== undefined ? detailedScore.pearlMaster : ''}</td>
-                <td class="score-number total">${detailedScore?.total !== undefined ? detailedScore.total : ''}</td>
+                <td id="lords-score${player.id}" class="score-number lords-score">${score?.lords !== undefined ? score.lords : ''}</td>
+                <td id="locations-score${player.id}" class="score-number locations-score">${score?.locations !== undefined ? score.locations : ''}</td>
+                <td id="coalition-score${player.id}" class="score-number coalition-score">${score?.coalition !== undefined ? score.coalition : ''}</td>
+                <td id="masterPearl-score${player.id}" class="score-number masterPearl-score">${score?.pearlMaster !== undefined ? score.pearlMaster : ''}</td>
+                <td class="score-number total">${score?.total !== undefined ? score.total : ''}</td>
             </tr>`, 'score-table-body');
         });
 
@@ -191,9 +192,7 @@ class Conspiracy implements ConspiracyGame {
 
         if(!document.getElementById('page-content').style.zoom) {
             // scale down 
-            Array.from(document.getElementsByClassName('player-table-wrapper')).forEach(elem => 
-                elem.classList.add('scaled-down')
-            );
+            Array.from(document.getElementsByClassName('player-table-wrapper')).forEach(elem => elem.classList.add('scaled-down'));
         }
     }
 
@@ -398,6 +397,11 @@ class Conspiracy implements ConspiracyGame {
                 </div>`, `player_board_${player.id}`);
                 dojo.connect($(`show-playermat-${player.id}`), 'onclick', this, () => this.movePlayerTableToPopin(Number(player.id)));
             /*}*/
+
+            this.setNewScore({
+                playerId,
+                newScore: (player as any).newScore
+            });
         });
 
         (this as any).addTooltipHtmlToClass('lord-counter', _("Number of lords in player table"));
@@ -548,6 +552,29 @@ class Conspiracy implements ConspiracyGame {
         this.helpDialog.show();
     }
 
+    private setNewScoreTooltip(playerId: number) {
+        const score: Score = (this.gamedatas.players[playerId] as any).newScore
+        const html = `
+            ${_("Lords points")} : <strong>${score.lords}</strong><br>
+            ${_("Locations points")} : <strong>${score.locations}</strong><br>
+            ${_("Coalition points")} : <strong>${score.coalition}</strong><br>
+            ${_("Pearl Master points")} : <strong>${score.pearlMaster}</strong><br>
+        `;
+
+        (this as any).addTooltipHtml(`player_score_${playerId}`, html);
+        (this as any).addTooltipHtml(`icon_point_${playerId}`, html);
+    }
+
+    private setNewScore(args: NotifNewScoreArgs) {
+        const score = args.newScore;
+        (this.gamedatas.players[args.playerId] as any).newScore = score;
+        if (!isNaN(score.total)) {
+            (this as any).scoreCtrl[args.playerId]?.toValue(score.total);
+        }
+        
+        this.setNewScoreTooltip(args.playerId);
+    }
+
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
 
@@ -591,7 +618,7 @@ class Conspiracy implements ConspiracyGame {
         const from = this.lordsStacks.getStockContaining(`${notif.args.lord.id}`);
         
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord, from);
-        (this as any).scoreCtrl[notif.args.playerId].toValue(notif.args.newScore);
+        this.setNewScore(notif.args);
         this.lordCounters[notif.args.playerId].incValue(1);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
         
@@ -607,7 +634,7 @@ class Conspiracy implements ConspiracyGame {
 
     notif_lordSwapped(notif: Notif<NotifLordSwappedArgs>) {
         this.playersTables[notif.args.playerId].lordSwapped(notif.args);
-        (this as any).scoreCtrl[notif.args.playerId].toValue(notif.args.newScore);
+        this.setNewScore(notif.args);
     }
 
     notif_extraLordRevealed(notif: Notif<NotifExtraLordRevealedArgs>) {
@@ -618,7 +645,7 @@ class Conspiracy implements ConspiracyGame {
         const from = this.locationsStacks.getStockContaining(`${notif.args.location.id}`);
 
         this.playersTables[notif.args.playerId].addLocation(notif.args.spot, notif.args.location, from);
-        (this as any).scoreCtrl[notif.args.playerId].toValue(notif.args.newScore);
+        this.setNewScore(notif.args);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
 
         if (notif.args.discardedLocations?.length) {
@@ -652,8 +679,15 @@ class Conspiracy implements ConspiracyGame {
 
     notif_newPearlMaster(notif: Notif<NotifNewPearlMasterArgs>) {
         this.placePearlMasterToken(notif.args.playerId);
+
         (this as any).scoreCtrl[notif.args.playerId].incValue(5);
+        (this.gamedatas.players[notif.args.playerId] as any).newScore.pearlMaster = 5;
+        this.setNewScoreTooltip(notif.args.playerId);
+
+        
         (this as any).scoreCtrl[notif.args.previousPlayerId]?.incValue(-5);
+        (this.gamedatas.players[notif.args.previousPlayerId] as any).newScore.pearlMaster = 0;
+        this.setNewScoreTooltip(notif.args.previousPlayerId);
     }
 
     notif_lastTurn() {

@@ -27,14 +27,6 @@ interface PlayerTableSpot {
     location?: Location;
 }
 
-interface DetailedScore {
-    lords: number;
-    locations: number;
-    coalition: number;
-    pearlMaster: number;
-    total: number;
-}
-
 interface ConspiracyGamedatas {
     current_player_id: string;
     decision: {decision_type: string};
@@ -63,6 +55,14 @@ interface ConspiracyGame extends Game {
     lordStockPick: (guild: number) => void;
     setCanSwap(swapSpots: number[]);
     locationPick: (id: number) => void;
+}
+
+interface Score {
+    lords: number;
+    locations: number;
+    coalition: number;
+    pearlMaster: number;
+    total: number;
 }
 
 interface EnteringStackSelectionArgs {
@@ -94,33 +94,32 @@ interface NotifDiscardLocationPickArgs {
     discardedLocations: Location[];
 }
 
-interface NotifLordPlayedArgs {
+interface NotifNewScoreArgs {
     playerId: number;
+    newScore: Score;
+}
+
+interface NotifLordPlayedArgs extends NotifNewScoreArgs {
     lord: Lord;
     spot: number;
     stackSelection: boolean;
     discardedLords: Lord[];
-    newScore: number;
     pearls: number;
 }
 
-interface NotifLordSwappedArgs {
-    playerId: number;
+interface NotifLordSwappedArgs extends NotifNewScoreArgs {
     spot1: number;
     spot2: number;
-    newScore: number;
 }
 
 interface NotifExtraLordRevealedArgs {
     lord: Lord;
 }
 
-interface NotifLocationPlayedArgs {
-    playerId: number;
+interface NotifLocationPlayedArgs extends NotifNewScoreArgs {
     location: Location;
     spot: number;
     discardedLocations: Location[];
-    newScore: number;
     pearls: number;
 }
 

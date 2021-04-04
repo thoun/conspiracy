@@ -5,10 +5,10 @@
         <thead>
             <tr>
                 <th></th>
-                <th class="lords-score"></th>
-                <th class="locations-score"></th>
-                <th class="coalition-score"></th>
-                <th class="masterPearl-score"></th>
+                <th id="th-lords-score" class="lords-score"></th>
+                <th id="th-locations-score" class="locations-score"></th>
+                <th id="th-coalition-score" class="coalition-score"></th>
+                <th id="th-masterPearl-score" class="masterPearl-score"></th>
                 <th></th>
             </tr>
         </thead>
