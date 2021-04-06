@@ -1,7 +1,7 @@
 const GUILD_COLOR = [];
 GUILD_COLOR[1] = '#E0CA4E';
 GUILD_COLOR[2] = '#DB6646';
-GUILD_COLOR[3] = '#00A879';
+GUILD_COLOR[3] = '#037552';
 GUILD_COLOR[4] = '#0096D2';
 GUILD_COLOR[5] = '#74549F';
 
@@ -10,8 +10,6 @@ class Minimap {
         private playerId: number,
         spots: PlayerTableSpot[]
     ) {
-        console.log(spots);
-
         let html = `<div id="minimap-${playerId}" class="minimap">`;
         SPOTS_NUMBERS.forEach(spotNumber => 
             html += `<div class="player-table-spot spot${spotNumber}"></div>`

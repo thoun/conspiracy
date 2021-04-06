@@ -682,8 +682,8 @@ class Conspiracy implements ConspiracyGame {
         (this as any).scoreCtrl[notif.args.previousPlayerId]?.incValue(-5);
         if (this.gamedatas.players[notif.args.previousPlayerId]) {
             (this.gamedatas.players[notif.args.previousPlayerId] as any).newScore.pearlMaster = 0;
+            this.setNewScoreTooltip(notif.args.previousPlayerId);
         }
-        this.setNewScoreTooltip(notif.args.previousPlayerId);
     }
 
     notif_lastTurn() {

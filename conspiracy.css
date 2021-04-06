@@ -390,14 +390,14 @@
 
 .minimap {
   position: relative;
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
 }
 .minimap .player-table-spot {
   position: absolute;
   display: inline-block;
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   background: #FFFFFF60;
   border-radius: 2px;
 }
@@ -407,59 +407,59 @@
 }
 .minimap .player-table-spot.spot2 {
   top: 0;
-  left: 7px;
+  left: 8px;
 }
 .minimap .player-table-spot.spot3 {
   top: 0;
-  left: 14px;
+  left: 16px;
 }
 .minimap .player-table-spot.spot4 {
   top: 0;
-  left: 21px;
+  left: 24px;
 }
 .minimap .player-table-spot.spot5 {
   top: 0;
-  left: 28px;
+  left: 32px;
 }
 .minimap .player-table-spot.spot6 {
-  top: 7px;
-  left: 3.5px;
+  top: 8px;
+  left: 4px;
 }
 .minimap .player-table-spot.spot7 {
-  top: 7px;
-  left: 10.5px;
+  top: 8px;
+  left: 12px;
 }
 .minimap .player-table-spot.spot8 {
-  top: 7px;
-  left: 17.5px;
+  top: 8px;
+  left: 20px;
 }
 .minimap .player-table-spot.spot9 {
-  top: 7px;
-  left: 24.5px;
+  top: 8px;
+  left: 28px;
 }
 .minimap .player-table-spot.spot10 {
-  top: 14px;
-  left: 7px;
+  top: 16px;
+  left: 8px;
 }
 .minimap .player-table-spot.spot11 {
-  top: 14px;
-  left: 14px;
+  top: 16px;
+  left: 16px;
 }
 .minimap .player-table-spot.spot12 {
-  top: 14px;
-  left: 21px;
+  top: 16px;
+  left: 24px;
 }
 .minimap .player-table-spot.spot13 {
-  top: 21px;
-  left: 10.5px;
+  top: 24px;
+  left: 12px;
 }
 .minimap .player-table-spot.spot14 {
-  top: 21px;
-  left: 17.5px;
+  top: 24px;
+  left: 20px;
 }
 .minimap .player-table-spot.spot15 {
-  top: 28px;
-  left: 14px;
+  top: 32px;
+  left: 16px;
 }
 
 .available .silver {
