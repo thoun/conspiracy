@@ -4,7 +4,8 @@ class LocationsStacks extends AbstractStacks<Location> {
     constructor(game: ConspiracyGame, visibleLocations: Location[], pickLocations: Location[]) {
         super(game);
 
-        this.pileDiv.addEventListener('click', e => this.onHiddenLocationClick(e));
+        this.pileDiv.addEventListener('click', (e: MouseEvent) => this.onHiddenLocationClick(e));
+        Array.from(this.pileDiv.getElementsByClassName('button')).forEach(button => button.addEventListener('click', (e: MouseEvent) => this.onHiddenLocationClick(e)));
 
         this.visibleLocationsStock = new ebg.stock() as Stock;
         this.visibleLocationsStock.setSelectionAppearance('class');
@@ -100,6 +101,8 @@ class LocationsStacks extends AbstractStacks<Location> {
         this.game.takeAction('chooseLocationDeckStack', {
             number
         });
+
+        event.stopPropagation();
     }
 
     public onVisibleLocationClick(control_name: string, item_id: string) {

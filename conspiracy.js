@@ -473,6 +473,7 @@ var LordsStacks = /** @class */ (function (_super) {
         var _this = _super.call(this, game) || this;
         _this.lordsStocks = [];
         _this.pileDiv.addEventListener('click', function (e) { return _this.onHiddenLordsClick(e); });
+        Array.from(_this.pileDiv.getElementsByClassName('button')).forEach(function (button) { return button.addEventListener('click', function (e) { return _this.onHiddenLordsClick(e); }); });
         GUILD_IDS.forEach(function (guild) { return _this.lordsStocks[guild] = new LordStock(_this, guild, visibleLords[guild]); });
         _this.pickStock = new ebg.stock();
         _this.pickStock.setSelectionAppearance('class');
@@ -561,6 +562,7 @@ var LordsStacks = /** @class */ (function (_super) {
         this.game.takeAction('chooseLordDeckStack', {
             number: number
         });
+        event.stopPropagation();
     };
     LordsStacks.prototype.setupNewLordCard = function (card_div, card_type_id, card_id) {
         var message = getLordTooltip(card_type_id);
@@ -578,6 +580,7 @@ var LocationsStacks = /** @class */ (function (_super) {
     function LocationsStacks(game, visibleLocations, pickLocations) {
         var _this = _super.call(this, game) || this;
         _this.pileDiv.addEventListener('click', function (e) { return _this.onHiddenLocationClick(e); });
+        Array.from(_this.pileDiv.getElementsByClassName('button')).forEach(function (button) { return button.addEventListener('click', function (e) { return _this.onHiddenLocationClick(e); }); });
         _this.visibleLocationsStock = new ebg.stock();
         _this.visibleLocationsStock.setSelectionAppearance('class');
         _this.visibleLocationsStock.selectionClass = 'no-visible-selection';
@@ -664,6 +667,7 @@ var LocationsStacks = /** @class */ (function (_super) {
         this.game.takeAction('chooseLocationDeckStack', {
             number: number
         });
+        event.stopPropagation();
     };
     LocationsStacks.prototype.onVisibleLocationClick = function (control_name, item_id) {
         if (!item_id || !this.game.checkAction('chooseVisibleLocation')) {

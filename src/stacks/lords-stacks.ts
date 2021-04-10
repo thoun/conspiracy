@@ -4,7 +4,8 @@ class LordsStacks extends AbstractStacks<Lord> {
     constructor(game: ConspiracyGame, visibleLords: { [spot: number]: Lord[] }, pickLords: Lord[]) {
         super(game);
 
-        this.pileDiv.addEventListener('click', e => this.onHiddenLordsClick(e));
+        this.pileDiv.addEventListener('click', (e: MouseEvent) => this.onHiddenLordsClick(e));
+        Array.from(this.pileDiv.getElementsByClassName('button')).forEach(button => button.addEventListener('click', (e: MouseEvent) => this.onHiddenLordsClick(e)));
 
         GUILD_IDS.forEach(guild => this.lordsStocks[guild] = new LordStock(this, guild, visibleLords[guild]));
 
@@ -99,6 +100,8 @@ class LordsStacks extends AbstractStacks<Lord> {
         this.game.takeAction('chooseLordDeckStack', {
             number
         });
+
+        event.stopPropagation();
     }
 
     public setupNewLordCard(card_div: HTMLDivElement, card_type_id: number, card_id: string) {
