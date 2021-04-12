@@ -141,6 +141,8 @@ class Conspiracy extends Table
         //$testedCard = $this->getLocationsFromDb($this->locations->getCardsOfType(14))[0];
         //$this->locations->moveCard($testedCard->id, 'table');
 
+        //$this->lords->pickCardsForLocation(30, 'deck', 'nowhere');
+
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
 
@@ -672,10 +674,12 @@ class Conspiracy extends Table
     
     function argLordStackSelection() {
         $limitToHidden = null;
-        if (self::getGameStateValue('AP_FIRST_LORD') > 0) {
-            $limitToHidden = 1;
-        } else if (self::getGameStateValue('AP_FIRST_LORDS') > 0) {
-            $limitToHidden = 2;
+        if ($this->lords->countCardInLocation('deck') > 0) {
+            if (self::getGameStateValue('AP_FIRST_LORD') > 0) {
+                $limitToHidden = 1;
+            } else if (self::getGameStateValue('AP_FIRST_LORDS') > 0) {
+                $limitToHidden = 2;
+            }
         }
 
         $count = $this->lords->countCardInLocation('deck');
@@ -763,7 +767,7 @@ class Conspiracy extends Table
             'i18n' => ['guild_name'],
         ]);
 
-        if ($lord->showExtraLord) {
+        if ($lord->showExtraLord && $this->lords->countCardInLocation('deck') > 0) {
             $extraLord = $this->addExtraLord();
 
             self::notifyAllPlayers('extraLordRevealed', clienttranslate('A ${guild_name} lord is added in the discard pile'), [
