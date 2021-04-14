@@ -872,6 +872,7 @@ class Conspiracy extends Table
             'points' => $location->points,
             'newScore' => $newScore,
             'pearls' => $pearls,
+            'remainingLocations' => $this->getRemainingLocations(),
         ]);
 
         if ($location->pearls > 0) {

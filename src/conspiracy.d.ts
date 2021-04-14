@@ -142,6 +142,7 @@ interface NotifLocationPlayedArgs extends NotifNewScoreArgs {
     spot: number;
     discardedLocations: Location[];
     pearls: number;
+    remainingLocations: number;
 }
 
 interface NotifNewPearlMasterArgs {

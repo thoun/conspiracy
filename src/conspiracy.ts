@@ -687,6 +687,7 @@ class Conspiracy implements ConspiracyGame {
         if (notif.args.discardedLocations?.length) {
             this.locationsStacks.discardPick(notif.args.discardedLocations);
         }
+        this.setRemainingLocations(notif.args.remainingLocations);
 
         this.locationsStacks.setPick(false, false);
 

@@ -1443,6 +1443,7 @@ var Conspiracy = /** @class */ (function () {
         if ((_a = notif.args.discardedLocations) === null || _a === void 0 ? void 0 : _a.length) {
             this.locationsStacks.discardPick(notif.args.discardedLocations);
         }
+        this.setRemainingLocations(notif.args.remainingLocations);
         this.locationsStacks.setPick(false, false);
         this.updateKeysForPlayer(notif.args.playerId);
     };
