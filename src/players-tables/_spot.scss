@@ -71,7 +71,7 @@
         .token {
             width: 48px;
             height: 48px;
-            filter: drop-shadow(0 0 5px white);
+            box-shadow: 0 0 5px 2px white;
         }
     }
 }
