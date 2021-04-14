@@ -17,7 +17,11 @@
   &.key {
     background-image: url('img/keys.png');
     background-size: auto 100%;
+    background-repeat: no-repeat;
     opacity: 0.5;
+
+    border: 2px solid transparent;
+    border-radius: 8px;
 
     &.silver {
       background-position: 0% 0%;

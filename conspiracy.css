@@ -350,7 +350,10 @@
 .token.key {
   background-image: url("img/keys.png");
   background-size: auto 100%;
+  background-repeat: no-repeat;
   opacity: 0.5;
+  border: 2px solid transparent;
+  border-radius: 8px;
 }
 .token.key.silver {
   background-position: 0% 0%;
@@ -468,34 +471,29 @@
 .available .gold {
   animation: available-gold-key-animation 1.5s 1 forwards;
 }
-.available span {
-  font-weight: bold;
-}
-.available.silver-key-counter {
-  color: #4B587C;
-}
-.available.gold-key-counter {
-  color: #734532;
-}
 
 @keyframes available-silver-key-animation {
   50% {
     opacity: 1;
-    filter: drop-shadow(0 0 10px gray);
+    border-color: #4B587C;
+    box-shadow: 0 0 12px 7px #4B587C;
   }
   100% {
     opacity: 1;
-    filter: drop-shadow(0 0 1px gray);
+    border-color: #4B587C;
+    box-shadow: unset;
   }
 }
 @keyframes available-gold-key-animation {
   50% {
     opacity: 1;
-    filter: drop-shadow(0 0 10px gold);
+    border-color: #734532;
+    box-shadow: 0 0 12px 7px #734532;
   }
   100% {
     opacity: 1;
-    filter: drop-shadow(0 0 1px gold);
+    border-color: #734532;
+    box-shadow: unset;
   }
 }
 .counters {
