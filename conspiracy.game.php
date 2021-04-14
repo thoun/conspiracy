@@ -142,6 +142,7 @@ class Conspiracy extends Table
         //$this->locations->moveCard($testedCard->id, 'table');
 
         //$this->lords->pickCardsForLocation(30, 'deck', 'nowhere');
+        //$this->locations->pickCardsForLocation(20, 'deck', 'nowhere');
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
@@ -304,6 +305,16 @@ class Conspiracy extends Table
 
             return $silverKeys >= 2 || $goldKeys >= 2;
         }
+    }
+
+    function canConstruct(int $playerId, int $key): bool {
+        $canConstruct = $this->canConstructWithNewKey($playerId, $key);
+
+        if ($canConstruct && self::getGameStateValue('AP_DECK_LOCATION') == $playerId) {
+            $canConstruct = $this->locations->countCardInLocation('deck') > 0;
+        }
+
+        return $canConstruct;
     }
 
     function addExtraLord() {
@@ -787,7 +798,7 @@ class Conspiracy extends Table
         if ($lord->swap && $this->canSwap($player_id)) {
             $this->gamestate->nextState('swap');
             self::giveExtraTime($player_id);
-        } else if ($lord->key && $this->canConstructWithNewKey($player_id, $lord->key)) {
+        } else if ($lord->key && $this->canConstruct($player_id, $lord->key)) {
             $this->gamestate->nextState('addLocation');
             self::giveExtraTime($player_id);
         } else {
