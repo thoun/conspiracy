@@ -415,10 +415,7 @@ var AbstractStacks = /** @class */ (function () {
     };
     AbstractStacks.prototype.setMax = function (max) {
         this.max = max;
-        if (max === 0) {
-            this.pileDiv.style.visibility = 'hidden';
-        }
-        else if (!this.allHidden && max < 3) {
+        if (max !== 0 && !this.allHidden && max < 3) {
             var buttons = Array.from(this.pileDiv.getElementsByClassName('button'));
             buttons.filter(function (button) { return parseInt(button.dataset.number) > max; })
                 .forEach(function (button) { return button.classList.add('max'); });
@@ -979,7 +976,13 @@ var Conspiracy = /** @class */ (function () {
         log('gamedatas', gamedatas);
         this.createPlayerPanels(gamedatas);
         this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords, gamedatas.pickLords);
+        this.lordCounter = new ebg.counter();
+        this.lordCounter.create('remaining-lord-counter');
+        this.setRemainingLords(gamedatas.remainingLords);
         this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations, gamedatas.pickLocations);
+        this.locationCounter = new ebg.counter();
+        this.locationCounter.create('remaining-location-counter');
+        this.setRemainingLocations(gamedatas.remainingLocations);
         this.createPlayerTables(gamedatas);
         if (gamedatas.endTurn) {
             this.notif_lastTurn();
@@ -1012,6 +1015,9 @@ var Conspiracy = /** @class */ (function () {
                 this.setGamestateDescription(multiple ? (number > 1 ? 'multiple' : 'last') : '');
                 this.onEnteringLordSelection(args.args);
                 break;
+            case 'lordPlacement':
+                this.onEnteringLordPlacement(args.args);
+                break;
             case 'lordSwap':
                 this.onEnteringLordSwap();
                 break;
@@ -1022,6 +1028,9 @@ var Conspiracy = /** @class */ (function () {
                 break;
             case 'locationSelection':
                 this.onEnteringLocationSelection(args.args);
+                break;
+            case 'addLocation':
+                this.onEnteringLocationPlacement(args.args);
                 break;
             case 'showScore':
                 Object.keys(this.gamedatas.players).forEach(function (playerId) { return _this.scoreCtrl[playerId].setValue(0); });
@@ -1044,6 +1053,10 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.onEnteringLordSelection = function (args) {
         this.lordsStacks.setPick(true, this.isCurrentPlayerActive(), args.lords);
+        this.setRemainingLords(args.remainingLords);
+    };
+    Conspiracy.prototype.onEnteringLordPlacement = function (args) {
+        this.setRemainingLords(args.remainingLords);
     };
     Conspiracy.prototype.onEnteringLordSwap = function () {
         if (this.isCurrentPlayerActive()) {
@@ -1059,6 +1072,10 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.onEnteringLocationSelection = function (args) {
         this.locationsStacks.setPick(true, this.isCurrentPlayerActive(), args.locations);
+        this.setRemainingLocations(args.remainingLocations);
+    };
+    Conspiracy.prototype.onEnteringLocationPlacement = function (args) {
+        this.setRemainingLocations(args.remainingLocations);
     };
     Conspiracy.prototype.onEnteringShowScore = function (fromReload) {
         if (fromReload === void 0) { fromReload = false; }
@@ -1346,6 +1363,18 @@ var Conspiracy = /** @class */ (function () {
         }
         this.setNewScoreTooltip(args.playerId);
     };
+    Conspiracy.prototype.setRemainingLords = function (remainingLords) {
+        this.lordCounter.setValue(remainingLords);
+        var visibility = remainingLords > 0 ? 'visible' : 'hidden';
+        document.getElementById('lord-hidden-pile').style.visibility = visibility;
+        document.getElementById('remaining-lord-counter').style.visibility = visibility;
+    };
+    Conspiracy.prototype.setRemainingLocations = function (remainingLocations) {
+        this.locationCounter.setValue(remainingLocations);
+        var visibility = remainingLocations > 0 ? 'visible' : 'hidden';
+        document.getElementById('location-hidden-pile').style.visibility = visibility;
+        document.getElementById('remaining-location-counter').style.visibility = visibility;
+    };
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
     /*
@@ -1403,6 +1432,7 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.notif_extraLordRevealed = function (notif) {
         this.lordsStacks.addLords([notif.args.lord]);
+        this.setRemainingLords(notif.args.remainingLords);
     };
     Conspiracy.prototype.notif_locationPlayed = function (notif) {
         var _a;
@@ -1416,8 +1446,9 @@ var Conspiracy = /** @class */ (function () {
         this.locationsStacks.setPick(false, false);
         this.updateKeysForPlayer(notif.args.playerId);
     };
-    Conspiracy.prototype.notif_discardLords = function () {
+    Conspiracy.prototype.notif_discardLords = function (notif) {
         this.lordsStacks.discardVisible();
+        this.setRemainingLords(notif.args.remainingLords);
     };
     Conspiracy.prototype.notif_discardLordPick = function (notif) {
         // log('notif_discardLordPick', notif.args);
@@ -1429,8 +1460,9 @@ var Conspiracy = /** @class */ (function () {
         this.locationsStacks.discardPick(notif.args.discardedLocations);
         this.locationsStacks.setPick(false, false);
     };
-    Conspiracy.prototype.notif_discardLocations = function () {
+    Conspiracy.prototype.notif_discardLocations = function (notif) {
         this.locationsStacks.discardVisible();
+        this.setRemainingLocations(notif.args.remainingLocations);
     };
     Conspiracy.prototype.notif_newPearlMaster = function (notif) {
         var _a;

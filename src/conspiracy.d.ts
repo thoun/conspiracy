@@ -47,6 +47,8 @@ interface ConspiracyGamedatas {
     pearlMasterPlayer: number;
     playersTables: { [playerId: number]: PlayerTableSpot[] };
     endTurn: boolean;
+    remainingLords: number;
+    remainingLocations: number;
 }
 
 interface ConspiracyGame extends Game {
@@ -76,6 +78,11 @@ interface EnteringLordStackSelectionArgs extends EnteringStackSelectionArgs {
 interface EnteringLordSelectionArgs {
     lords: Lord[];
     multiple: boolean;
+    remainingLords: number;
+}
+
+interface EnteringLordPlacementArgs {
+    remainingLords: number;
 }
 
 interface EnteringLocationStackSelectionArgs extends EnteringStackSelectionArgs {
@@ -84,14 +91,27 @@ interface EnteringLocationStackSelectionArgs extends EnteringStackSelectionArgs 
 
 interface EnteringLocationSelectionArgs {
     locations: Location[];
+    remainingLocations: number;
+}
+
+interface EnteringLocationPlacementArgs {
+    remainingLocations: number;
 }
 
 interface NotifDiscardLordPickArgs {
     discardedLords: Lord[];
 }
 
+interface NotifDiscardLordsArgs {
+    remainingLords: number;
+}
+
 interface NotifDiscardLocationPickArgs {
     discardedLocations: Location[];
+}
+
+interface NotifDiscardLocationsArgs {
+    remainingLocations: number;
 }
 
 interface NotifNewScoreArgs {
@@ -114,6 +134,7 @@ interface NotifLordSwappedArgs extends NotifNewScoreArgs {
 
 interface NotifExtraLordRevealedArgs {
     lord: Lord;
+    remainingLords: number;
 }
 
 interface NotifLocationPlayedArgs extends NotifNewScoreArgs {

@@ -138,10 +138,14 @@ class Conspiracy extends Table
         //$this->locations->moveCard($testedCard->id, 'table');
         //$testedCard = $this->getLocationsFromDb($this->locations->getCardsOfType(10))[0];
         //$this->locations->moveCard($testedCard->id, 'table');
+        //$testedCard = $this->getLocationsFromDb($this->locations->getCardsOfType(11))[0];
+        //$this->locations->moveCard($testedCard->id, 'table');
+        //$testedCard = $this->getLocationsFromDb($this->locations->getCardsOfType(12))[0];
+        //$this->locations->moveCard($testedCard->id, 'table');
         //$testedCard = $this->getLocationsFromDb($this->locations->getCardsOfType(14))[0];
         //$this->locations->moveCard($testedCard->id, 'table');
 
-        //$this->lords->pickCardsForLocation(30, 'deck', 'nowhere');
+        //$this->lords->pickCardsForLocation(40, 'deck', 'nowhere');
         //$this->locations->pickCardsForLocation(20, 'deck', 'nowhere');
 
         // Activate first player (which is in general a good idea :) )
@@ -230,6 +234,9 @@ class Conspiracy extends Table
         foreach ($result['players'] as $player_id => $playerDb) {
             $result['players'][$player_id]['newScore'] = $this->getPlayerScore($player_id);
         }
+
+        $result['remainingLords'] = $this->getRemainingLords();
+        $result['remainingLocations'] = $this->getRemainingLocations();
   
         return $result;
     }
@@ -260,6 +267,14 @@ class Conspiracy extends Table
 
     function mustTakeFirstLords() {
         return self::getGameStateValue('AP_FIRST_LORDS') > 0;
+    }
+
+    function getRemainingLords() {
+        return $this->lords->countCardInLocation('deck');
+    }
+
+    function getRemainingLocations() {
+        return $this->locations->countCardInLocation('deck');
     }
 
     function mustPickOnLocationPile(int $playerId) {
@@ -311,7 +326,7 @@ class Conspiracy extends Table
         $canConstruct = $this->canConstructWithNewKey($playerId, $key);
 
         if ($canConstruct && self::getGameStateValue('AP_DECK_LOCATION') == $playerId) {
-            $canConstruct = $this->locations->countCardInLocation('deck') > 0;
+            $canConstruct = $this->getRemainingLocations() > 0;
         }
 
         return $canConstruct;
@@ -336,7 +351,7 @@ class Conspiracy extends Table
         self::checkAction('chooseDeckStack'); 
         // self::debug('[GBA] chooseLordDeckStack');
 
-        $count = $this->lords->countCardInLocation('deck');
+        $count = $this->getRemainingLords();
         if ($number > $count) {
             throw new Error("Can't take $number cards, only $count in deck");
         }
@@ -685,7 +700,9 @@ class Conspiracy extends Table
     
     function argLordStackSelection() {
         $limitToHidden = null;
-        if ($this->lords->countCardInLocation('deck') > 0) {
+        $count = $this->getRemainingLords();
+
+        if ($count > 0) {
             if (self::getGameStateValue('AP_FIRST_LORD') > 0) {
                 $limitToHidden = 1;
             } else if (self::getGameStateValue('AP_FIRST_LORDS') > 0) {
@@ -693,7 +710,6 @@ class Conspiracy extends Table
             }
         }
 
-        $count = $this->lords->countCardInLocation('deck');
         return [
             'limitToHidden' => $limitToHidden,
             'max' => intval(min(3, $count)),
@@ -705,6 +721,13 @@ class Conspiracy extends Table
         return [
             'lords' => $lords,
             'multiple' => self::getGameStateValue('stackSelection') != 1,
+            'remainingLords' => $this->getRemainingLords(),
+        ];
+    }
+    
+    function argLordPlacement() {
+        return [
+            'remainingLords' => $this->getRemainingLords(),
         ];
     }
     
@@ -718,7 +741,16 @@ class Conspiracy extends Table
 
     function argLocationSelection() {
         $locations = $this->getLocationsFromDb($this->locations->getCardsInLocation('location_sel'));    
-        return [ 'locations' => $locations ];
+        return [ 
+            'locations' => $locations,
+            'remainingLocations' => $this->getRemainingLocations(),
+        ];
+    }
+
+    function argLocationPlacement() { 
+        return [
+            'remainingLocations' => $this->getRemainingLocations(),
+        ];
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -778,7 +810,7 @@ class Conspiracy extends Table
             'i18n' => ['guild_name'],
         ]);
 
-        if ($lord->showExtraLord && $this->lords->countCardInLocation('deck') > 0) {
+        if ($lord->showExtraLord && $this->getRemainingLords() > 0) {
             $extraLord = $this->addExtraLord();
 
             self::notifyAllPlayers('extraLordRevealed', clienttranslate('A ${guild_name} lord is added in the discard pile'), [
@@ -786,6 +818,7 @@ class Conspiracy extends Table
                 'guild' => $extraLord->guild,
                 'guild_name' => $this->getGuildName($extraLord->guild),
                 'i18n' => ['guild_name'],
+                'remainingLords' => $this->getRemainingLords(),
             ]);
         }
 
@@ -848,12 +881,16 @@ class Conspiracy extends Table
         if ($location->activePower == AP_DISCARD_LORDS && $this->lords->countCardInLocation("table") > 0) {
             $this->lords->moveAllCardsInLocation('table', 'deck');
             $this->lords->shuffle('deck');
-            self::notifyAllPlayers('discardLords', clienttranslate('Lords are discarded'), []);
+            self::notifyAllPlayers('discardLords', clienttranslate('Lords are discarded'), [                
+                'remainingLords' => $this->getRemainingLords(),
+            ]);
         }
         if ($location->activePower == AP_DISCARD_LOCATIONS && $this->locations->countCardInLocation("table") > 0) {
             $this->locations->moveAllCardsInLocation('table', 'deck');
             $this->locations->shuffle('deck');
-            self::notifyAllPlayers('discardLocations', clienttranslate('Locations are discarded'), []);
+            self::notifyAllPlayers('discardLocations', clienttranslate('Locations are discarded'), [                
+                'remainingLocations' => $this->getRemainingLocations(),
+            ]);
         }
         if ($location->activePower == AP_FIRST_LORD) {
             self::setGameStateValue('AP_FIRST_LORD', $player_id);

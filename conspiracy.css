@@ -43,6 +43,11 @@
   pointer-events: none;
   cursor: default;
 }
+.stacks .remaining-counter {
+  position: absolute;
+  text-align: center;
+  text-shadow: 1px 1px 1px white;
+}
 
 .pick-stock {
   border: 3px dashed transparent;
@@ -63,6 +68,7 @@
   width: 207px;
   height: 207px;
   margin-right: 10px;
+  margin-bottom: 12px;
   background-image: url("img/lords.jpg");
 }
 #lord-stacks #lord-visible-stocks {
@@ -79,6 +85,10 @@
   border-color: white;
   cursor: pointer;
 }
+#lord-stacks #remaining-lord-counter {
+  width: 207px;
+  top: 221px;
+}
 
 #location-stacks #location-hidden-pile {
   min-width: 186px;
@@ -94,6 +104,10 @@
 #location-stacks #location-visible-stock.selectable {
   border-color: white;
   cursor: pointer;
+}
+#location-stacks #remaining-location-counter {
+  width: 186px;
+  top: 138px;
 }
 
 .stockitem {
@@ -354,7 +368,7 @@
   background-repeat: no-repeat;
   opacity: 0.5;
   border: 2px solid transparent;
-  border-radius: 8px;
+  border-radius: 10px;
 }
 .token.key.silver {
   background-position: 0% 0%;

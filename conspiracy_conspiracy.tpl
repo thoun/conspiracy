@@ -24,6 +24,7 @@
             <div id="lord-hidden-pile2" class="button lord-hidden-pile-tooltip" data-number="2">2</div>
             <div id="lord-hidden-pile3" class="button right-radius lord-hidden-pile-tooltip" data-number="3">3</div>
         </div>
+        <div id="remaining-lord-counter" class="remaining-counter"></div>
         <div id="lord-visible-stocks">
             <div id="lord-visible-stock1"></div>
             <div id="lord-visible-stock2"></div>
@@ -42,6 +43,7 @@
             <div id="location-hidden-pile2" class="button location-hidden-pile-tooltip" data-number="2">2</div>
             <div id="location-hidden-pile3" class="button right-radius location-hidden-pile-tooltip" data-number="3">3</div>
         </div>
+        <div id="remaining-location-counter" class="remaining-counter"></div>
         <div id="location-visible-stock"></div>
     </div>
     <div id="location-pick" class="pick-stock whiteblock">

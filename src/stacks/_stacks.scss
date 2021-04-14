@@ -51,6 +51,12 @@
             cursor: default;
         }
     }
+
+    .remaining-counter {
+        position: absolute;
+        text-align: center;
+        text-shadow: 1px 1px 1px white;
+    }
 }
 
 .pick-stock {
@@ -74,6 +80,7 @@
         width: 207px;
         height: 207px;
         margin-right: 10px;
+        margin-bottom: 12px;
 
         background-image: url('img/lords.jpg');
     }
@@ -93,6 +100,11 @@
                 cursor: pointer;
             }
         }
+    }
+
+    #remaining-lord-counter {
+        width: 207px;
+        top: 221px;
     }
 }
 
@@ -114,6 +126,11 @@
             border-color: white;
             cursor: pointer;
         }
+    }
+
+    #remaining-location-counter {
+        width: 186px;
+        top: 138px;
     }
 }
 

@@ -24,6 +24,9 @@ class Conspiracy implements ConspiracyGame {
     private gamedatas: ConspiracyGamedatas;
     private lordsStacks: LordsStacks;
     private locationsStacks: LocationsStacks;
+    private lordCounter: Counter;
+    private locationCounter: Counter;
+
     private playersTables: PlayerTable[] = [];
     private minimaps: Minimap[] = [];
     private pearlCounters: Counter[] = [];
@@ -64,7 +67,15 @@ class Conspiracy implements ConspiracyGame {
         this.createPlayerPanels(gamedatas);
 
         this.lordsStacks = new LordsStacks(this, gamedatas.visibleLords, gamedatas.pickLords);
+        this.lordCounter = new ebg.counter();
+        this.lordCounter.create('remaining-lord-counter');
+        this.setRemainingLords(gamedatas.remainingLords);
+
         this.locationsStacks = new LocationsStacks(this, gamedatas.visibleLocations, gamedatas.pickLocations);
+        this.locationCounter = new ebg.counter();
+        this.locationCounter.create('remaining-location-counter');
+        this.setRemainingLocations(gamedatas.remainingLocations);
+
 
         this.createPlayerTables(gamedatas);
 
@@ -104,6 +115,9 @@ class Conspiracy implements ConspiracyGame {
                 this.setGamestateDescription(multiple ? (number > 1 ? 'multiple' : 'last') : '');
                 this.onEnteringLordSelection(args.args);
                 break;
+            case 'lordPlacement':
+                this.onEnteringLordPlacement(args.args);
+                break;
             case 'lordSwap':
                 this.onEnteringLordSwap();
                 break;
@@ -115,6 +129,9 @@ class Conspiracy implements ConspiracyGame {
                 break;
             case 'locationSelection':
                 this.onEnteringLocationSelection(args.args);
+                break;
+            case 'addLocation':
+                this.onEnteringLocationPlacement(args.args);
                 break;
 
             case 'showScore':
@@ -140,6 +157,11 @@ class Conspiracy implements ConspiracyGame {
 
     onEnteringLordSelection(args: EnteringLordSelectionArgs) {
         this.lordsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.lords);
+        this.setRemainingLords(args.remainingLords);
+    }
+    
+    onEnteringLordPlacement(args: EnteringLordPlacementArgs) {
+        this.setRemainingLords(args.remainingLords);
     }
 
     onEnteringLordSwap() {    
@@ -158,7 +180,12 @@ class Conspiracy implements ConspiracyGame {
 
     onEnteringLocationSelection(args: EnteringLocationSelectionArgs) {
         this.locationsStacks.setPick(true, (this as any).isCurrentPlayerActive(), args.locations);
+        this.setRemainingLocations(args.remainingLocations);
     }   
+    
+    onEnteringLocationPlacement(args: EnteringLocationPlacementArgs) {
+        this.setRemainingLocations(args.remainingLocations);
+    }
 
     onEnteringShowScore(fromReload: boolean = false) {
         this.closePopin();
@@ -568,6 +595,20 @@ class Conspiracy implements ConspiracyGame {
         this.setNewScoreTooltip(args.playerId);
     }
 
+    private setRemainingLords(remainingLords: number) {
+        this.lordCounter.setValue(remainingLords);
+        const visibility = remainingLords > 0 ? 'visible' : 'hidden';
+        document.getElementById('lord-hidden-pile').style.visibility = visibility;
+        document.getElementById('remaining-lord-counter').style.visibility = visibility;
+    }
+
+    private setRemainingLocations(remainingLocations: number) {
+        this.locationCounter.setValue(remainingLocations);
+        const visibility = remainingLocations > 0 ? 'visible' : 'hidden';
+        document.getElementById('location-hidden-pile').style.visibility = visibility;
+        document.getElementById('remaining-location-counter').style.visibility = visibility;
+    }
+
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
 
@@ -633,6 +674,7 @@ class Conspiracy implements ConspiracyGame {
 
     notif_extraLordRevealed(notif: Notif<NotifExtraLordRevealedArgs>) {
         this.lordsStacks.addLords([notif.args.lord]);
+        this.setRemainingLords(notif.args.remainingLords);
     }
 
     notif_locationPlayed(notif: Notif<NotifLocationPlayedArgs>) {
@@ -651,8 +693,9 @@ class Conspiracy implements ConspiracyGame {
         this.updateKeysForPlayer(notif.args.playerId);
     }
 
-    notif_discardLords() {
+    notif_discardLords(notif: Notif<NotifDiscardLordsArgs>) {
         this.lordsStacks.discardVisible();
+        this.setRemainingLords(notif.args.remainingLords);
     }
 
     notif_discardLordPick(notif: Notif<NotifDiscardLordPickArgs>) {
@@ -667,8 +710,9 @@ class Conspiracy implements ConspiracyGame {
         this.locationsStacks.setPick(false, false);
     }
 
-    notif_discardLocations() {
+    notif_discardLocations(notif: Notif<NotifDiscardLocationsArgs>) {
         this.locationsStacks.discardVisible();
+        this.setRemainingLocations(notif.args.remainingLocations);
     }
 
     notif_newPearlMaster(notif: Notif<NotifNewPearlMasterArgs>) {

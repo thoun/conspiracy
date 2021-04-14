@@ -45,9 +45,7 @@ abstract class AbstractStacks<T extends Card> {
     public setMax(max: number) {
         this.max = max;
 
-        if (max === 0) {
-            this.pileDiv.style.visibility = 'hidden';
-        } else if (!this.allHidden && max < 3) {
+        if (max !== 0 && !this.allHidden && max < 3) {
             const buttons = Array.from(this.pileDiv.getElementsByClassName('button'));
             buttons.filter((button: HTMLDivElement) => parseInt(button.dataset.number) > max)
                 .forEach(button => button.classList.add('max'));
