@@ -29,15 +29,17 @@
     color: #212222;
     background: #e5f4fd;
 }
+        
+h2.standard_popin_title {
+    font-family: 'MoolBoran';
+}
 
 #help-popin {
     max-width: 35rem;
     max-height: 80vh;
     overflow: auto;
-        
-    font-family: 'MoolBoran';
 
-    h1.help {
+    h1 {
         font-family: 'TribalGaramondPL-SC700';
         color: #0094bb;
     }
