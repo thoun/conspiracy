@@ -278,7 +278,9 @@ class Conspiracy implements ConspiracyGame {
         if((this as any).isCurrentPlayerActive()) {
             switch (stateName) {
                 case 'lordSwap':
-                (this as any).addActionButton( 'dontSwap_button', _("Don't swap"), 'onDontSwap' );
+                (this as any).addActionButton('swap_button', _("Swap"), 'onSwap');
+                (this as any).addActionButton('dontSwap_button', _("Don't swap"), 'onDontSwap', null, false, 'red');
+                dojo.addClass('swap_button', 'disabled');
                 break;
             }
 
@@ -509,9 +511,9 @@ class Conspiracy implements ConspiracyGame {
 
     public setCanSwap(swapSpots: number[]) {
         if (this.swapSpots.length !== 2 && swapSpots.length === 2) {
-            (this as any).addActionButton( 'swap_button', _("Swap"), 'onSwap' );
+            dojo.removeClass('swap_button', 'disabled');
         } else if (this.swapSpots.length === 2 && swapSpots.length !== 2) {
-            dojo.destroy('swap_button');
+            dojo.addClass('swap_button', 'disabled');
         }
         this.swapSpots = swapSpots.slice();
     }

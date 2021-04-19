@@ -1148,7 +1148,9 @@ var Conspiracy = /** @class */ (function () {
         if (this.isCurrentPlayerActive()) {
             switch (stateName) {
                 case 'lordSwap':
-                    this.addActionButton('dontSwap_button', _("Don't swap"), 'onDontSwap');
+                    this.addActionButton('swap_button', _("Swap"), 'onSwap');
+                    this.addActionButton('dontSwap_button', _("Don't swap"), 'onDontSwap', null, false, 'red');
+                    dojo.addClass('swap_button', 'disabled');
                     break;
             }
         }
@@ -1303,10 +1305,10 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.setCanSwap = function (swapSpots) {
         if (this.swapSpots.length !== 2 && swapSpots.length === 2) {
-            this.addActionButton('swap_button', _("Swap"), 'onSwap');
+            dojo.removeClass('swap_button', 'disabled');
         }
         else if (this.swapSpots.length === 2 && swapSpots.length !== 2) {
-            dojo.destroy('swap_button');
+            dojo.addClass('swap_button', 'disabled');
         }
         this.swapSpots = swapSpots.slice();
     };
