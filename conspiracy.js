@@ -1235,8 +1235,8 @@ var Conspiracy = /** @class */ (function () {
         });
         this.addTooltipHtmlToClass('lord-counter', _("Number of lords in player table"));
         this.addTooltipHtmlToClass('pearl-counter', _("Number of pearls"));
-        this.addTooltipHtmlToClass('silver-key-counter', _("Number of silver keys (highlighted if a silver key is available)"));
-        this.addTooltipHtmlToClass('gold-key-counter', _("Number of gold keys (highlighted if a gold key is available)"));
+        this.addTooltipHtmlToClass('silver-key-counter', _("Number of silver keys (surrounded if a silver key is available)"));
+        this.addTooltipHtmlToClass('gold-key-counter', _("Number of gold keys (surrounded if a gold key is available)"));
         GUILD_IDS.forEach(function (guild) { return _this.addTooltipHtmlToClass("token-guild" + guild, _("The Coat of Arms token indicates the most influential Lord of each color.")); });
     };
     Conspiracy.prototype.updateKeysForPlayer = function (playerId) {

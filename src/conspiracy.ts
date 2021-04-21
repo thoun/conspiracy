@@ -428,8 +428,8 @@ class Conspiracy implements ConspiracyGame {
 
         (this as any).addTooltipHtmlToClass('lord-counter', _("Number of lords in player table"));
         (this as any).addTooltipHtmlToClass('pearl-counter', _("Number of pearls"));
-        (this as any).addTooltipHtmlToClass('silver-key-counter', _("Number of silver keys (highlighted if a silver key is available)"));
-        (this as any).addTooltipHtmlToClass('gold-key-counter', _("Number of gold keys (highlighted if a gold key is available)"));
+        (this as any).addTooltipHtmlToClass('silver-key-counter', _("Number of silver keys (surrounded if a silver key is available)"));
+        (this as any).addTooltipHtmlToClass('gold-key-counter', _("Number of gold keys (surrounded if a gold key is available)"));
         GUILD_IDS.forEach(guild => (this as any).addTooltipHtmlToClass(`token-guild${guild}`, _("The Coat of Arms token indicates the most influential Lord of each color.")));
     }
 
