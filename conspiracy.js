@@ -409,7 +409,7 @@ var AbstractStacks = /** @class */ (function () {
         // if player has all hidden location, we replace the 3 buttons by one special for the rest of the game
         if (allHidden && buttons.length > 1) {
             this.allHidden = true;
-            document.getElementById('location-hidden-pile').innerHTML = '<div class="button eye location-hidden-pile-eye-tooltip" data-number="0"></div>';
+            document.getElementById('location-hidden-pile').innerHTML = '<div role="button" class="button eye location-hidden-pile-eye-tooltip" data-number="0"></div>';
             this.game.addTooltipHtml('location-hidden-pile-eye-tooltip', _("As you have the See all deck location, you can pick a location from all deck, but you cannot pick visible locations."));
         }
     };
