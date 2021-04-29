@@ -502,7 +502,7 @@ class Conspiracy extends Table
             $masterPearlPearls = intval(self::getUniqueValueFromDB( "SELECT player_score_aux FROM `player` WHERE player_id = $pearlMasterPlayer"));
             $currentPlayerPearls = intval(self::getUniqueValueFromDB( "SELECT player_score_aux FROM `player` WHERE player_id = $player_id"));
             
-            if ($currentPlayerPearls >= $masterPearlPearls) {
+            if ($currentPlayerPearls >= $masterPearlPearls && $pearlMasterPlayer != $player_id) {
                 self::setGameStateValue('pearlMasterPlayer', $player_id);
                 self::notifyAllPlayers('newPearlMaster', clienttranslate('${player_name} becomes the new Pearl Master'), [
                     'playerId' => $player_id,
