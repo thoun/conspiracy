@@ -112,6 +112,7 @@ function getLocationTooltip(typeWithGuild: number) {
 
 function getLordTooltip(typeWithGuild: number) {
     const type = Math.floor(typeWithGuild / 10);
+    const guild = typeWithGuild % 10;
     let message = null;
     switch (type) {
         case 1: message = _("When this Lord is placed in the Senate Chamber, two Lords in this Chamber (including this one) can be swapped places, except those with keys."); break;
@@ -120,6 +121,9 @@ function getLordTooltip(typeWithGuild: number) {
         case 4: message = _("This Lord gives you 2 Pearls."); break;
         case 5: message = _("This Lord gives you 1 Pearl."); break;
         case 6: message = _("When this Lord is placed in the Senate Chamber, the top Lord card is taken from the Lord deck and placed in the corresponding discard pile."); break;
+    }
+    if (message) {
+        message += `<br/><br/>${dojo.string.substitute(_("Guild : ${guild_name}"), { guild_name: getGuildName(guild) })}`
     }
     return message;
 }

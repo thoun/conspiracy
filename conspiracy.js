@@ -142,6 +142,7 @@ function getLocationTooltip(typeWithGuild) {
 }
 function getLordTooltip(typeWithGuild) {
     var type = Math.floor(typeWithGuild / 10);
+    var guild = typeWithGuild % 10;
     var message = null;
     switch (type) {
         case 1:
@@ -162,6 +163,9 @@ function getLordTooltip(typeWithGuild) {
         case 6:
             message = _("When this Lord is placed in the Senate Chamber, the top Lord card is taken from the Lord deck and placed in the corresponding discard pile.");
             break;
+    }
+    if (message) {
+        message += "<br/><br/>" + dojo.string.substitute(_("Guild : ${guild_name}"), { guild_name: getGuildName(guild) });
     }
     return message;
 }
