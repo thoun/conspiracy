@@ -693,6 +693,7 @@ var PlayerTableSpotStock = /** @class */ (function () {
         this.lordsStock.create(this.game, $("player" + this.playerId + "-spot" + spotNumber + "-lord-stock"), LORD_WIDTH, LORD_HEIGHT);
         this.lordsStock.setSelectionMode(0);
         this.lordsStock.setSelectionAppearance('class');
+        this.lordsStock.selectionClass = 'selected';
         this.lordsStock.onItemCreate = dojo.hitch(this, 'setupNewLordCard');
         this.lordsStock.image_items_per_row = 16;
         dojo.connect(this.lordsStock, 'onChangeSelection', this, 'onLordSelection');

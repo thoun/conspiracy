@@ -284,6 +284,10 @@
 .player-table-spot .stockitem.selectable {
   border: 3px dashed white;
 }
+.player-table-spot .stockitem.selectable.selected {
+  border: 3px white solid !important;
+  box-shadow: 0 0 5px 2px white;
+}
 .player-table-spot .player-table-spot-location {
   position: absolute;
   top: 83px;

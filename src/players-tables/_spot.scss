@@ -52,6 +52,11 @@
 
         &.selectable {
             border: 3px dashed white;
+
+            &.selected {
+                border: 3px white solid !important;
+                box-shadow: 0 0 5px 2px white;
+            }
         }
     }
 
