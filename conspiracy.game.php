@@ -50,10 +50,8 @@ class Conspiracy extends Table
                 'stackSelection' => 20, // 1 for lord stack selection, 0 for visible lords selection
 
                 'endTurn' => 30, // id of player launching last turn
-            //      ...
-            //    "my_first_game_variant" => 100,
-            //    "my_second_game_variant" => 101,
-            //      ...
+
+                'SCORING_OPTION' => 100,
         ]);
 
         $this->lords = self::getNew( "module.common.deck" );
@@ -237,6 +235,8 @@ class Conspiracy extends Table
 
         $result['remainingLords'] = $this->getRemainingLords();
         $result['remainingLocations'] = $this->getRemainingLocations();
+
+        $result['hiddenScore'] = intval(self::getGameStateValue('SCORING_OPTION')) === 2;
   
         return $result;
     }

@@ -1084,6 +1084,7 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.onEnteringShowScore = function (fromReload) {
         if (fromReload === void 0) { fromReload = false; }
+        this.gamedatas.hiddenScore = false;
         this.closePopin();
         var lastTurnBar = document.getElementById('last-round');
         if (lastTurnBar) {
@@ -1362,13 +1363,19 @@ var Conspiracy = /** @class */ (function () {
         this.addTooltipHtml("icon_point_" + playerId, html);
     };
     Conspiracy.prototype.setNewScore = function (args) {
+        var _this = this;
         var _a;
-        var score = args.newScore;
-        this.gamedatas.players[args.playerId].newScore = score;
-        if (!isNaN(score.total)) {
-            (_a = this.scoreCtrl[args.playerId]) === null || _a === void 0 ? void 0 : _a.toValue(score.total);
+        if (this.gamedatas.hiddenScore) {
+            setTimeout(function () { return Object.values(_this.gamedatas.players).forEach(function (player) { return document.getElementById("player_score_" + player.id).innerHTML = '-'; }); }, 100);
         }
-        this.setNewScoreTooltip(args.playerId);
+        else {
+            var score = args.newScore;
+            this.gamedatas.players[args.playerId].newScore = score;
+            if (!isNaN(score.total)) {
+                (_a = this.scoreCtrl[args.playerId]) === null || _a === void 0 ? void 0 : _a.toValue(score.total);
+            }
+            this.setNewScoreTooltip(args.playerId);
+        }
     };
     Conspiracy.prototype.setRemainingLords = function (remainingLords) {
         this.lordCounter.setValue(remainingLords);
@@ -1475,13 +1482,15 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.notif_newPearlMaster = function (notif) {
         var _a;
         this.placePearlMasterToken(notif.args.playerId);
-        this.scoreCtrl[notif.args.playerId].incValue(5);
-        this.gamedatas.players[notif.args.playerId].newScore.pearlMaster = 5;
-        this.setNewScoreTooltip(notif.args.playerId);
-        (_a = this.scoreCtrl[notif.args.previousPlayerId]) === null || _a === void 0 ? void 0 : _a.incValue(-5);
-        if (this.gamedatas.players[notif.args.previousPlayerId]) {
-            this.gamedatas.players[notif.args.previousPlayerId].newScore.pearlMaster = 0;
-            this.setNewScoreTooltip(notif.args.previousPlayerId);
+        if (!this.gamedatas.hiddenScore) {
+            this.scoreCtrl[notif.args.playerId].incValue(5);
+            this.gamedatas.players[notif.args.playerId].newScore.pearlMaster = 5;
+            this.setNewScoreTooltip(notif.args.playerId);
+            (_a = this.scoreCtrl[notif.args.previousPlayerId]) === null || _a === void 0 ? void 0 : _a.incValue(-5);
+            if (this.gamedatas.players[notif.args.previousPlayerId]) {
+                this.gamedatas.players[notif.args.previousPlayerId].newScore.pearlMaster = 0;
+                this.setNewScoreTooltip(notif.args.previousPlayerId);
+            }
         }
     };
     Conspiracy.prototype.notif_lastTurn = function () {

@@ -188,6 +188,8 @@ class Conspiracy implements ConspiracyGame {
     }
 
     onEnteringShowScore(fromReload: boolean = false) {
+        this.gamedatas.hiddenScore = false;
+
         this.closePopin();
         const lastTurnBar = document.getElementById('last-round');
         if (lastTurnBar) {
@@ -588,13 +590,17 @@ class Conspiracy implements ConspiracyGame {
     }
 
     private setNewScore(args: NotifNewScoreArgs) {
-        const score = args.newScore;
-        (this.gamedatas.players[args.playerId] as any).newScore = score;
-        if (!isNaN(score.total)) {
-            (this as any).scoreCtrl[args.playerId]?.toValue(score.total);
+        if (this.gamedatas.hiddenScore) {
+            setTimeout(() => Object.values(this.gamedatas.players).forEach(player => document.getElementById(`player_score_${player.id}`).innerHTML = '-'), 100);
+        } else {
+            const score = args.newScore;
+            (this.gamedatas.players[args.playerId] as any).newScore = score;
+            if (!isNaN(score.total)) {
+                (this as any).scoreCtrl[args.playerId]?.toValue(score.total);
+            }
+
+            this.setNewScoreTooltip(args.playerId);
         }
-        
-        this.setNewScoreTooltip(args.playerId);
     }
 
     private setRemainingLords(remainingLords: number) {
@@ -721,15 +727,17 @@ class Conspiracy implements ConspiracyGame {
     notif_newPearlMaster(notif: Notif<NotifNewPearlMasterArgs>) {
         this.placePearlMasterToken(notif.args.playerId);
 
-        (this as any).scoreCtrl[notif.args.playerId].incValue(5);
-        (this.gamedatas.players[notif.args.playerId] as any).newScore.pearlMaster = 5;
-        this.setNewScoreTooltip(notif.args.playerId);
+        if (!this.gamedatas.hiddenScore) {
+            (this as any).scoreCtrl[notif.args.playerId].incValue(5);
+            (this.gamedatas.players[notif.args.playerId] as any).newScore.pearlMaster = 5;
+            this.setNewScoreTooltip(notif.args.playerId);
 
-        
-        (this as any).scoreCtrl[notif.args.previousPlayerId]?.incValue(-5);
-        if (this.gamedatas.players[notif.args.previousPlayerId]) {
-            (this.gamedatas.players[notif.args.previousPlayerId] as any).newScore.pearlMaster = 0;
-            this.setNewScoreTooltip(notif.args.previousPlayerId);
+            
+            (this as any).scoreCtrl[notif.args.previousPlayerId]?.incValue(-5);
+            if (this.gamedatas.players[notif.args.previousPlayerId]) {
+                (this.gamedatas.players[notif.args.previousPlayerId] as any).newScore.pearlMaster = 0;
+                this.setNewScoreTooltip(notif.args.previousPlayerId);
+            }
         }
     }
 
