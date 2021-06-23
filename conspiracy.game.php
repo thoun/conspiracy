@@ -191,7 +191,7 @@ class Conspiracy extends Table
     
         $current_player_id = self::getCurrentPlayerId();
     
-        $sql = "SELECT player_id id, player_score score, player_score_aux pearls, player_score_lords lords, player_score_locations locations, player_score_coalition coalition, player_mat mat FROM player ";
+        $sql = "SELECT player_id id, player_score score, player_score_aux pearls, player_score_lords lords, player_score_locations locations, player_score_coalition coalition, player_mat mat, player_no playerNo FROM player ";
         $result['players'] = self::getCollectionFromDb( $sql );
   
         // Gather all information about current game situation.
@@ -208,6 +208,8 @@ class Conspiracy extends Table
         // players tables
         $result['playersTables'] = [];
         foreach( $result['players'] as $player_id => $playerDb ) {
+            $result['players'][$player_id]['playerNo'] = intval($result['players'][$player_id]['playerNo']);
+            
             $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id"));
             $locations = $this->getLocationsFromDb($this->locations->getCardsInLocation("player$player_id"));
             $result['playersTables'][$player_id] = [];

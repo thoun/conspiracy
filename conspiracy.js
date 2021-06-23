@@ -939,6 +939,11 @@ var Minimap = /** @class */ (function () {
     };
     return Minimap;
 }());
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
 var ANIMATION_MS = 500;
 var SCORE_MS = 1500;
 var isDebug = window.location.host == 'studio.boardgamearena.com';
@@ -1259,11 +1264,10 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;
-        var currentPlayer = Object.values(gamedatas.players).find(function (player) { return Number(player.id) === Number(_this.player_id); });
-        if (currentPlayer) {
-            this.createPlayerTable(gamedatas, Number(currentPlayer.id));
-        }
-        Object.values(gamedatas.players).filter(function (player) { return Number(player.id) !== Number(_this.player_id); }).forEach(function (player) {
+        var players = Object.values(gamedatas.players).sort(function (a, b) { return a.playerNo - b.playerNo; });
+        var playerIndex = players.findIndex(function (player) { return Number(player.id) === Number(_this.player_id); });
+        var orderedPlayers = playerIndex > 0 ? __spreadArray(__spreadArray([], players.slice(playerIndex)), players.slice(0, playerIndex)) : players;
+        orderedPlayers.forEach(function (player) {
             return _this.createPlayerTable(gamedatas, Number(player.id));
         });
     };

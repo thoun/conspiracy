@@ -27,6 +27,10 @@ interface PlayerTableSpot {
     location?: Location;
 }
 
+interface ConspiracyPlayer extends Player {
+    playerNo: number;
+}
+
 interface ConspiracyGamedatas {
     current_player_id: string;
     decision: {decision_type: string};
@@ -36,7 +40,7 @@ interface ConspiracyGamedatas {
     neutralized_player_id: string;
     notifications: {last_packet_id: string, move_nbr: string}
     playerorder: (string | number)[];
-    players: { [playerId: number]: Player };
+    players: { [playerId: number]: ConspiracyPlayer };
     tablespeed: string;
 
     // Add here variables you set up in getAllDatas

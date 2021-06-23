@@ -451,11 +451,11 @@ class Conspiracy implements ConspiracyGame {
     }
 
     private createPlayerTables(gamedatas: ConspiracyGamedatas) {
-        const currentPlayer = Object.values(gamedatas.players).find(player => Number(player.id) === Number((this as any).player_id));
-        if (currentPlayer) {
-            this.createPlayerTable(gamedatas, Number(currentPlayer.id));
-        }
-        Object.values(gamedatas.players).filter(player => Number(player.id) !== Number((this as any).player_id)).forEach(player => 
+        const players = Object.values(gamedatas.players).sort((a, b) => a.playerNo - b.playerNo);
+        const playerIndex = players.findIndex(player => Number(player.id) === Number((this as any).player_id));
+        const orderedPlayers = playerIndex > 0 ? [...players.slice(playerIndex), ...players.slice(0, playerIndex)] : players;
+
+        orderedPlayers.forEach(player => 
             this.createPlayerTable(gamedatas, Number(player.id))
         );
     }
