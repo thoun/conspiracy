@@ -1350,7 +1350,7 @@ var Conspiracy = /** @class */ (function () {
             this.helpDialog.create('conspiracyHelpDialog');
             this.helpDialog.setTitle(_("Cards help"));
             var html = "<div id=\"help-popin\">\n                <h1>" + _("Lords") + "</h1>\n                <div id=\"help-lords\" class=\"help-section\">\n                    <table>";
-            LORDS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"lord" + number + "\" class=\"lord\"></div></td><td>" + getLordTooltip(number * 10) + "</td></tr>"; });
+            LORDS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"lord" + number + "\" class=\"lord\"></div></td><td>" + getLordTooltip(number * 10 + 3) + "</td></tr>"; });
             html += "</table>\n                </div>\n                <h1>" + _("Locations") + "</h1>\n                <div id=\"help-locations\" class=\"help-section\">\n                    <table>";
             LOCATIONS_UNIQUE_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location" + number + "\" class=\"location\"></div></td><td>" + getLocationTooltip(number * 10) + "</td></tr>"; });
             LOCATIONS_GUILDS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location" + number + "\" class=\"location\"></div></td><td>" + getLocationTooltip(number * 10) + "</td></tr>"; });

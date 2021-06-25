@@ -557,7 +557,7 @@ class Conspiracy implements ConspiracyGame {
                 <h1>${_("Lords")}</h1>
                 <div id="help-lords" class="help-section">
                     <table>`;
-                LORDS_IDS.forEach(number => html += `<tr><td><div id="lord${number}" class="lord"></div></td><td>${getLordTooltip(number * 10)}</td></tr>`);
+                LORDS_IDS.forEach(number => html += `<tr><td><div id="lord${number}" class="lord"></div></td><td>${getLordTooltip(number * 10 + 3)}</td></tr>`);
                 html += `</table>
                 </div>
                 <h1>${_("Locations")}</h1>
