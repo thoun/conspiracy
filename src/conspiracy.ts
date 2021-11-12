@@ -20,6 +20,10 @@ LOG_GUILD_COLOR[3] = '#097138';
 LOG_GUILD_COLOR[4] = '#011d4d';
 LOG_GUILD_COLOR[5] = '#522886';
 
+const ZOOM_LEVELS = [0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1];
+const ZOOM_LEVELS_MARGIN = [-300, -166, -100, -60, -33, -14, 0];
+const LOCAL_STORAGE_ZOOM_KEY = 'Conspiracy-zoom';
+
 class Conspiracy implements ConspiracyGame {
     private gamedatas: ConspiracyGamedatas;
     private lordsStacks: LordsStacks;
@@ -33,10 +37,15 @@ class Conspiracy implements ConspiracyGame {
     private silverKeyCounters: Counter[] = [];
     private goldKeyCounters: Counter[] = [];
     private swapSpots: number[];
-    private helpDialog: any;
     private playerInPopin: number | null = null;
 
-    constructor() {     
+    public zoom: number = 1;
+
+    constructor() {    
+        const zoomStr = localStorage.getItem(LOCAL_STORAGE_ZOOM_KEY);
+        if (zoomStr) {
+            this.zoom = Number(zoomStr);
+        }
     }
     
     /*
@@ -56,6 +65,9 @@ class Conspiracy implements ConspiracyGame {
         // ignore loading of some pictures
         (this as any).dontPreloadImage('eye-shadow.png');
         (this as any).dontPreloadImage('publisher.png');
+        if (!gamedatas.bonusLocations) {
+            (this as any).dontPreloadImage('bonus-locations.jpg');
+        }
         [1,2,3,4,5,6,7,8,9,10].filter(i => !Object.values(gamedatas.players).some(player => Number((player as any).mat) === i)).forEach(i => (this as any).dontPreloadImage(`playmat_${i}.jpg`));
 
         log( "Starting game setup" );
@@ -90,6 +102,12 @@ class Conspiracy implements ConspiracyGame {
         this.addHelp();
 
         this.setupNotifications();
+
+        document.getElementById('zoom-out').addEventListener('click', () => this.zoomOut());
+        document.getElementById('zoom-in').addEventListener('click', () => this.zoomIn());
+        if (this.zoom !== 1) {
+            this.setZoom(this.zoom);
+        }
 
         log( "Ending game setup" );
     }
@@ -218,7 +236,7 @@ class Conspiracy implements ConspiracyGame {
         (this as any).addTooltipHtmlToClass('coalition-score', _("The biggest area of adjacent Lords of the same color is identified and 3 points are scored for each Lord within it"));
         (this as any).addTooltipHtmlToClass('masterPearl-score', _("The player who has the Pearl Master token gains a bonus of 5 Influence Points."));
 
-        if(!document.getElementById('page-content').style.zoom) {
+        if(this.zoom == 1 && !(document.getElementById('page-content') as any).style.zoom) {
             // scale down 
             Array.from(document.getElementsByClassName('player-table-wrapper')).forEach(elem => elem.classList.add('scaled-down'));
         }
@@ -295,6 +313,46 @@ class Conspiracy implements ConspiracyGame {
 
 
     ///////////////////////////////////////////////////
+    
+
+    private setZoom(zoom: number = 1) {
+        this.zoom = zoom;
+        localStorage.setItem(LOCAL_STORAGE_ZOOM_KEY, ''+this.zoom);
+        const newIndex = ZOOM_LEVELS.indexOf(this.zoom);
+        dojo.toggleClass('zoom-in', 'disabled', newIndex === ZOOM_LEVELS.length - 1);
+        dojo.toggleClass('zoom-out', 'disabled', newIndex === 0);
+
+        const div = document.getElementById('full-table');
+        if (zoom === 1) {
+            div.style.transform = '';
+            div.style.margin = '';
+        } else {
+            div.style.transform = `scale(${zoom})`;
+            div.style.margin = `0 ${ZOOM_LEVELS_MARGIN[newIndex]}% ${(1-zoom)*-100}% 0`;
+        }
+
+        this.lordsStacks.pickStock.updateDisplay();
+        this.locationsStacks.visibleLocationsStock.updateDisplay();
+        this.locationsStacks.pickStock.updateDisplay();
+
+        document.getElementById('zoom-wrapper').style.height = `${div.getBoundingClientRect().height}px`;
+    }
+
+    public zoomIn() {
+        if (this.zoom === ZOOM_LEVELS[ZOOM_LEVELS.length - 1]) {
+            return;
+        }
+        const newIndex = ZOOM_LEVELS.indexOf(this.zoom) + 1;
+        this.setZoom(ZOOM_LEVELS[newIndex]);
+    }
+
+    public zoomOut() {
+        if (this.zoom === ZOOM_LEVELS[0]) {
+            return;
+        }
+        const newIndex = ZOOM_LEVELS.indexOf(this.zoom) - 1;
+        this.setZoom(ZOOM_LEVELS[newIndex]);
+    }
 
     private createViewPlayermatPopin()  {
         dojo.place(`<div id="popin_showPlayermat_container" class="conspiracy_popin_container">
@@ -317,7 +375,7 @@ class Conspiracy implements ConspiracyGame {
     }
 
     private movePlayerTableToPopin(playerId: number) {
-        document.getElementById('playermat-container-modal').style.zoom = document.getElementById('page-content').style.zoom;
+        (document.getElementById('playermat-container-modal') as any).style.zoom = (document.getElementById('page-content') as any).style.zoom;
         this.playerInPopin = playerId;
         document.getElementById('popin_showPlayermat_container').style.display = 'block';
 
@@ -548,32 +606,45 @@ class Conspiracy implements ConspiracyGame {
     }
 
     private showHelp() {
-        if (!this.helpDialog) {
-            this.helpDialog = new ebg.popindialog();
-            this.helpDialog.create( 'conspiracyHelpDialog' );
-            this.helpDialog.setTitle( _("Cards help") );
-            
-            var html = `<div id="help-popin">
-                <h1>${_("Lords")}</h1>
-                <div id="help-lords" class="help-section">
-                    <table>`;
-                LORDS_IDS.forEach(number => html += `<tr><td><div id="lord${number}" class="lord"></div></td><td>${getLordTooltip(number * 10 + 3)}</td></tr>`);
-                html += `</table>
-                </div>
-                <h1>${_("Locations")}</h1>
+        const helpDialog = new ebg.popindialog();
+        helpDialog.create( 'conspiracyHelpDialog' );
+        helpDialog.setTitle( _("Cards help") );
+        
+        let html = `<div id="help-popin">
+            <h1>${_("Lords")}</h1>
+            <div id="help-lords" class="help-section">
+                <table>`;
+            LORDS_IDS.forEach(number => html += `<tr><td><div id="lord${number}" class="lord"></div></td><td>${getLordTooltip(number * 10 + 3)}</td></tr>`);
+            html += `</table>
+            </div>
+            <h1>${_("Locations")}</h1>
+            <div id="help-locations" class="help-section">
+                <table>`;
+            LOCATIONS_UNIQUE_IDS.forEach(number => html += `<tr><td><div id="location${number}" class="location"></div></td><td>${getLocationTooltip(number * 10)}</td></tr>`);
+            LOCATIONS_GUILDS_IDS.forEach(number => html += `<tr><td><div id="location${number}" class="location"></div></td><td>${getLocationTooltip(number * 10)}</td></tr>`);
+            html += `</table>
+            </div>`;
+        if (this.gamedatas.bonusLocations) {
+            html += `<h1>${_("Bonus locations")}</h1>
                 <div id="help-locations" class="help-section">
                     <table>`;
-                LOCATIONS_UNIQUE_IDS.forEach(number => html += `<tr><td><div id="location${number}" class="location"></div></td><td>${getLocationTooltip(number * 10)}</td></tr>`);
-                LOCATIONS_GUILDS_IDS.forEach(number => html += `<tr><td><div id="location${number}" class="location"></div></td><td>${getLocationTooltip(number * 10)}</td></tr>`);
+                LOCATIONS_BONUS_IDS.forEach(number => html += `<tr><td><div id="location${number}" class="location"></div></td><td>${getLocationTooltip(number * 10)}</td></tr>`);
                 html += `</table>
-                </div>
-            </div>`;
-            
-            // Show the dialog
-            this.helpDialog.setContent(html);
+                    <div id="alliance">
+                        <hr>
+                        ${_("An alliance is an area of adjacent Lords of the same value, regardless of their color.")}
+                        <div class="example-wrapper">
+                            <div class="example"></div>
+                        </div>
+                    </div>
+                </div>`;
         }
+        html += `</div>`;
+        
+        // Show the dialog
+        helpDialog.setContent(html);
 
-        this.helpDialog.show();
+        helpDialog.show();
     }
 
     private setNewScoreTooltip(playerId: number) {

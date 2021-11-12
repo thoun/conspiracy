@@ -13,6 +13,7 @@ const LORDS_IDS = [1,2,3,4,5,6];
 
 const LOCATIONS_UNIQUE_IDS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14];
 const LOCATIONS_GUILDS_IDS = [100,101];
+const LOCATIONS_BONUS_IDS = [21, 22, 23, 24, 25];
 
 const LORD_WIDTH = 207.26;
 const LORD_HEIGHT = 207;
@@ -43,6 +44,7 @@ function setupLordCards(lordStocks: Stock[]) {
 
 function setupLocationCards(locationStocks: Stock[]) {
     const cardsurl = `${g_gamethemeurl}img/locations.jpg`;
+    const bonuscardsurl = `${g_gamethemeurl}img/bonus-locations.jpg`;
 
     locationStocks.forEach(locationStock => {
 
@@ -65,6 +67,15 @@ function setupLocationCards(locationStocks: Stock[]) {
                 )
             )
         );
+
+        LOCATIONS_BONUS_IDS.forEach((id, index) =>
+            locationStock.addItemType(
+                getUniqueId(id, 0), 
+                0, 
+                bonuscardsurl, 
+                index
+            )
+        );
     });
 }
 
@@ -83,6 +94,9 @@ function getGuildName(guild: number) {
 function getLocationTooltip(typeWithGuild: number) {
     const type = Math.floor(typeWithGuild / 10);
     const guild = typeWithGuild % 10;
+
+    const allianceMessage = _("At the end of the game, the biggest Alliance of Lords of ${lordIP} IP is identified. This location is worth ${scoreIP} IP per Lord in this alliance.");
+
     let message = null;
     switch (type) {
         case 1: message = _("At the end of the game, this Location is worth 7 IP."); break;
@@ -99,6 +113,12 @@ function getLocationTooltip(typeWithGuild: number) {
         case 12: message = _("Immediately replace all the available Locations to the Location deck and reshuffle. At the end of the game, this Location is worth 3 IP."); break;
         case 13: message = _("Until the end of the game, to take control of a Location, only 2 keys are needed, irrespective of their type. At the end of the game, this Location is worth 3 IP."); break;
         case 14: message = _("Until the end of the game, when you take control of a Location, you choose this location from the Location deck (No longer from the available Locations). The deck is then reshuffled. At the end of the game, this Location is worth 3 IP."); break;
+        
+        case 21: message = dojo.string.substitute(allianceMessage, {lordIP: 1, scoreIP: 1}); break;
+        case 22: message = dojo.string.substitute(allianceMessage, {lordIP: 2, scoreIP: 2}); break;
+        case 23: message = dojo.string.substitute(allianceMessage, {lordIP: 3, scoreIP: 2}); break;
+        case 24: message = dojo.string.substitute(allianceMessage, {lordIP: 4, scoreIP: 2}); break;
+        case 25: message = _("At the end of the game, this Location is worth 1 IP + a bonus of 1 IP per Lord who does not give you either a pearl or a key (Lords of 0 and 6 IP)."); break;
 
         case 100: message = guild ?
             dojo.string.substitute(_("At the end of the game, this Location is worth as many IP as your most influential ${guild_name} Lord."), { guild_name: getGuildName(guild) }) : 

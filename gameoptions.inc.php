@@ -40,5 +40,20 @@ $game_options = [
             ],
         ],
         'default' => 1,
+    ],
+
+    101 => [
+        'name' => totranslate('Bonus locations'),
+        'values' => [
+            1 => [
+                'name' => totranslate('No'),
+            ],
+            2 => [
+                'name' => totranslate('Yes'),
+                // 'nobeginner' => true,
+                // 'beta' => true,
+            ],
+        ],
+        'default' => 1,
     ]
 ];

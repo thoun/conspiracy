@@ -1,7 +1,7 @@
 abstract class AbstractStacks<T extends Card> {
     protected selectable: boolean;
     protected pickSelectable: boolean;
-    protected pickStock: Stock;
+    public pickStock: Stock;
     private max: number = 3;
     private allHidden: boolean = false;
 

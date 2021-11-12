@@ -8,6 +8,14 @@
 @import 'help';
 @import 'popin-playermat';
 
+/* make space between buttons on touch devices */
+@media (hover: none) {
+  #page-title .action-button.bgabutton, #page-title .bgabutton {
+    margin-bottom: 8px;
+    margin-top: 8px;
+  }
+}
+
 html {
     background: url('img/background.jpg') #0D111A;
     background-size: contain;
@@ -74,4 +82,43 @@ td.highlight {
     100% { 
         background: white;
     }
+}
+
+
+
+#zoom-wrapper {
+  position: relative;
+
+  #zoom-controls {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    button {
+      width: 40px;
+      height: 40px;
+      background: url('img/zoom.svg');
+      background-size: auto 220%;
+
+      &:not(.disabled) {
+        cursor: pointer;
+      }
+
+      &.disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+    }
+
+    #zoom-in {
+      background-position: 6% 94%;
+    }
+    #zoom-out {
+      background-position: 82% 94%;
+    }
+  }
+
+  #full-table {
+    transform-origin: left top;
+  }
 }

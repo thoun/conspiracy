@@ -58,8 +58,15 @@ $this->LOCATIONS_GUILD = [
     100 => new LocationCard(0, 0, null, PP_LORD_MAX),
     101 => new LocationCard(1, 0, null, PP_LORD_COUNT),
 ];
+$this->LOCATIONS_BONUS = [
+    21 => new LocationCard(0, 0, null, PP_LORD_1POINT_COALITION),
+    22 => new LocationCard(0, 0, null, PP_LORD_2POINT_COALITION),
+    23 => new LocationCard(0, 0, null, PP_LORD_3POINT_COALITION),
+    24 => new LocationCard(0, 0, null, PP_LORD_4POINT_COALITION),
+    25 => new LocationCard(1, 0, null, PP_LORD_NO_KEY_NO_PEARL),
+];
 
-$this->LOCATIONS = $this->LOCATIONS_UNIQUE + $this->LOCATIONS_GUILD;
+$this->LOCATIONS = $this->LOCATIONS_UNIQUE + $this->LOCATIONS_GUILD + $this->LOCATIONS_BONUS;
 
 /*
  * Coalition

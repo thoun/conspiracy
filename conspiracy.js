@@ -28,6 +28,7 @@ var GUILD_IDS = [1, 2, 3, 4, 5];
 var LORDS_IDS = [1, 2, 3, 4, 5, 6];
 var LOCATIONS_UNIQUE_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 var LOCATIONS_GUILDS_IDS = [100, 101];
+var LOCATIONS_BONUS_IDS = [21, 22, 23, 24, 25];
 var LORD_WIDTH = 207.26;
 var LORD_HEIGHT = 207;
 var LOCATION_WIDTH = 186.24;
@@ -48,6 +49,7 @@ function setupLordCards(lordStocks) {
 }
 function setupLocationCards(locationStocks) {
     var cardsurl = g_gamethemeurl + "img/locations.jpg";
+    var bonuscardsurl = g_gamethemeurl + "img/bonus-locations.jpg";
     locationStocks.forEach(function (locationStock) {
         LOCATIONS_UNIQUE_IDS.forEach(function (id, index) {
             return locationStock.addItemType(getUniqueId(id, 0), 0, cardsurl, 1 + index);
@@ -56,6 +58,9 @@ function setupLocationCards(locationStocks) {
             return LOCATIONS_GUILDS_IDS.forEach(function (id, index) {
                 return locationStock.addItemType(getUniqueId(id, guild), 0, cardsurl, 15 + GUILD_IDS.length * index + guildIndex);
             });
+        });
+        LOCATIONS_BONUS_IDS.forEach(function (id, index) {
+            return locationStock.addItemType(getUniqueId(id, 0), 0, bonuscardsurl, index);
         });
     });
 }
@@ -83,6 +88,7 @@ function getGuildName(guild) {
 function getLocationTooltip(typeWithGuild) {
     var type = Math.floor(typeWithGuild / 10);
     var guild = typeWithGuild % 10;
+    var allianceMessage = _("At the end of the game, the biggest Alliance of Lords of ${lordIP} IP is identified. This location is worth ${scoreIP} IP per Lord in this alliance.");
     var message = null;
     switch (type) {
         case 1:
@@ -126,6 +132,21 @@ function getLocationTooltip(typeWithGuild) {
             break;
         case 14:
             message = _("Until the end of the game, when you take control of a Location, you choose this location from the Location deck (No longer from the available Locations). The deck is then reshuffled. At the end of the game, this Location is worth 3 IP.");
+            break;
+        case 21:
+            message = dojo.string.substitute(allianceMessage, { lordIP: 1, scoreIP: 1 });
+            break;
+        case 22:
+            message = dojo.string.substitute(allianceMessage, { lordIP: 2, scoreIP: 2 });
+            break;
+        case 23:
+            message = dojo.string.substitute(allianceMessage, { lordIP: 3, scoreIP: 2 });
+            break;
+        case 24:
+            message = dojo.string.substitute(allianceMessage, { lordIP: 4, scoreIP: 2 });
+            break;
+        case 25:
+            message = _("At the end of the game, this Location is worth 1 IP + a bonus of 1 IP per Lord who does not give you either a pearl or a key (Lords of 0 and 6 IP).");
             break;
         case 100:
             message = guild ?
@@ -954,6 +975,9 @@ LOG_GUILD_COLOR[2] = '#770405';
 LOG_GUILD_COLOR[3] = '#097138';
 LOG_GUILD_COLOR[4] = '#011d4d';
 LOG_GUILD_COLOR[5] = '#522886';
+var ZOOM_LEVELS = [0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1];
+var ZOOM_LEVELS_MARGIN = [-300, -166, -100, -60, -33, -14, 0];
+var LOCAL_STORAGE_ZOOM_KEY = 'Conspiracy-zoom';
 var Conspiracy = /** @class */ (function () {
     function Conspiracy() {
         this.playersTables = [];
@@ -962,6 +986,11 @@ var Conspiracy = /** @class */ (function () {
         this.silverKeyCounters = [];
         this.goldKeyCounters = [];
         this.playerInPopin = null;
+        this.zoom = 1;
+        var zoomStr = localStorage.getItem(LOCAL_STORAGE_ZOOM_KEY);
+        if (zoomStr) {
+            this.zoom = Number(zoomStr);
+        }
     }
     /*
         setup:
@@ -980,6 +1009,9 @@ var Conspiracy = /** @class */ (function () {
         // ignore loading of some pictures
         this.dontPreloadImage('eye-shadow.png');
         this.dontPreloadImage('publisher.png');
+        if (!gamedatas.bonusLocations) {
+            this.dontPreloadImage('bonus-locations.jpg');
+        }
         [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(function (i) { return !Object.values(gamedatas.players).some(function (player) { return Number(player.mat) === i; }); }).forEach(function (i) { return _this.dontPreloadImage("playmat_" + i + ".jpg"); });
         log("Starting game setup");
         this.gamedatas = gamedatas;
@@ -1002,6 +1034,11 @@ var Conspiracy = /** @class */ (function () {
         }
         this.addHelp();
         this.setupNotifications();
+        document.getElementById('zoom-out').addEventListener('click', function () { return _this.zoomOut(); });
+        document.getElementById('zoom-in').addEventListener('click', function () { return _this.zoomIn(); });
+        if (this.zoom !== 1) {
+            this.setZoom(this.zoom);
+        }
         log("Ending game setup");
     };
     ///////////////////////////////////////////////////
@@ -1106,7 +1143,7 @@ var Conspiracy = /** @class */ (function () {
         this.addTooltipHtmlToClass('locations-score', _("The total of Influence Points from the Locations you control."));
         this.addTooltipHtmlToClass('coalition-score', _("The biggest area of adjacent Lords of the same color is identified and 3 points are scored for each Lord within it"));
         this.addTooltipHtmlToClass('masterPearl-score', _("The player who has the Pearl Master token gains a bonus of 5 Influence Points."));
-        if (!document.getElementById('page-content').style.zoom) {
+        if (this.zoom == 1 && !document.getElementById('page-content').style.zoom) {
             // scale down 
             Array.from(document.getElementsByClassName('player-table-wrapper')).forEach(function (elem) { return elem.classList.add('scaled-down'); });
         }
@@ -1169,6 +1206,41 @@ var Conspiracy = /** @class */ (function () {
     ///////////////////////////////////////////////////
     //// Utility methods
     ///////////////////////////////////////////////////
+    Conspiracy.prototype.setZoom = function (zoom) {
+        if (zoom === void 0) { zoom = 1; }
+        this.zoom = zoom;
+        localStorage.setItem(LOCAL_STORAGE_ZOOM_KEY, '' + this.zoom);
+        var newIndex = ZOOM_LEVELS.indexOf(this.zoom);
+        dojo.toggleClass('zoom-in', 'disabled', newIndex === ZOOM_LEVELS.length - 1);
+        dojo.toggleClass('zoom-out', 'disabled', newIndex === 0);
+        var div = document.getElementById('full-table');
+        if (zoom === 1) {
+            div.style.transform = '';
+            div.style.margin = '';
+        }
+        else {
+            div.style.transform = "scale(" + zoom + ")";
+            div.style.margin = "0 " + ZOOM_LEVELS_MARGIN[newIndex] + "% " + (1 - zoom) * -100 + "% 0";
+        }
+        this.lordsStacks.pickStock.updateDisplay();
+        this.locationsStacks.visibleLocationsStock.updateDisplay();
+        this.locationsStacks.pickStock.updateDisplay();
+        document.getElementById('zoom-wrapper').style.height = div.getBoundingClientRect().height + "px";
+    };
+    Conspiracy.prototype.zoomIn = function () {
+        if (this.zoom === ZOOM_LEVELS[ZOOM_LEVELS.length - 1]) {
+            return;
+        }
+        var newIndex = ZOOM_LEVELS.indexOf(this.zoom) + 1;
+        this.setZoom(ZOOM_LEVELS[newIndex]);
+    };
+    Conspiracy.prototype.zoomOut = function () {
+        if (this.zoom === ZOOM_LEVELS[0]) {
+            return;
+        }
+        var newIndex = ZOOM_LEVELS.indexOf(this.zoom) - 1;
+        this.setZoom(ZOOM_LEVELS[newIndex]);
+    };
     Conspiracy.prototype.createViewPlayermatPopin = function () {
         var _this = this;
         dojo.place("<div id=\"popin_showPlayermat_container\" class=\"conspiracy_popin_container\">\n            <div id=\"popin_showPlayermat_underlay\" class=\"conspiracy_popin_underlay\"></div>\n                <div id=\"popin_showPlayermat_wrapper\" class=\"conspiracy_popin_wrapper\">\n                <div id=\"popin_showPlayermat\" class=\"conspiracy_popin\">\n                    <a id=\"popin_showPlayermat_close\" class=\"closeicon\"><i class=\"fa fa-times fa-2x\" aria-hidden=\"true\"></i></a>\n                    <a id=\"popin_showPlayermat_left\" class=\"left arrow\"></a>\n                    <a id=\"popin_showPlayermat_right\" class=\"right arrow\"></a>\n                                \n                    <div id=\"playermat-container-modal\" class=\"player-table-wrapper\" style=\"touch-action: pan-y; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\">\n                    </div>\n                </div>\n            </div>\n        </div>", $(document.body));
@@ -1345,20 +1417,24 @@ var Conspiracy = /** @class */ (function () {
         dojo.connect($('conspiracy-help-button'), 'onclick', this, function () { return _this.showHelp(); });
     };
     Conspiracy.prototype.showHelp = function () {
-        if (!this.helpDialog) {
-            this.helpDialog = new ebg.popindialog();
-            this.helpDialog.create('conspiracyHelpDialog');
-            this.helpDialog.setTitle(_("Cards help"));
-            var html = "<div id=\"help-popin\">\n                <h1>" + _("Lords") + "</h1>\n                <div id=\"help-lords\" class=\"help-section\">\n                    <table>";
-            LORDS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"lord" + number + "\" class=\"lord\"></div></td><td>" + getLordTooltip(number * 10 + 3) + "</td></tr>"; });
-            html += "</table>\n                </div>\n                <h1>" + _("Locations") + "</h1>\n                <div id=\"help-locations\" class=\"help-section\">\n                    <table>";
-            LOCATIONS_UNIQUE_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location" + number + "\" class=\"location\"></div></td><td>" + getLocationTooltip(number * 10) + "</td></tr>"; });
-            LOCATIONS_GUILDS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location" + number + "\" class=\"location\"></div></td><td>" + getLocationTooltip(number * 10) + "</td></tr>"; });
-            html += "</table>\n                </div>\n            </div>";
-            // Show the dialog
-            this.helpDialog.setContent(html);
+        var helpDialog = new ebg.popindialog();
+        helpDialog.create('conspiracyHelpDialog');
+        helpDialog.setTitle(_("Cards help"));
+        var html = "<div id=\"help-popin\">\n            <h1>" + _("Lords") + "</h1>\n            <div id=\"help-lords\" class=\"help-section\">\n                <table>";
+        LORDS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"lord" + number + "\" class=\"lord\"></div></td><td>" + getLordTooltip(number * 10 + 3) + "</td></tr>"; });
+        html += "</table>\n            </div>\n            <h1>" + _("Locations") + "</h1>\n            <div id=\"help-locations\" class=\"help-section\">\n                <table>";
+        LOCATIONS_UNIQUE_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location" + number + "\" class=\"location\"></div></td><td>" + getLocationTooltip(number * 10) + "</td></tr>"; });
+        LOCATIONS_GUILDS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location" + number + "\" class=\"location\"></div></td><td>" + getLocationTooltip(number * 10) + "</td></tr>"; });
+        html += "</table>\n            </div>";
+        if (this.gamedatas.bonusLocations) {
+            html += "<h1>" + _("Bonus locations") + "</h1>\n                <div id=\"help-locations\" class=\"help-section\">\n                    <table>";
+            LOCATIONS_BONUS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location" + number + "\" class=\"location\"></div></td><td>" + getLocationTooltip(number * 10) + "</td></tr>"; });
+            html += "</table>\n                    <div id=\"alliance\">\n                        <hr>\n                        " + _("An alliance is an area of adjacent Lords of the same value, regardless of their color.") + "\n                        <div class=\"example-wrapper\">\n                            <div class=\"example\"></div>\n                        </div>\n                    </div>\n                </div>";
         }
-        this.helpDialog.show();
+        html += "</div>";
+        // Show the dialog
+        helpDialog.setContent(html);
+        helpDialog.show();
     };
     Conspiracy.prototype.setNewScoreTooltip = function (playerId) {
         var score = this.gamedatas.players[playerId].newScore;

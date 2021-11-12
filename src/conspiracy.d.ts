@@ -54,6 +54,7 @@ interface ConspiracyGamedatas {
     remainingLords: number;
     remainingLocations: number;
     hiddenScore: boolean;
+    bonusLocations: boolean;
 }
 
 interface ConspiracyGame extends Game {

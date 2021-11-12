@@ -584,10 +584,9 @@
   font-family: "MoolBoran";
 }
 
-/* we show help button if user has no mouse ( = no tooltips) */
-@media (hover: hover) {
+@media only screen and (min-width: 1004px) {
   #conspiracy-help-button {
-    display: none;
+    bottom: 5px;
   }
 }
 #popin_conspiracyHelpDialog {
@@ -688,6 +687,44 @@ h2.standard_popin_title {
 #help-popin #help-locations #location101 {
   background-position: -2200% 100%;
 }
+#help-popin #help-locations #location21 {
+  background-image: url("img/bonus-locations.jpg");
+  background-position: 0% 100%;
+}
+#help-popin #help-locations #location22 {
+  background-image: url("img/bonus-locations.jpg");
+  background-position: 25% 100%;
+}
+#help-popin #help-locations #location23 {
+  background-image: url("img/bonus-locations.jpg");
+  background-position: 50% 100%;
+}
+#help-popin #help-locations #location24 {
+  background-image: url("img/bonus-locations.jpg");
+  background-position: 75% 100%;
+}
+#help-popin #help-locations #location25 {
+  background-image: url("img/bonus-locations.jpg");
+  background-position: 100% 100%;
+}
+#help-popin #alliance {
+  color: darkred;
+}
+#help-popin #alliance hr {
+  border: 1px solid #0094bb;
+  width: 60%;
+}
+#help-popin #alliance .example-wrapper {
+  display: flex;
+  justify-content: center;
+}
+#help-popin #alliance .example-wrapper .example {
+  width: 469px;
+  max-width: 100%;
+  aspect-ratio: 469/500;
+  background: url("img/alliance-example.jpg");
+  background-size: contain;
+}
 
 #popin_showPlayermat_container {
   display: none;
@@ -782,6 +819,13 @@ h2.standard_popin_title {
   transform: scale(1.1);
 }
 
+/* make space between buttons on touch devices */
+@media (hover: none) {
+  #page-title .action-button.bgabutton, #page-title .bgabutton {
+    margin-bottom: 8px;
+    margin-top: 8px;
+  }
+}
 html {
   background: url("img/background.jpg") #0D111A;
   background-size: contain;
@@ -846,4 +890,34 @@ td.highlight {
   100% {
     background: white;
   }
+}
+#zoom-wrapper {
+  position: relative;
+}
+#zoom-wrapper #zoom-controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+#zoom-wrapper #zoom-controls button {
+  width: 40px;
+  height: 40px;
+  background: url("img/zoom.svg");
+  background-size: auto 220%;
+}
+#zoom-wrapper #zoom-controls button:not(.disabled) {
+  cursor: pointer;
+}
+#zoom-wrapper #zoom-controls button.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+#zoom-wrapper #zoom-controls #zoom-in {
+  background-position: 6% 94%;
+}
+#zoom-wrapper #zoom-controls #zoom-out {
+  background-position: 82% 94%;
+}
+#zoom-wrapper #full-table {
+  transform-origin: left top;
 }

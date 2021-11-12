@@ -42,4 +42,10 @@ define('PP_PEARLS', 3);
 define('PP_LOCATIONS', 4);
 define('PP_LORD_MAX', 5);
 define('PP_LORD_COUNT', 6);
+
+define('PP_LORD_1POINT_COALITION', 21);
+define('PP_LORD_2POINT_COALITION', 22);
+define('PP_LORD_3POINT_COALITION', 23);
+define('PP_LORD_4POINT_COALITION', 24);
+define('PP_LORD_NO_KEY_NO_PEARL', 25);
 ?>

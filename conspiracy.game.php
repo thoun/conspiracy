@@ -52,6 +52,7 @@ class Conspiracy extends Table
                 'endTurn' => 30, // id of player launching last turn
 
                 'SCORING_OPTION' => 100,
+                'BONUS_LOCATIONS' => 101,
         ]);
 
         $this->lords = self::getNew( "module.common.deck" );
@@ -132,6 +133,7 @@ class Conspiracy extends Table
         
         // show the first location
         $this->locations->pickCardForLocation('deck', 'table');
+        
         //$testedCard = $this->getLocationsFromDb($this->locations->getCardsOfType(9))[0];
         //$this->locations->moveCard($testedCard->id, 'table');
         //$testedCard = $this->getLocationsFromDb($this->locations->getCardsOfType(10))[0];
@@ -140,7 +142,7 @@ class Conspiracy extends Table
         //$this->locations->moveCard($testedCard->id, 'table');
         //$testedCard = $this->getLocationsFromDb($this->locations->getCardsOfType(12))[0];
         //$this->locations->moveCard($testedCard->id, 'table');
-        //$testedCard = $this->getLocationsFromDb($this->locations->getCardsOfType(14))[0];
+        //$testedCard = $this->getLocationsFromDb($this->locations->getCardsOfType(25))[0];
         //$this->locations->moveCard($testedCard->id, 'table');
 
         //$this->lords->pickCardsForLocation(40, 'deck', 'nowhere');
@@ -171,6 +173,11 @@ class Conspiracy extends Table
         foreach(array_keys($this->LOCATIONS_GUILD) as $locationId) {
             for ($guild=1; $guild<=5; $guild++) {
                 $cards[] = [ 'type' => $locationId, 'type_arg' => $guild, 'nbr' => 1 ];
+            }
+        }
+        if ($this->bonusLocations()) {
+            foreach(array_keys($this->LOCATIONS_BONUS) as $locationId) {
+                $cards[] = [ 'type' => $locationId, 'type_arg' => null, 'nbr' => 1 ];
             }
         }
         $this->locations->createCards($cards, 'deck');
@@ -222,7 +229,6 @@ class Conspiracy extends Table
         }
 
         $result['pearlMasterPlayer'] = intval(self::getGameStateValue('pearlMasterPlayer'));
-        $result['lastTurn'] = intval(self::getGameStateValue('pearlMasterPlayer'));
 
         $stateName = $this->gamestate->state()['name']; 
         $isEnd = $stateName === 'showScore' || $stateName === 'gameEnd';
@@ -239,6 +245,7 @@ class Conspiracy extends Table
         $result['remainingLocations'] = $this->getRemainingLocations();
 
         $result['hiddenScore'] = intval(self::getGameStateValue('SCORING_OPTION')) === 2;
+        $result['bonusLocations'] = $this->bonusLocations();
   
         return $result;
     }
@@ -262,6 +269,10 @@ class Conspiracy extends Table
 //////////////////////////////////////////////////////////////////////////////
 //////////// Utility functions
 //////////// 
+
+    function bonusLocations() {        
+        return intval(self::getGameStateValue('BONUS_LOCATIONS')) === 2;
+    }
 
     function mustTakeFirstLord() {
         return self::getGameStateValue('AP_FIRST_LORD') > 0;
@@ -597,6 +608,30 @@ class Conspiracy extends Table
                 $guild = $location->passivePowerGuild;
                 $points += count(array_values(array_filter($lords, function($lord) use ($guild) { return $lord->guild == $guild; })));
             }
+
+            if ($location->passivePower == PP_LORD_1POINT_COALITION) {
+                $coalition = $this->getScoreTopPointCoalition($player_id, 1);
+                $points += $coalition ? $coalition->size : 0;
+            }
+
+            if ($location->passivePower == PP_LORD_2POINT_COALITION) {
+                $coalition = $this->getScoreTopPointCoalition($player_id, 2);
+                $points += $coalition ? $coalition->size * 2 : 0;
+            }
+
+            if ($location->passivePower == PP_LORD_3POINT_COALITION) {
+                $coalition = $this->getScoreTopPointCoalition($player_id, 3);
+                $points += $coalition ? $coalition->size * 2 : 0;
+            }
+
+            if ($location->passivePower == PP_LORD_4POINT_COALITION) {
+                $coalition = $this->getScoreTopPointCoalition($player_id, 4);
+                $points += $coalition ? $coalition->size * 2 : 0;
+            }
+
+            if ($location->passivePower == PP_LORD_NO_KEY_NO_PEARL) {
+                $points += count(array_values(array_filter($lords, function($lord)  { return $lord->points == 0 || $lord->points == 6; })));
+            }
         }
 
         return $points;
@@ -640,6 +675,49 @@ class Conspiracy extends Table
                 $coalition->guild = $lordInSpot->guild;
                 $coalition->alreadyCounted = [];
                 $this->getCoalitionSize($player_id, $coalition, $spot);
+                
+                if (!$topCoalition || $coalition->size > $topCoalition->size) {
+                    $topCoalition = $coalition;
+                }
+            }
+        }
+
+        return $topCoalition;
+    }
+
+    function getPointCoalitionSize(int $player_id, $coalition, int $currentSpot) {
+        // we check we don't count twice the same spot
+        if (array_search($currentSpot, $coalition->alreadyCounted) !== false) {
+            return;
+        }
+
+        $coalition->size++;
+        $coalition->alreadyCounted = array_merge($coalition->alreadyCounted, [$currentSpot]);
+
+        // we only take lords having same guild
+        $filteredNeigbours = array_filter($this->NEIGHBOURS[$currentSpot], function($neighbour) use ($player_id, $coalition) {
+            $lord = $this->getLordInSpot($player_id, $neighbour);
+            return !!$lord && $coalition->points === $lord->points;
+        });
+
+        foreach ($filteredNeigbours as $filteredNeigbour) {
+            $coalition->size += $this->getPointCoalitionSize($player_id, $coalition, $filteredNeigbour);
+        }
+    }
+
+    function getScoreTopPointCoalition(int $player_id, int $points) {
+        $topCoalition = null;
+
+        for ($spot = 1; $spot <= SPOT_NUMBER; $spot++) {
+            $lordInSpot = $this->getLordInSpot($player_id, $spot);
+
+            if ($lordInSpot && $lordInSpot->points == $points) {
+                $coalition = new stdClass();
+                $coalition->spot = $spot;
+                $coalition->size = 0;
+                $coalition->points = $points;
+                $coalition->alreadyCounted = [];
+                $this->getPointCoalitionSize($player_id, $coalition, $spot);
                 
                 if (!$topCoalition || $coalition->size > $topCoalition->size) {
                     $topCoalition = $coalition;

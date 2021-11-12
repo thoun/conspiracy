@@ -18,10 +18,9 @@
     font-family: 'MoolBoran';
 }
 
-/* we show help button if user has no mouse ( = no tooltips) */
-@media (hover: hover) {
+@media only screen and (min-width: 1004px) {
     #conspiracy-help-button {
-        display: none;
+        bottom: 5px;
     }
 }
 
@@ -91,5 +90,33 @@ h2.standard_popin_title {
         #location101 {        
             background-position: -2200% 100%;
         }
-}
+        
+        @for $i from 21 through 25 {
+            #location#{$i} {
+                background-image: url('img/bonus-locations.jpg');
+                background-position: (($i - 21) / 4 * 100%) 100%;
+            }
+        }
+    }
+
+    #alliance {
+        color: darkred;
+
+        hr {
+            border: 1px solid #0094bb;
+            width: 60%;
+        }
+
+        .example-wrapper {
+            display: flex;
+            justify-content: center;
+            .example {    
+                width: 469px;
+                max-width: 100%;
+                aspect-ratio: 469/500;
+                background: url('img/alliance-example.jpg');
+                background-size: contain;
+            }
+        }
+    }
 }
