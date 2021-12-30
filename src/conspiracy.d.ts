@@ -27,6 +27,14 @@ interface PlayerTableSpot {
     location?: Location;
 }
 
+interface Score {
+    lords: number;
+    locations: number;
+    coalition: number;
+    pearlMaster: number;
+    total: number;
+}
+
 interface ConspiracyPlayer extends Player {
     playerNo: number;
 }
@@ -49,12 +57,20 @@ interface ConspiracyGamedatas {
     visibleLocations: Location[];
     pickLocations: Location[];
     pearlMasterPlayer: number;
+    playAgainPlayer: number;
     playersTables: { [playerId: number]: PlayerTableSpot[] };
     endTurn: boolean;
     remainingLords: number;
     remainingLocations: number;
     hiddenScore: boolean;
     bonusLocations: boolean;
+
+    opponent: {
+        id: number;
+        score: number;
+        newScore: Score;
+        lord: number;
+    }
 }
 
 interface ConspiracyGame extends Game {
@@ -65,26 +81,21 @@ interface ConspiracyGame extends Game {
     locationPick: (id: number) => void;
 }
 
-interface Score {
-    lords: number;
-    locations: number;
-    coalition: number;
-    pearlMaster: number;
-    total: number;
-}
-
 interface EnteringStackSelectionArgs {
     max: number;
 }
 
 interface EnteringLordStackSelectionArgs extends EnteringStackSelectionArgs {
     limitToHidden: number;
+    opponentTurn: boolean;
+    piles: number[];
 }
 
 interface EnteringLordSelectionArgs {
     lords: Lord[];
     multiple: boolean;
     remainingLords: number;
+    opponentTurn: boolean;
 }
 
 interface EnteringLordPlacementArgs {
@@ -154,6 +165,10 @@ interface NotifLocationPlayedArgs extends NotifNewScoreArgs {
 interface NotifNewPearlMasterArgs {
     playerId: number;
     previousPlayerId: number;
+}
+
+interface NotifNewPlayAgainPlayerArgs {
+    playerId: number;
 }
 
 interface NotifScorePointArgs {

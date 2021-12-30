@@ -21,7 +21,7 @@ abstract class AbstractStacks<T extends Card> {
 
         const buttons = Array.from(this.pileDiv.getElementsByClassName('button'));
 
-        if (limitToHidden) {
+        if (limitToHidden !== null) {
             const adjustedLimitToHidden = Math.min(this.max, limitToHidden);
             if (selectable) {
                 buttons.filter((button: HTMLDivElement) => parseInt(button.dataset.number) !== adjustedLimitToHidden)

@@ -55,5 +55,34 @@ $game_options = [
             ],
         ],
         'default' => 1,
-    ]
+    ],
+
+    102 => [
+        'name' => totranslate('Legendary opponent (solo mode)'),
+        'values' => [
+            0 => [
+                'name' => totranslate('Random'),
+            ],
+            1 => [
+                'name' => totranslate('Farmer'),
+            ],
+            2 => [
+                'name' => totranslate('Military'),
+            ],
+            3 => [
+                'name' => totranslate('Merchant'),
+            ],
+            4 => [
+                'name' => totranslate('Politician'),
+            ],
+            5 => [
+                'name' => totranslate('Mage'),
+            ],
+        ],
+        'default' => 0,
+        'displaycondition' => [[
+            'type' => 'maxplayers',
+            'value' => 1,
+        ]]
+    ],
 ];

@@ -60,6 +60,10 @@ class LordsStacks extends AbstractStacks<Lord> {
         }
     }
 
+    public setSelectablePiles(piles: number[]) {
+        GUILD_IDS.forEach(guild => this.lordsStocks[guild].setSelectable(piles.includes(guild)));
+    }
+
     public hasPickCards(): boolean {
         return this.pickStock.items.length > 0;
     }

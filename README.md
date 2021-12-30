@@ -31,3 +31,6 @@ Also add one auto-FTP upload extension (for example https://marketplace.visualst
 
 ## Hint
 Make sure ftp-sync.json and node_modules are in .gitignore
+
+# How to start PHP unit test
+go on tests dir and start execute file, for example `php ./conspiracy.game.test-coalition.php`

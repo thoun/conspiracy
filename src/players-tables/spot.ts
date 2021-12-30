@@ -43,7 +43,7 @@ class PlayerTableSpotStock {
         
         const location = spot.location;
         if (location) {
-            this.locationsStock.addToStockWithId(getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`);
+            this.locationsStock.addToStockWithId(this.playerId == 0 ? 0 : getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`);
         }
     }
 
@@ -77,9 +77,9 @@ class PlayerTableSpotStock {
 
     public setLocation(location: Location, fromStock: Stock | null) {
         if (fromStock) {
-            moveToAnotherStock(fromStock, this.locationsStock, getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`);
+            moveToAnotherStock(fromStock, this.locationsStock, this.playerId == 0 ? 0 : getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`);
         } else {
-            this.locationsStock.addToStockWithId(getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`, 'location-hidden-pile');
+            this.locationsStock.addToStockWithId(this.playerId == 0 ? 0 : getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`, 'location-hidden-pile');
         }
         this.spot.location = location;
     }

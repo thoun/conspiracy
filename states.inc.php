@@ -61,6 +61,17 @@ $basicGameStates = [
         "transitions" => array( "" => ST_PLAYER_LORD_STACK_SELECTION )
     ),
 
+    ST_USE_REPLAY => [
+        "name" => "useReplay",
+        "description" => '',
+        "descriptionmyturn" => clienttranslate('${you} can use Replay token'),
+        "type" => "activeplayer",
+        "possibleactions" => ["useReplayToken"],
+        "transitions" => [
+            "nextPlayer" => ST_NEXT_PLAYER,
+        ],
+    ], 
+
     ST_NEXT_PLAYER => array(
         "name" => "nextPlayer",
         "description" => "",
@@ -69,7 +80,8 @@ $basicGameStates = [
         "updateGameProgression" => true,
         "transitions" => array( 
             "nextPlayer" => ST_PLAYER_LORD_STACK_SELECTION, 
-            "showScore" => ST_SHOW_SCORE
+            "showScore" => ST_SHOW_SCORE,
+            "askReplay" => ST_USE_REPLAY,
         )
     ),
 
@@ -99,17 +111,21 @@ $lordGameStates = [
         "description" => clienttranslate('${actplayer} must choose lords from deck or from a discard pile'),
         'descriptionlimitToHidden1' => clienttranslate('${actplayer} must take the first lord from the deck (Location constraint)'),        
         'descriptionlimitToHidden2' => clienttranslate('${actplayer} must take two lords from the deck and choose one (Location constraint)'),
+        'descriptionpile' => '',
         "descriptionmyturn" => clienttranslate('${you} must choose lords from deck or from a discard pile'),
         'descriptionmyturnlimitToHidden1' => clienttranslate('${you} must take the first lord from the deck (Location constraint)'),        
         'descriptionmyturnlimitToHidden2' => clienttranslate('${you} must take two lords from the deck and choose one (Location constraint)'),
+        "descriptionmyturnpile" => clienttranslate('${you} must choose lords from a discard pile'),
         "type" => "activeplayer",
         "args" => "argLordStackSelection",
+        "action" => "stLordStackSelection",
         "possibleactions" => array( "chooseDeckStack", "chooseVisibleStack" ),
         "transitions" => array( 
             "chooseDeckStack" => ST_PLAYER_LORD_SELECTION,
             "chooseOneOnStack" => ST_PLAY_LORD,
             "chooseVisibleStack" => ST_PLAYER_LORD_PICK,
             "zombiePass" => ST_NEXT_PLAYER,
+            "soloCardAdded" => ST_PLAYER_LORD_STACK_SELECTION,
         )
     ),  
 
@@ -189,7 +205,8 @@ $locationGameStates = [
         "descriptionmyturn" => clienttranslate('${you} must choose a location from the deck or discard pile'),
         'descriptionmyturnallHidden' => clienttranslate('${you} must choose a location from all deck (Location constraint)'),
         "type" => "activeplayer",
-        "args" => "argLocationStackSelection",
+        "args" => "argLocationStackSelection",        
+        "action" => "stLocationStackSelection",
         "possibleactions" => array( "chooseDeckStack", "chooseVisibleLocation" ),
         "transitions" => array( 
             "chooseDeckStack" => ST_PLAYER_LOCATION_SELECTION,

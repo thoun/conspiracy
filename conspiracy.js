@@ -51,6 +51,7 @@ function setupLocationCards(locationStocks) {
     var cardsurl = g_gamethemeurl + "img/locations.jpg";
     var bonuscardsurl = g_gamethemeurl + "img/bonus-locations.jpg";
     locationStocks.forEach(function (locationStock) {
+        locationStock.addItemType(0, 0, cardsurl, 0);
         LOCATIONS_UNIQUE_IDS.forEach(function (id, index) {
             return locationStock.addItemType(getUniqueId(id, 0), 0, cardsurl, 1 + index);
         });
@@ -421,7 +422,7 @@ var AbstractStacks = /** @class */ (function () {
         var action = selectable ? 'add' : 'remove';
         this.pileDiv.classList[action]('selectable');
         var buttons = Array.from(this.pileDiv.getElementsByClassName('button'));
-        if (limitToHidden) {
+        if (limitToHidden !== null) {
             var adjustedLimitToHidden_1 = Math.min(this.max, limitToHidden);
             if (selectable) {
                 buttons.filter(function (button) { return parseInt(button.dataset.number) !== adjustedLimitToHidden_1; })
@@ -551,6 +552,10 @@ var LordsStacks = /** @class */ (function (_super) {
         if (!selectable || !limitToHidden) {
             this.lordsStocks.forEach(function (lordStock) { return lordStock.setSelectable(selectable); });
         }
+    };
+    LordsStacks.prototype.setSelectablePiles = function (piles) {
+        var _this = this;
+        GUILD_IDS.forEach(function (guild) { return _this.lordsStocks[guild].setSelectable(piles.includes(guild)); });
     };
     LordsStacks.prototype.hasPickCards = function () {
         return this.pickStock.items.length > 0;
@@ -731,7 +736,7 @@ var PlayerTableSpotStock = /** @class */ (function () {
         setupLocationCards([this.locationsStock]);
         var location = spot.location;
         if (location) {
-            this.locationsStock.addToStockWithId(getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id);
+            this.locationsStock.addToStockWithId(this.playerId == 0 ? 0 : getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id);
         }
     }
     PlayerTableSpotStock.prototype.hasLord = function () {
@@ -765,10 +770,10 @@ var PlayerTableSpotStock = /** @class */ (function () {
     PlayerTableSpotStock.prototype.setLocation = function (location, fromStock) {
         var _a, _b;
         if (fromStock) {
-            moveToAnotherStock(fromStock, this.locationsStock, getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id);
+            moveToAnotherStock(fromStock, this.locationsStock, this.playerId == 0 ? 0 : getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id);
         }
         else {
-            this.locationsStock.addToStockWithId(getUniqueId(location.type, (_b = location.passivePowerGuild) !== null && _b !== void 0 ? _b : 0), "" + location.id, 'location-hidden-pile');
+            this.locationsStock.addToStockWithId(this.playerId == 0 ? 0 : getUniqueId(location.type, (_b = location.passivePowerGuild) !== null && _b !== void 0 ? _b : 0), "" + location.id, 'location-hidden-pile');
         }
         this.spot.location = location;
     };
@@ -845,7 +850,7 @@ var PlayerTable = /** @class */ (function () {
         this.spotsStock = [];
         this.swapSpots = null;
         this.playerId = Number(player.id);
-        dojo.place("<div id=\"player-table-wrapper-" + this.playerId + "\" class=\"player-table-wrapper\">\n            <div id=\"player-table-mat-" + this.playerId + "\" class=\"player-table-mat mat" + player.mat + "\">\n                <div id=\"player-table-" + this.playerId + "\" class=\"player-table\">\n                    <div class=\"player-name mat" + player.mat + "\" style=\"color: #" + player.color + ";\">\n                        " + player.name + "\n                    </div>\n                </div>\n            </div>\n        </div>", 'players-tables');
+        dojo.place("<div id=\"player-table-wrapper-" + this.playerId + "\" class=\"player-table-wrapper\">\n            <div id=\"player-table-mat-" + this.playerId + "\" class=\"player-table-mat mat" + player.mat + "\">\n                <div id=\"player-table-" + this.playerId + "\" class=\"player-table\">\n                    <div class=\"player-name mat" + player.mat + "\" style=\"color: #" + player.color + ";\">\n                        " + (player.name || _('Legendary opponent')) + "\n                    </div>\n                </div>\n            </div>\n        </div>", 'players-tables');
         SPOTS_NUMBERS.forEach(function (spotNumber) {
             _this.spotsStock[spotNumber] = new PlayerTableSpotStock(game, _this, player, spots[spotNumber], spotNumber);
         });
@@ -1013,6 +1018,7 @@ var Conspiracy = /** @class */ (function () {
             this.dontPreloadImage('bonus-locations.jpg');
         }
         [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(function (i) { return !Object.values(gamedatas.players).some(function (player) { return Number(player.mat) === i; }); }).forEach(function (i) { return _this.dontPreloadImage("playmat_" + i + ".jpg"); });
+        [1, 2, 3, 4, 5].filter(function (i) { var _a; return i != ((_a = gamedatas.opponent) === null || _a === void 0 ? void 0 : _a.lord); }).forEach(function (i) { return _this.dontPreloadImage("sololord" + i + ".jpg"); });
         log("Starting game setup");
         this.gamedatas = gamedatas;
         log('gamedatas', gamedatas);
@@ -1052,24 +1058,31 @@ var Conspiracy = /** @class */ (function () {
         log('Entering state: ' + stateName, args.args);
         switch (stateName) {
             case 'lordStackSelection':
-                var limitToHidden = args.args.limitToHidden;
-                this.setGamestateDescription(limitToHidden ? "limitToHidden" + limitToHidden : '');
-                this.onEnteringLordStackSelection(args.args);
+                var argsLordStackSelection = args.args;
+                if (argsLordStackSelection) {
+                    var limitToHidden = argsLordStackSelection.limitToHidden;
+                    this.setGamestateDescription(argsLordStackSelection.opponentTurn ? 'pile' : (limitToHidden ? "limitToHidden" + limitToHidden : ''), argsLordStackSelection.opponentTurn);
+                    this.onEnteringLordStackSelection(argsLordStackSelection);
+                }
                 break;
             case 'lordSelection':
-                var multiple = args.args.multiple;
-                var number = (_a = args.args.lords) === null || _a === void 0 ? void 0 : _a.length;
-                this.setGamestateDescription(multiple ? (number > 1 ? 'multiple' : 'last') : '');
+                var argsLordSelection = args.args;
+                var multiple = argsLordSelection.multiple;
+                var number = (_a = argsLordSelection.lords) === null || _a === void 0 ? void 0 : _a.length;
+                this.setGamestateDescription(multiple ? (number > 1 ? 'multiple' : 'last') : '', argsLordSelection.opponentTurn);
                 this.onEnteringLordSelection(args.args);
                 break;
             case 'lordPlacement':
-                this.onEnteringLordPlacement(args.args);
+                if (args.args) {
+                    this.onEnteringLordPlacement(args.args);
+                }
                 break;
             case 'lordSwap':
                 this.onEnteringLordSwap();
                 break;
             case 'locationStackSelection':
-                var allHidden = args.args.allHidden;
+                var argsLocationStackSelection = args.args;
+                var allHidden = argsLocationStackSelection.allHidden;
                 this.setGamestateDescription(allHidden ? 'allHidden' : '');
                 this.onEnteringLocationStackSelection(args.args);
                 break;
@@ -1080,22 +1093,31 @@ var Conspiracy = /** @class */ (function () {
                 this.onEnteringLocationPlacement(args.args);
                 break;
             case 'showScore':
-                Object.keys(this.gamedatas.players).forEach(function (playerId) { return _this.scoreCtrl[playerId].setValue(0); });
+                var playersIds = Object.keys(this.gamedatas.players);
+                if (playersIds.length == 1) {
+                    playersIds.push(0);
+                }
+                playersIds.forEach(function (playerId) { return _this.scoreCtrl[playerId].setValue(0); });
                 this.onEnteringShowScore();
                 break;
         }
     };
-    Conspiracy.prototype.setGamestateDescription = function (property) {
+    Conspiracy.prototype.setGamestateDescription = function (property, opponentTurn) {
         if (property === void 0) { property = ''; }
+        if (opponentTurn === void 0) { opponentTurn = false; }
         var originalState = this.gamedatas.gamestates[this.gamedatas.gamestate.id];
-        this.gamedatas.gamestate.description = "" + originalState['description' + property];
-        this.gamedatas.gamestate.descriptionmyturn = "" + originalState['descriptionmyturn' + property];
+        var oppoentTurnText = opponentTurn ? " (" + _("OPPONENT'S TURN") + ")" : '';
+        this.gamedatas.gamestate.description = "" + originalState['description' + property] + oppoentTurnText;
+        this.gamedatas.gamestate.descriptionmyturn = "" + originalState['descriptionmyturn' + property] + oppoentTurnText;
         this.updatePageTitle();
     };
     Conspiracy.prototype.onEnteringLordStackSelection = function (args) {
         this.lordsStacks.setMax(args.max);
         if (this.isCurrentPlayerActive()) {
-            this.lordsStacks.setSelectable(true, args.limitToHidden);
+            this.lordsStacks.setSelectable(true, args.opponentTurn ? 0 : args.limitToHidden);
+            if (args.opponentTurn && args.piles.length) {
+                this.lordsStacks.setSelectablePiles(args.piles);
+            }
         }
     };
     Conspiracy.prototype.onEnteringLordSelection = function (args) {
@@ -1134,7 +1156,11 @@ var Conspiracy = /** @class */ (function () {
         }
         document.getElementById('stacks').style.display = 'none';
         document.getElementById('score').style.display = 'flex';
-        Object.values(this.gamedatas.players).forEach(function (player) {
+        var players = Object.values(this.gamedatas.players);
+        if (players.length == 1) {
+            players.push(this.gamedatas.opponent);
+        }
+        players.forEach(function (player) {
             //if we are a reload of end state, we display values, else we wait for notifications
             var score = fromReload ? player.newScore : null;
             dojo.place("<tr id=\"score" + player.id + "\">\n                <td class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</td>\n                <td id=\"lords-score" + player.id + "\" class=\"score-number lords-score\">" + ((score === null || score === void 0 ? void 0 : score.lords) !== undefined ? score.lords : '') + "</td>\n                <td id=\"locations-score" + player.id + "\" class=\"score-number locations-score\">" + ((score === null || score === void 0 ? void 0 : score.locations) !== undefined ? score.locations : '') + "</td>\n                <td id=\"coalition-score" + player.id + "\" class=\"score-number coalition-score\">" + ((score === null || score === void 0 ? void 0 : score.coalition) !== undefined ? score.coalition : '') + "</td>\n                <td id=\"masterPearl-score" + player.id + "\" class=\"score-number masterPearl-score\">" + ((score === null || score === void 0 ? void 0 : score.pearlMaster) !== undefined ? score.pearlMaster : '') + "</td>\n                <td class=\"score-number total\">" + ((score === null || score === void 0 ? void 0 : score.total) !== undefined ? score.total : '') + "</td>\n            </tr>", 'score-table-body');
@@ -1193,12 +1219,17 @@ var Conspiracy = /** @class */ (function () {
     //                        action status bar (ie: the HTML links in the status bar).
     //
     Conspiracy.prototype.onUpdateActionButtons = function (stateName, args) {
+        var _this = this;
         if (this.isCurrentPlayerActive()) {
             switch (stateName) {
                 case 'lordSwap':
                     this.addActionButton('swap_button', _("Swap"), 'onSwap');
                     this.addActionButton('dontSwap_button', _("Don't swap"), 'onDontSwap', null, false, 'red');
                     dojo.addClass('swap_button', 'disabled');
+                    break;
+                case 'useReplay':
+                    this.addActionButton('useReplayToen_button', _("Use Replay token"), function () { return _this.useReplayToken(1); });
+                    this.addActionButton('dontUseReplayToen_button', _("Don't use Replay token"), function () { return _this.useReplayToken(2); });
                     break;
             }
         }
@@ -1271,7 +1302,16 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.createPlayerPanels = function (gamedatas) {
         var _this = this;
         this.createViewPlayermatPopin();
-        Object.values(gamedatas.players).forEach(function (player) {
+        var players = Object.values(gamedatas.players);
+        var solo = players.length === 1;
+        if (solo) {
+            dojo.place("\n            <div id=\"overall_player_board_0\" class=\"player-board current-player-board\">\t\t\t\t\t\n                <div class=\"player_board_inner\" id=\"player_board_inner_982fff\">\n                    \n                    <div class=\"emblemwrap\" id=\"avatar_active_wrap_0\">\n                        <div alt=\"\" class=\"avatar avatar_active opponent-avatar\" id=\"avatar_active_0\"></div>\n                    </div>\n                                               \n                    <div class=\"player-name\" id=\"player_name_0\">\n                        " + _("Legendary opponent") + "\n                    </div>\n                    <div id=\"player_board_0\" class=\"player_board_content\">\n                        <div class=\"player_score\">\n                            <span id=\"player_score_0\" class=\"player_score_value\">10</span> <i class=\"fa fa-star\" id=\"icon_point_0\"></i>           \n                        </div>\n                        <div class=\"sololord sololord" + gamedatas.opponent.lord + "\"></div>\n                    </div>\n                </div>\n            </div>", "overall_player_board_" + players[0].id, 'after');
+            var opponentScoreCounter = new ebg.counter();
+            opponentScoreCounter.create("player_score_0");
+            opponentScoreCounter.setValue(gamedatas.opponent.score);
+            this.scoreCtrl[0] = opponentScoreCounter;
+        }
+        (solo ? __spreadArray(__spreadArray([], players), [gamedatas.opponent]) : players).forEach(function (player) {
             var playerId = Number(player.id);
             var playerTable = Object.values(gamedatas.playersTables[playerId]);
             // Lord & pearl counters
@@ -1303,8 +1343,12 @@ var Conspiracy = /** @class */ (function () {
             dojo.place(html, "player_board_" + player.id);
             // pearl master token
             dojo.place("<div id=\"player_board_" + player.id + "_pearlMasterWrapper\" class=\"pearlMasterWrapper\"></div>", "player_board_" + player.id);
+            dojo.place("<div id=\"player_board_" + player.id + "_playAgainWrapper\" class=\"playAgainWrapper\"></div>", "player_board_" + player.id);
             if (gamedatas.pearlMasterPlayer === playerId) {
                 _this.placePearlMasterToken(gamedatas.pearlMasterPlayer);
+            }
+            if (gamedatas.playAgainPlayer === playerId) {
+                _this.placePlayAgainToken(gamedatas.playAgainPlayer);
             }
             // vision popup button
             /*if (playerId !== Number((this as any).player_id)) {*/
@@ -1339,12 +1383,13 @@ var Conspiracy = /** @class */ (function () {
         var players = Object.values(gamedatas.players).sort(function (a, b) { return a.playerNo - b.playerNo; });
         var playerIndex = players.findIndex(function (player) { return Number(player.id) === Number(_this.player_id); });
         var orderedPlayers = playerIndex > 0 ? __spreadArray(__spreadArray([], players.slice(playerIndex)), players.slice(0, playerIndex)) : players;
-        orderedPlayers.forEach(function (player) {
+        var solo = orderedPlayers.length === 1;
+        (solo ? __spreadArray(__spreadArray([], orderedPlayers), [gamedatas.opponent]) : orderedPlayers).forEach(function (player) {
             return _this.createPlayerTable(gamedatas, Number(player.id));
         });
     };
     Conspiracy.prototype.createPlayerTable = function (gamedatas, playerId) {
-        this.playersTables[playerId] = new PlayerTable(this, gamedatas.players[playerId], gamedatas.playersTables[playerId]);
+        this.playersTables[playerId] = new PlayerTable(this, playerId > 0 ? gamedatas.players[playerId] : gamedatas.opponent, gamedatas.playersTables[playerId]);
     };
     Conspiracy.prototype.lordPick = function (id) {
         if (!this.checkAction('addLord')) {
@@ -1385,6 +1430,16 @@ var Conspiracy = /** @class */ (function () {
             this.addTooltipHtml('pearlMasterToken', _("Pearl Master token. At the end of the game, the player possessing the Pearl Master token gains a bonus of 5 Influence Points."));
         }
     };
+    Conspiracy.prototype.placePlayAgainToken = function (playerId) {
+        var playAgainToken = document.getElementById('playAgainToken');
+        if (playAgainToken) {
+            slideToObjectAndAttach(this, playAgainToken, "player_board_" + playerId + "_playAgainWrapper");
+        }
+        else {
+            dojo.place('<div id="playAgainToken" class="token"></div>', "player_board_" + playerId + "_playAgainWrapper");
+            this.addTooltipHtml('playAgainToken', _("Replay token. You can use it to gain an extra turn when you play it."));
+        }
+    };
     Conspiracy.prototype.setCanSwap = function (swapSpots) {
         if (this.swapSpots.length !== 2 && swapSpots.length === 2) {
             dojo.removeClass('swap_button', 'disabled');
@@ -1405,6 +1460,12 @@ var Conspiracy = /** @class */ (function () {
             return;
         }*/
         this.takeAction('dontSwap');
+    };
+    Conspiracy.prototype.useReplayToken = function (use) {
+        if (!this.checkAction('useReplayToken')) {
+            return;
+        }
+        this.takeAction('useReplayToken', { use: use });
     };
     Conspiracy.prototype.setScore = function (playerId, column, score) {
         var cell = document.getElementById("score" + playerId).getElementsByTagName('td')[column];
@@ -1437,7 +1498,7 @@ var Conspiracy = /** @class */ (function () {
         helpDialog.show();
     };
     Conspiracy.prototype.setNewScoreTooltip = function (playerId) {
-        var score = this.gamedatas.players[playerId].newScore;
+        var score = (playerId > 0 ? this.gamedatas.players[playerId] : this.gamedatas.opponent).newScore;
         var html = "\n            " + _("Lords points") + " : <strong>" + score.lords + "</strong><br>\n            " + _("Locations points") + " : <strong>" + score.locations + "</strong><br>\n            " + _("Coalition points") + " : <strong>" + score.coalition + "</strong><br>\n            " + _("Pearl Master points") + " : <strong>" + score.pearlMaster + "</strong><br>\n        ";
         this.addTooltipHtml("player_score_" + playerId, html);
         this.addTooltipHtml("icon_point_" + playerId, html);
@@ -1446,11 +1507,17 @@ var Conspiracy = /** @class */ (function () {
         var _this = this;
         var _a;
         if (this.gamedatas.hiddenScore) {
-            setTimeout(function () { return Object.values(_this.gamedatas.players).forEach(function (player) { return document.getElementById("player_score_" + player.id).innerHTML = '-'; }); }, 100);
+            setTimeout(function () {
+                var playersIds = Object.keys(_this.gamedatas.players);
+                if (playersIds.length == 1) {
+                    playersIds.push(0);
+                }
+                playersIds.forEach(function (playerId) { return document.getElementById("player_score_" + playerId).innerHTML = '-'; });
+            }, 100);
         }
         else {
             var score = args.newScore;
-            this.gamedatas.players[args.playerId].newScore = score;
+            (args.playerId ? this.gamedatas.players[args.playerId] : this.gamedatas.opponent).newScore = score;
             if (!isNaN(score.total)) {
                 (_a = this.scoreCtrl[args.playerId]) === null || _a === void 0 ? void 0 : _a.toValue(score.total);
             }
@@ -1491,6 +1558,7 @@ var Conspiracy = /** @class */ (function () {
             ['discardLords', ANIMATION_MS],
             ['discardLocations', ANIMATION_MS],
             ['newPearlMaster', 1],
+            ['newPlayAgainPlayer', 1],
             ['discardLordPick', 1],
             ['discardLocationPick', 1],
             ['lastTurn', 1],
@@ -1561,17 +1629,23 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.notif_newPearlMaster = function (notif) {
         var _a;
-        this.placePearlMasterToken(notif.args.playerId);
+        var playerId = notif.args.playerId;
+        this.placePearlMasterToken(playerId);
         if (!this.gamedatas.hiddenScore) {
-            this.scoreCtrl[notif.args.playerId].incValue(5);
-            this.gamedatas.players[notif.args.playerId].newScore.pearlMaster = 5;
-            this.setNewScoreTooltip(notif.args.playerId);
-            (_a = this.scoreCtrl[notif.args.previousPlayerId]) === null || _a === void 0 ? void 0 : _a.incValue(-5);
-            if (this.gamedatas.players[notif.args.previousPlayerId]) {
-                this.gamedatas.players[notif.args.previousPlayerId].newScore.pearlMaster = 0;
-                this.setNewScoreTooltip(notif.args.previousPlayerId);
+            this.scoreCtrl[playerId].incValue(5);
+            (playerId == 0 ? this.gamedatas.opponent : this.gamedatas.players[playerId]).newScore.pearlMaster = 5;
+            this.setNewScoreTooltip(playerId);
+            var previousPlayerId = notif.args.previousPlayerId;
+            if (previousPlayerId >= (Object.keys(this.gamedatas.players).length > 1 ? 1 : 0)) {
+                (_a = this.scoreCtrl[previousPlayerId]) === null || _a === void 0 ? void 0 : _a.incValue(-5);
+                (previousPlayerId == 0 ? this.gamedatas.opponent : this.gamedatas.players[previousPlayerId]).newScore.pearlMaster = 0;
+                this.setNewScoreTooltip(previousPlayerId);
             }
         }
+    };
+    Conspiracy.prototype.notif_newPlayAgainPlayer = function (notif) {
+        var playerId = notif.args.playerId;
+        this.placePlayAgainToken(playerId);
     };
     Conspiracy.prototype.notif_lastTurn = function () {
         dojo.place("<div id=\"last-round\">\n            " + _("This is the last round of the game!") + "\n        </div>", 'page-title');
@@ -1597,7 +1671,11 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.notif_scorePearlMaster = function (notif) {
         var _this = this;
         log('notif_scorePearlMaster', notif.args);
-        Object.keys(this.gamedatas.players).forEach(function (playerId) {
+        var playersIds = Object.keys(this.gamedatas.players);
+        if (playersIds.length == 1) {
+            playersIds.push(0);
+        }
+        playersIds.forEach(function (playerId) {
             var isPearlMaster = notif.args.playerId == Number(playerId);
             _this.setScore(playerId, 4, isPearlMaster ? 5 : 0);
             if (isPearlMaster) {

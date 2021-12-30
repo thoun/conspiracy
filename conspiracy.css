@@ -386,6 +386,12 @@
   width: 48px;
   height: 48px;
 }
+.token#playAgainToken {
+  background-position: 25% 0%;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+}
 .token.guild1 {
   background-position: 50% 100%;
 }
@@ -530,6 +536,33 @@
 }
 .counters .lord-counter span.small, .counters .pearl-counter span.small, .counters .key-counter span.small {
   font-size: 80%;
+}
+
+.opponent-avatar {
+  background: url("img/gear.png");
+}
+
+.sololord {
+  width: 230px;
+  height: 322px;
+  border-radius: 10px;
+  box-shadow: 1px 1px 3px black;
+  margin: 8px 2px;
+}
+.sololord.sololord1 {
+  background-image: url("img/sololord1.jpg");
+}
+.sololord.sololord2 {
+  background-image: url("img/sololord2.jpg");
+}
+.sololord.sololord3 {
+  background-image: url("img/sololord3.jpg");
+}
+.sololord.sololord4 {
+  background-image: url("img/sololord4.jpg");
+}
+.sololord.sololord5 {
+  background-image: url("img/sololord5.jpg");
 }
 
 #score {
@@ -866,7 +899,11 @@ html {
 .pearlMasterWrapper {
   display: inline-block;
   position: relative;
-  width: 32px;
+}
+
+.playAgainWrapper {
+  display: inline-block;
+  position: relative;
 }
 
 .log-guild-name {

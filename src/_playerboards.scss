@@ -104,3 +104,21 @@ $minimap-lord-margin: 1px;
     }
   }
 }
+
+.opponent-avatar {
+  background: url('img/gear.png');
+}
+
+.sololord {
+  width: 230px;
+  height: 322px;
+  border-radius: 10px;
+  box-shadow: 1px 1px 3px black;
+  margin: 8px 2px;
+
+  @for $i from 1 through 5 {
+      &.sololord#{$i} {
+          background-image: url('img/sololord#{$i}.jpg');
+      }
+  }
+}

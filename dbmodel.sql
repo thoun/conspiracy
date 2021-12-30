@@ -42,3 +42,9 @@ ALTER TABLE `player` ADD `player_score_lords` int(10);
 ALTER TABLE `player` ADD `player_score_locations` int(10);
 ALTER TABLE `player` ADD `player_score_coalition` int(10);
 ALTER TABLE `player` ADD `player_mat` int(1) unsigned NOT NULL;
+
+CREATE TABLE IF NOT EXISTS `global_variables` (
+  `name` varchar(50) NOT NULL,
+  `value` json,
+  PRIMARY KEY (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

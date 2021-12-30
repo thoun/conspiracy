@@ -106,6 +106,15 @@
 
         self::ajaxResponse( );
     }
+
+    public function useReplayToken() {
+        self::setAjaxMode();
+
+        $use = self::getArg( "use", AT_posint, true );
+        $this->game->useReplayToken( $use );
+
+        self::ajaxResponse( );
+    }
 }
   
 

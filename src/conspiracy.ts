@@ -69,6 +69,7 @@ class Conspiracy implements ConspiracyGame {
             (this as any).dontPreloadImage('bonus-locations.jpg');
         }
         [1,2,3,4,5,6,7,8,9,10].filter(i => !Object.values(gamedatas.players).some(player => Number((player as any).mat) === i)).forEach(i => (this as any).dontPreloadImage(`playmat_${i}.jpg`));
+        [1,2,3,4,5].filter(i => i != gamedatas.opponent?.lord).forEach(i => (this as any).dontPreloadImage(`sololord${i}.jpg`));
 
         log( "Starting game setup" );
         
@@ -123,25 +124,32 @@ class Conspiracy implements ConspiracyGame {
 
         switch (stateName) {
             case 'lordStackSelection':
-                const limitToHidden = (args.args as EnteringLordStackSelectionArgs).limitToHidden;
-                this.setGamestateDescription(limitToHidden ? `limitToHidden${limitToHidden}` : '');
-                this.onEnteringLordStackSelection(args.args);
+                const argsLordStackSelection = (args.args as EnteringLordStackSelectionArgs);
+                if (argsLordStackSelection) {
+                    const limitToHidden = argsLordStackSelection.limitToHidden;
+                    this.setGamestateDescription(argsLordStackSelection.opponentTurn ? 'pile' : (limitToHidden ? `limitToHidden${limitToHidden}` : ''), argsLordStackSelection.opponentTurn);
+                    this.onEnteringLordStackSelection(argsLordStackSelection);
+                }
                 break;
             case 'lordSelection':
-                const multiple = (args.args as EnteringLordSelectionArgs).multiple;
-                const number = (args.args as EnteringLordSelectionArgs).lords?.length;
-                this.setGamestateDescription(multiple ? (number > 1 ? 'multiple' : 'last') : '');
+                const argsLordSelection = (args.args as EnteringLordSelectionArgs);
+                const multiple = argsLordSelection.multiple;
+                const number = argsLordSelection.lords?.length;
+                this.setGamestateDescription(multiple ? (number > 1 ? 'multiple' : 'last') : '', argsLordSelection.opponentTurn);
                 this.onEnteringLordSelection(args.args);
                 break;
             case 'lordPlacement':
-                this.onEnteringLordPlacement(args.args);
+                if (args.args) {
+                    this.onEnteringLordPlacement(args.args);
+                }
                 break;
             case 'lordSwap':
                 this.onEnteringLordSwap();
                 break;
 
             case 'locationStackSelection':
-                const allHidden = (args.args as EnteringLocationStackSelectionArgs).allHidden;
+                const argsLocationStackSelection = (args.args as EnteringLocationStackSelectionArgs);
+                const allHidden = argsLocationStackSelection.allHidden;
                 this.setGamestateDescription(allHidden ? 'allHidden' : '');
                 this.onEnteringLocationStackSelection(args.args);
                 break;
@@ -153,23 +161,32 @@ class Conspiracy implements ConspiracyGame {
                 break;
 
             case 'showScore':
-                Object.keys(this.gamedatas.players).forEach(playerId => (this as any).scoreCtrl[playerId].setValue(0));
+                const playersIds = Object.keys(this.gamedatas.players) as any[];
+                if (playersIds.length == 1) {
+                    playersIds.push(0);
+                }
+                playersIds.forEach(playerId => (this as any).scoreCtrl[playerId].setValue(0));
                 this.onEnteringShowScore();
                 break;
         }
     }
     
-    private setGamestateDescription(property: string = '') {
+    private setGamestateDescription(property: string = '', opponentTurn: boolean = false) {
         const originalState = this.gamedatas.gamestates[this.gamedatas.gamestate.id];
-        this.gamedatas.gamestate.description = `${originalState['description' + property]}`; 
-        this.gamedatas.gamestate.descriptionmyturn = `${originalState['descriptionmyturn' + property]}`; 
+        const oppoentTurnText = opponentTurn ? ` (${_("OPPONENT'S TURN")})` : '';
+        this.gamedatas.gamestate.description = `${originalState['description' + property]}` + oppoentTurnText; 
+        this.gamedatas.gamestate.descriptionmyturn = `${originalState['descriptionmyturn' + property]}` + oppoentTurnText; 
         (this as any).updatePageTitle();        
     }
 
     onEnteringLordStackSelection(args: EnteringLordStackSelectionArgs) {
         this.lordsStacks.setMax(args.max);
         if ((this as any).isCurrentPlayerActive()) {
-            this.lordsStacks.setSelectable(true, args.limitToHidden);
+            this.lordsStacks.setSelectable(true, args.opponentTurn ? 0 : args.limitToHidden);
+
+            if (args.opponentTurn && args.piles.length) {
+                this.lordsStacks.setSelectablePiles(args.piles);
+            }
         }
     }
 
@@ -217,7 +234,11 @@ class Conspiracy implements ConspiracyGame {
         document.getElementById('stacks').style.display = 'none';
         document.getElementById('score').style.display = 'flex';
 
-        Object.values(this.gamedatas.players).forEach(player => {
+        const players = Object.values(this.gamedatas.players);
+        if (players.length == 1) {
+            players.push(this.gamedatas.opponent as any);
+        }
+        players.forEach(player => {
             //if we are a reload of end state, we display values, else we wait for notifications
             const score: Score = fromReload ? (player as any).newScore : null;
 
@@ -298,10 +319,15 @@ class Conspiracy implements ConspiracyGame {
         if((this as any).isCurrentPlayerActive()) {
             switch (stateName) {
                 case 'lordSwap':
-                (this as any).addActionButton('swap_button', _("Swap"), 'onSwap');
-                (this as any).addActionButton('dontSwap_button', _("Don't swap"), 'onDontSwap', null, false, 'red');
-                dojo.addClass('swap_button', 'disabled');
-                break;
+                    (this as any).addActionButton('swap_button', _("Swap"), 'onSwap');
+                    (this as any).addActionButton('dontSwap_button', _("Don't swap"), 'onDontSwap', null, false, 'red');
+                    dojo.addClass('swap_button', 'disabled');
+                    break;
+                case 'useReplay':
+                    (this as any).addActionButton('useReplayToen_button', _("Use Replay token"), () => this.useReplayToken(1));
+                    (this as any).addActionButton('dontUseReplayToen_button', _("Don't use Replay token"), () => this.useReplayToken(2));
+                    break;
+
             }
 
         }
@@ -406,7 +432,37 @@ class Conspiracy implements ConspiracyGame {
     private createPlayerPanels(gamedatas: ConspiracyGamedatas) {
         this.createViewPlayermatPopin();
 
-        Object.values(gamedatas.players).forEach(player => {
+        const players = Object.values(gamedatas.players);
+        const solo = players.length === 1;
+
+        if (solo) {
+            dojo.place(`
+            <div id="overall_player_board_0" class="player-board current-player-board">					
+                <div class="player_board_inner" id="player_board_inner_982fff">
+                    
+                    <div class="emblemwrap" id="avatar_active_wrap_0">
+                        <div alt="" class="avatar avatar_active opponent-avatar" id="avatar_active_0"></div>
+                    </div>
+                                               
+                    <div class="player-name" id="player_name_0">
+                        ${_("Legendary opponent")}
+                    </div>
+                    <div id="player_board_0" class="player_board_content">
+                        <div class="player_score">
+                            <span id="player_score_0" class="player_score_value">10</span> <i class="fa fa-star" id="icon_point_0"></i>           
+                        </div>
+                        <div class="sololord sololord${gamedatas.opponent.lord}"></div>
+                    </div>
+                </div>
+            </div>`, `overall_player_board_${players[0].id}`, 'after');
+
+            const opponentScoreCounter = new ebg.counter();
+            opponentScoreCounter.create(`player_score_0`);
+            opponentScoreCounter.setValue(gamedatas.opponent.score);
+            (this as any).scoreCtrl[0] = opponentScoreCounter;
+        }
+
+        (solo ? [...players, gamedatas.opponent] : players).forEach(player => {
             const playerId = Number(player.id);
             const playerTable = Object.values(gamedatas.playersTables[playerId]);         
 
@@ -465,9 +521,13 @@ class Conspiracy implements ConspiracyGame {
 
             // pearl master token
             dojo.place(`<div id="player_board_${player.id}_pearlMasterWrapper" class="pearlMasterWrapper"></div>`, `player_board_${player.id}`);
+            dojo.place(`<div id="player_board_${player.id}_playAgainWrapper" class="playAgainWrapper"></div>`, `player_board_${player.id}`);
 
             if (gamedatas.pearlMasterPlayer === playerId) {
                 this.placePearlMasterToken(gamedatas.pearlMasterPlayer);
+            }
+            if (gamedatas.playAgainPlayer === playerId) {
+                this.placePlayAgainToken(gamedatas.playAgainPlayer);
             }
 
             // vision popup button
@@ -513,13 +573,15 @@ class Conspiracy implements ConspiracyGame {
         const playerIndex = players.findIndex(player => Number(player.id) === Number((this as any).player_id));
         const orderedPlayers = playerIndex > 0 ? [...players.slice(playerIndex), ...players.slice(0, playerIndex)] : players;
 
-        orderedPlayers.forEach(player => 
+        const solo = orderedPlayers.length === 1;
+
+        (solo ? [...orderedPlayers, gamedatas.opponent] : orderedPlayers).forEach(player => 
             this.createPlayerTable(gamedatas, Number(player.id))
         );
     }
 
     private createPlayerTable(gamedatas: ConspiracyGamedatas, playerId: number) {
-        this.playersTables[playerId] = new PlayerTable(this, gamedatas.players[playerId], gamedatas.playersTables[playerId]);
+        this.playersTables[playerId] = new PlayerTable(this, playerId > 0 ? gamedatas.players[playerId] : gamedatas.opponent as any, gamedatas.playersTables[playerId]);
     }
 
     public lordPick(id: number) {
@@ -569,6 +631,17 @@ class Conspiracy implements ConspiracyGame {
         }
     }
 
+    placePlayAgainToken(playerId: number) {
+        const playAgainToken = document.getElementById('playAgainToken');
+        if (playAgainToken) {
+            slideToObjectAndAttach(this, playAgainToken, `player_board_${playerId}_playAgainWrapper`);
+        } else {
+            dojo.place('<div id="playAgainToken" class="token"></div>', `player_board_${playerId}_playAgainWrapper`);
+
+            (this as any).addTooltipHtml('playAgainToken', _("Replay token. You can use it to gain an extra turn when you play it."));
+        }
+    }
+
     public setCanSwap(swapSpots: number[]) {
         if (this.swapSpots.length !== 2 && swapSpots.length === 2) {
             dojo.removeClass('swap_button', 'disabled');
@@ -592,6 +665,14 @@ class Conspiracy implements ConspiracyGame {
         }*/
      
         this.takeAction('dontSwap');
+    }
+
+    public useReplayToken(use: number) {
+        if(!(this as any).checkAction('useReplayToken')) {
+            return;
+        }
+     
+        this.takeAction('useReplayToken', { use });
     }
 
     private setScore(playerId: number | string, column: number, score: number) { // column 1 for lord ... 5 for pearl master
@@ -648,7 +729,7 @@ class Conspiracy implements ConspiracyGame {
     }
 
     private setNewScoreTooltip(playerId: number) {
-        const score: Score = (this.gamedatas.players[playerId] as any).newScore
+        const score: Score = (playerId > 0 ? this.gamedatas.players[playerId] : this.gamedatas.opponent as any).newScore;
         const html = `
             ${_("Lords points")} : <strong>${score.lords}</strong><br>
             ${_("Locations points")} : <strong>${score.locations}</strong><br>
@@ -662,10 +743,16 @@ class Conspiracy implements ConspiracyGame {
 
     private setNewScore(args: NotifNewScoreArgs) {
         if (this.gamedatas.hiddenScore) {
-            setTimeout(() => Object.values(this.gamedatas.players).forEach(player => document.getElementById(`player_score_${player.id}`).innerHTML = '-'), 100);
+            setTimeout(() => {
+                const playersIds = Object.keys(this.gamedatas.players) as any[];
+                if (playersIds.length == 1) {
+                    playersIds.push(0);
+                }
+                playersIds.forEach(playerId => document.getElementById(`player_score_${playerId}`).innerHTML = '-')
+            }, 100);
         } else {
             const score = args.newScore;
-            (this.gamedatas.players[args.playerId] as any).newScore = score;
+            (args.playerId ? this.gamedatas.players[args.playerId] : this.gamedatas.opponent as any).newScore = score;
             if (!isNaN(score.total)) {
                 (this as any).scoreCtrl[args.playerId]?.toValue(score.total);
             }
@@ -711,6 +798,7 @@ class Conspiracy implements ConspiracyGame {
             ['discardLords', ANIMATION_MS],
             ['discardLocations', ANIMATION_MS],
             ['newPearlMaster', 1],
+            ['newPlayAgainPlayer', 1],
             ['discardLordPick', 1],
             ['discardLocationPick', 1],
             ['lastTurn', 1],
@@ -796,20 +884,26 @@ class Conspiracy implements ConspiracyGame {
     }
 
     notif_newPearlMaster(notif: Notif<NotifNewPearlMasterArgs>) {
-        this.placePearlMasterToken(notif.args.playerId);
+        const playerId = notif.args.playerId;
+        this.placePearlMasterToken(playerId);
 
         if (!this.gamedatas.hiddenScore) {
-            (this as any).scoreCtrl[notif.args.playerId].incValue(5);
-            (this.gamedatas.players[notif.args.playerId] as any).newScore.pearlMaster = 5;
-            this.setNewScoreTooltip(notif.args.playerId);
+            (this as any).scoreCtrl[playerId].incValue(5);
+            (playerId == 0 ? this.gamedatas.opponent : this.gamedatas.players[playerId] as any).newScore.pearlMaster = 5;
+            this.setNewScoreTooltip(playerId);
 
-            
-            (this as any).scoreCtrl[notif.args.previousPlayerId]?.incValue(-5);
-            if (this.gamedatas.players[notif.args.previousPlayerId]) {
-                (this.gamedatas.players[notif.args.previousPlayerId] as any).newScore.pearlMaster = 0;
-                this.setNewScoreTooltip(notif.args.previousPlayerId);
+            const previousPlayerId = notif.args.previousPlayerId;
+            if (previousPlayerId >= (Object.keys(this.gamedatas.players).length > 1 ? 1 : 0)) {
+                (this as any).scoreCtrl[previousPlayerId]?.incValue(-5);
+                (previousPlayerId == 0 ? this.gamedatas.opponent : this.gamedatas.players[previousPlayerId] as any).newScore.pearlMaster = 0;
+                this.setNewScoreTooltip(previousPlayerId);
             }
         }
+    }
+
+    notif_newPlayAgainPlayer(notif: Notif<NotifNewPlayAgainPlayerArgs>) {
+        const playerId = notif.args.playerId;
+        this.placePlayAgainToken(playerId);
     }
 
     notif_lastTurn() {
@@ -841,7 +935,11 @@ class Conspiracy implements ConspiracyGame {
 
     notif_scorePearlMaster(notif: Notif<NotifScorePearlMasterArgs>) {
         log('notif_scorePearlMaster', notif.args);
-        Object.keys(this.gamedatas.players).forEach(playerId => {
+        const playersIds = Object.keys(this.gamedatas.players) as any[];
+        if (playersIds.length == 1) {
+            playersIds.push(0);
+        }
+        playersIds.forEach(playerId => {
             const isPearlMaster = notif.args.playerId == Number(playerId);
             this.setScore(playerId, 4, isPearlMaster ? 5 : 0);
             if (isPearlMaster) {

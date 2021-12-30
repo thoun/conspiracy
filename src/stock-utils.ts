@@ -48,6 +48,13 @@ function setupLocationCards(locationStocks: Stock[]) {
 
     locationStocks.forEach(locationStock => {
 
+        locationStock.addItemType(
+            0, 
+            0, 
+            cardsurl, 
+            0
+        );
+
         LOCATIONS_UNIQUE_IDS.forEach((id, index) =>
             locationStock.addItemType(
                 getUniqueId(id, 0), 

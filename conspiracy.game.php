@@ -27,9 +27,26 @@ require_once( 'modules/location.php' );
 require_once( 'modules/player-table-spot.php' );
 require_once( 'modules/score.php' );
 
+require_once('modules/utils.php');
+require_once('modules/states.php');
+require_once('modules/args.php');
+require_once('modules/actions.php');
+require_once('modules/solo-util.php');
+require_once('modules/solo-actions.php');
+require_once('modules/debug-util.php');
 
-class Conspiracy extends Table
-{
+class Conspiracy extends Table {
+
+    use UtilTrait;
+    use ActionTrait;
+    use StateTrait;
+    use ArgsTrait;
+
+    use SoloUtilTrait;
+    use SoloActionTrait;
+
+    use DebugUtilTrait;
+
 	function __construct() {
         // Your global variables labels:
         //  Here, you can assign labels to global variables you are using for this game.
@@ -46,6 +63,9 @@ class Conspiracy extends Table
                 'AP_FIRST_LORD' => 11, // reset to 0 when this player plays again
                 'AP_FIRST_LORDS' => 12, // reset to 0 when this player plays again
                 'AP_DECK_LOCATION' => 14, // apply for all game, not reseted                
+                'forceFirstByMilitary' => 15, // reset to 0 when real player ends is turn
+                'playAgainPlayer' => 16,
+                'usePlayAgain' => 17, // 0 : unasked, 1 saud yes, 2 said no
 
                 'stackSelection' => 20, // 1 for lord stack selection, 0 for visible lords selection
 
@@ -53,6 +73,7 @@ class Conspiracy extends Table
 
                 'SCORING_OPTION' => 100,
                 'BONUS_LOCATIONS' => 101,
+                'SOLO_OPPONENT' => 102,
         ]);
 
         $this->lords = self::getNew( "module.common.deck" );
@@ -85,7 +106,7 @@ class Conspiracy extends Table
         // Create players
         // Note: if you added some extra field on "player" table in the database (dbmodel.sql), you can initialize it there.
         $sql = "INSERT INTO player (player_id, player_color, player_canal, player_name, player_avatar, player_mat) VALUES ";
-        $values = array();
+        $values = [];
         $affectedMats = [];
         foreach( $players as $player_id => $player ) {
             $color = array_shift( $default_colors );
@@ -97,7 +118,7 @@ class Conspiracy extends Table
 
             $values[] = "('".$player_id."','$color','".$player['player_canal']."','".addslashes( $player['player_name'] )."','".addslashes( $player['player_avatar'] )."', $player_mat)";
         }
-        $sql .= implode( $values, ',' );
+        $sql .= implode(',', $values);
         self::DbQuery( $sql );
         self::reattributeColorsBasedOnPreferences( $players, $gameinfos['player_colors'] );
         self::reloadPlayersBasicInfos();
@@ -105,12 +126,15 @@ class Conspiracy extends Table
         /************ Start the game initialization *****/
 
         // Init global values with their initial values
-        self::setGameStateInitialValue( 'pearlMasterPlayer', 0 );
+        self::setGameStateInitialValue( 'pearlMasterPlayer', -1);
         self::setGameStateInitialValue( 'AP_FIRST_LORD', 0 );
         self::setGameStateInitialValue( 'AP_FIRST_LORDS', 0 );
         self::setGameStateInitialValue( 'AP_DECK_LOCATION', 0 );
+        self::setGameStateInitialValue( 'forceFirstByMilitary', 0 );
+        self::setGameStateInitialValue( 'playAgainPlayer', 0 );
+        self::setGameStateInitialValue( 'usePlayAgain', 0 );
         self::setGameStateInitialValue( 'stackSelection', 0 );
-        self::setGameStateInitialValue( 'endTurn', 0 );
+        self::setGameStateInitialValue( 'endTurn', 0);
         
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
@@ -130,6 +154,11 @@ class Conspiracy extends Table
         // setup the initial game situation here
         $this->setupLordsCards();
         $this->setupLocationsCards(); 
+
+        $solo = count($players) == 1;
+        if ($solo) {
+            $this->initOpponent($affectedMats);
+        }
         
         // show the first location
         $this->locations->pickCardForLocation('deck', 'table');
@@ -194,12 +223,12 @@ class Conspiracy extends Table
         _ when a player refreshes the game page (F5)
     */
     protected function getAllDatas() {
-        $result = array();
-    
-        $current_player_id = self::getCurrentPlayerId();
+        $result = [];
     
         $sql = "SELECT player_id id, player_score score, player_score_aux pearls, player_score_lords lords, player_score_locations locations, player_score_coalition coalition, player_mat mat, player_no playerNo FROM player ";
         $result['players'] = self::getCollectionFromDb( $sql );
+
+        $solo = count($result['players']) == 1;
   
         // Gather all information about current game situation.
 
@@ -214,8 +243,16 @@ class Conspiracy extends Table
 
         // players tables
         $result['playersTables'] = [];
-        foreach( $result['players'] as $player_id => $playerDb ) {
-            $result['players'][$player_id]['playerNo'] = intval($result['players'][$player_id]['playerNo']);
+
+        $playersIds = array_keys($result['players']);
+        if ($solo) {
+            $playersIds[] = 0;
+        }
+
+        foreach($playersIds as $player_id) {
+            if ($player_id > 0) {
+                $result['players'][$player_id]['playerNo'] = intval($result['players'][$player_id]['playerNo']);
+            }
             
             $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id"));
             $locations = $this->getLocationsFromDb($this->locations->getCardsInLocation("player$player_id"));
@@ -229,11 +266,13 @@ class Conspiracy extends Table
         }
 
         $result['pearlMasterPlayer'] = intval(self::getGameStateValue('pearlMasterPlayer'));
+        $result['playAgainPlayer'] = intval(self::getGameStateValue('playAgainPlayer'));
 
         $stateName = $this->gamestate->state()['name']; 
         $isEnd = $stateName === 'showScore' || $stateName === 'gameEnd';
         if (!$isEnd) {
-            $result['endTurn'] = self::getGameStateValue('endTurn') > 0;
+            $endTurn = intval(self::getGameStateValue('endTurn'));
+            $result['endTurn'] = $endTurn > 0 || $endTurn == -1;
             
         }
 
@@ -246,6 +285,12 @@ class Conspiracy extends Table
 
         $result['hiddenScore'] = intval(self::getGameStateValue('SCORING_OPTION')) === 2;
         $result['bonusLocations'] = $this->bonusLocations();
+
+        if ($solo) {
+            $result['opponent'] = $this->getOpponent();
+
+            $result['opponent']->newScore = $this->getPlayerScore(0);
+        }
   
         return $result;
     }
@@ -263,880 +308,6 @@ class Conspiracy extends Table
     function getGameProgression() {
         $maxPlayedLords = intval(self::getUniqueValueFromDB( "SELECT count(*) FROM lord WHERE `card_location` like 'player%' GROUP BY `card_location` ORDER BY count(*) DESC LIMIT 1"));
         return $maxPlayedLords * 100 / 15;
-    }
-
-
-//////////////////////////////////////////////////////////////////////////////
-//////////// Utility functions
-//////////// 
-
-    function bonusLocations() {        
-        return intval(self::getGameStateValue('BONUS_LOCATIONS')) === 2;
-    }
-
-    function mustTakeFirstLord() {
-        return self::getGameStateValue('AP_FIRST_LORD') > 0;
-    }
-
-    function mustTakeFirstLords() {
-        return self::getGameStateValue('AP_FIRST_LORDS') > 0;
-    }
-
-    function getRemainingLords() {
-        return $this->lords->countCardInLocation('deck');
-    }
-
-    function getRemainingLocations() {
-        return $this->locations->countCardInLocation('deck');
-    }
-
-    function mustPickOnLocationPile(int $playerId) {
-        return self::getGameStateValue('AP_DECK_LOCATION') == $playerId;
-    }
-
-    function getLordFromDb($dbLord) {
-        if (!$dbLord || !array_key_exists('id', $dbLord)) {
-            throw new Error('lord doesn\'t exists '.json_encode($dbLord));
-        }
-        return new Lord($dbLord, $this->LORDS);
-    }
-
-    function getLordsFromDb(array $dbLords) {
-        return array_map(function($dbLord) { return $this->getLordFromDb($dbLord); }, array_values($dbLords));
-    }
-
-    function getLocationFromDb($dbLocation) {
-        if (!$dbLocation || !array_key_exists('id', $dbLocation)) {
-            throw new Error('lord doesn\'t exists '.json_encode($dbLocation));
-        }
-        return new Location($dbLocation, $this->LOCATIONS);
-    }
-
-    function getLocationsFromDb(array $dbLocations) {
-        return array_map(function($dbLocation) { return $this->getLocationFromDb($dbLocation); }, array_values($dbLocations));
-    }
-
-    function canConstructWithNewKey(int $playerId, int $key): bool {
-        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$playerId"));
-        $locations = $this->getLocationsFromDb($this->locations->getCardsInLocation("player$playerId"));
-        $locationsSpots = array_map(function($location) { return $location->location_arg; }, $locations);
-        $lastLocationSpot = count($locationsSpots) > 0 ? max($locationsSpots) : 0;
-        $hasActivePowerKeys = count(array_values(array_filter($locations, function ($location) { return $location->activePower === AP_KEYS; }))) > 0;
-
-        if ($hasActivePowerKeys) {
-            $keys = count(array_filter($lords, function($lord) use ($lastLocationSpot) { return $lord->location_arg > $lastLocationSpot && $lord->key >= 1; }));
-            
-            return $keys >= 2;
-        } else {
-            $silverKeys = count(array_filter($lords, function($lord) use ($lastLocationSpot) { return $lord->location_arg > $lastLocationSpot && $lord->key === 1; }));
-            $goldKeys = count(array_filter($lords, function($lord) use ($lastLocationSpot) { return $lord->location_arg > $lastLocationSpot && $lord->key === 2; }));
-
-            return $silverKeys >= 2 || $goldKeys >= 2;
-        }
-    }
-
-    function canConstruct(int $playerId, int $key): bool {
-        $canConstruct = $this->canConstructWithNewKey($playerId, $key);
-
-        if ($canConstruct && self::getGameStateValue('AP_DECK_LOCATION') == $playerId) {
-            $canConstruct = $this->getRemainingLocations() > 0;
-        }
-
-        return $canConstruct;
-    }
-
-    function addExtraLord() {
-        $lord = $this->getLordFromDb($this->lords->pickCardForLocation( 'deck', 'table'));
-        $this->lords->moveCard($lord->id,'table', $lord->guild);
-        return $lord;
-    }
-
-//////////////////////////////////////////////////////////////////////////////
-//////////// Player actions
-//////////// 
-
-    /*
-        Each time a player is doing some game action, one of the methods below is called.
-        (note: each method below must match an input method in conspiracy.action.php)
-    */
-
-    function chooseLordDeckStack(int $number) {
-        self::checkAction('chooseDeckStack'); 
-        // self::debug('[GBA] chooseLordDeckStack');
-
-        $count = $this->getRemainingLords();
-        if ($number > $count) {
-            throw new Error("Can't take $number cards, only $count in deck");
-        }
-
-        $this->lords->pickCardsForLocation($number, 'deck', $number == 1 ? 'lord_pick' : 'lord_selection');
-
-        $message = $number > 1 ?
-          clienttranslate('${player_name} chooses to take ${number} lords from the deck') :
-          clienttranslate('${player_name} chooses to take ${number} lord from the deck');
-        self::notifyAllPlayers('lordDeckNumber', $message, [
-            'player_name' => self::getActivePlayerName(),
-            'number' => $number,
-        ]);
-
-        self::setGameStateValue('stackSelection', 1);
-        $this->gamestate->nextState($number == 1 ? 'chooseOneOnStack' : 'chooseDeckStack');
-    }
-
-    function chooseVisibleStack(int $guild) {
-        self::checkAction('chooseVisibleStack'); 
-        // self::debug('[GBA] chooseLordVisibleStack');
-
-        $number = $this->lords->countCardInLocation('table', $guild);
-
-        $this->lords->moveAllCardsInLocation('table', $number == 1 ? 'lord_pick' : 'lord_selection', $guild);
-        
-        $message = clienttranslate('${player_name} chooses to take all visible ${guild_name} lords');
-        self::notifyAllPlayers('lordVisiblePile', $message, [
-            'player_name' => self::getActivePlayerName(),
-            'guild' => $guild,
-            'guild_name' => $this->getGuildName($guild),
-            'number' => $number,
-            'i18n' => ['guild_name'],
-        ]);
-
-        self::setGameStateValue('stackSelection', 0);
-        $this->gamestate->nextState($number == 1 ? 'chooseOneOnStack' : 'chooseDeckStack');
-    }
-
-    function pickLord(int $id) {
-        // self::debug('[GBA] pickLord');
-
-        $lord = $this->getLordFromDb($this->lords->getCard($id));
-        if ($lord->location !== 'lord_selection') {
-            throw new Error('Picked lord is not available');
-        }
-        $this->lords->moveCard($lord->id, 'lord_pick');
-
-        $this->gamestate->nextState('addLord');
-    }
-
-    function swap(string $spotsStr) {
-        self::checkAction('next'); 
-
-        $spots = explode(',', $spotsStr);
-        $spot1 = intval($spots[0]);
-        $spot2 = intval($spots[1]);
-
-        $player_id = intval(self::getActivePlayerId());
-
-        $cardSpot1 = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id", $spot1))[0];
-        $cardSpot2 = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id", $spot2))[0];
-
-        $this->lords->moveCard($cardSpot1->id, "player$player_id", $spot2);
-        $this->lords->moveCard($cardSpot2->id, "player$player_id", $spot1);
-
-        $newScore = $this->getAndSavePlayerScore($player_id);
-
-        self::notifyAllPlayers('lordSwapped', clienttranslate('${player_name} swaps two lords'), [
-            'playerId' => $player_id,
-            'player_name' => self::getActivePlayerName(),
-            'spot1' => $spot1,
-            'spot2' => $spot2,
-            'newScore' => $newScore,
-        ]);
-
-        $this->gamestate->nextState('next');
-    }
-
-    function dontSwap() {
-        self::checkAction('next'); 
-
-        $this->gamestate->nextState('next');
-    }
-
-    function chooseLocationDeckStack(int $number) {
-        self::checkAction('chooseDeckStack'); 
-        // self::debug('[GBA] chooseLocationDeckStack');
-
-        $count = $this->locations->countCardInLocation('deck');
-        if ($number > $count || $count == 0) {
-            throw new Error("Can't take $number cards, only $count in deck");
-        }
-
-        $fromHidden = self::getGameStateValue('AP_DECK_LOCATION') == self::getActivePlayerId();
-
-        if ($fromHidden && $number !== 0) {
-            throw new Error('You must look all locations');
-        } else if (!$fromHidden && ($number < 1 || $number > 3)) {
-            throw new Error('You must look 1 to 3 locations');
-        }
-
-        if ($fromHidden) {
-            $this->locations->moveAllCardsInLocation('deck', 'location_sel');
-        } else {
-            $this->locations->pickCardsForLocation($number, 'deck', $number == 1 ? 'location_pick' : 'location_sel');
-        }
-
-        $message = null;
-        if ($fromHidden) { 
-            $message = clienttranslate('${player_name} chooses a location from all deck cards');
-        } else {
-            $message = $number > 1 ?
-                clienttranslate('${player_name} chooses to take ${number} locations from the deck') :
-                clienttranslate('${player_name} chooses to take ${number} location from the deck');
-        }
-        self::notifyAllPlayers('locationDeckNumber', $message, [
-            'player_name' => self::getActivePlayerName(),
-            'number' => $number,
-        ]);
-
-        $this->gamestate->nextState($number == 1 ? 'chooseOneOnStack' : 'chooseDeckStack');
-    }
-
-    function pickLocation(int $id) {
-        $location = $this->getLocationFromDb($this->locations->getCard($id));
-        if ($location->location !== 'location_sel') {
-            throw new Error('Picked location is not available');
-        }
-        $this->locations->moveCard($location->id, 'location_pick');
-
-        $this->gamestate->nextState('addLocation');
-    }
-
-    function chooseVisibleLocation(int $id) {        
-        // self::debug('[GBA] chooseVisibleLocation');
-        
-        $this->locations->moveCard($id, 'location_pick');
-
-        $this->gamestate->nextState('chooseVisibleLocation');
-    }
-
-    function checkPearlMaster(int $player_id) {        
-
-        // check Master pearls
-        $pearlMasterPlayer = self::getGameStateValue('pearlMasterPlayer');
-        if ($pearlMasterPlayer !== $player_id) {
-            $masterPearlPearls = intval(self::getUniqueValueFromDB( "SELECT player_score_aux FROM `player` WHERE player_id = $pearlMasterPlayer"));
-            $currentPlayerPearls = intval(self::getUniqueValueFromDB( "SELECT player_score_aux FROM `player` WHERE player_id = $player_id"));
-            
-            if ($currentPlayerPearls >= $masterPearlPearls && $pearlMasterPlayer != $player_id) {
-                self::setGameStateValue('pearlMasterPlayer', $player_id);
-                self::notifyAllPlayers('newPearlMaster', clienttranslate('${player_name} becomes the new Pearl Master'), [
-                    'playerId' => $player_id,
-                    'player_name' => self::getActivePlayerName(),
-                    'previousPlayerId' => $pearlMasterPlayer,
-                ]);
-
-                self::DbQuery("UPDATE player SET player_score = player_score + 5 WHERE player_id = $player_id");
-                if ($pearlMasterPlayer > 0) {
-                    self::DbQuery("UPDATE player SET player_score = player_score - 5 WHERE player_id = $pearlMasterPlayer");
-                }
-            }
-        }
-    }
-
-    function placeRemainingLordSelectionToTable(bool $notify): array {
-        $remainingLords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
-        foreach($remainingLords as $lord) {
-            $this->lords->moveCard($lord->id, 'table', $lord->guild);
-        }
-
-        if ($notify) {
-            self::notifyAllPlayers('discardLordPick', '', [
-                'discardedLords' => $remainingLords
-            ]);
-        }
-
-        return $remainingLords;
-    } 
-
-    function getTopLordPoints(int $player_id, int $guild): int {
-        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id"));
-        $guildLords = array_values(array_filter($lords, function($lord) use ($guild) { return $lord->guild == $guild; }));
-        $guildLordsPoints = array_map(function ($lord) { return $lord->points; }, $guildLords);
-
-        if (count($guildLordsPoints) > 0) {
-            return max($guildLordsPoints);
-        } else {
-            return 0;
-        }
-    }
-
-    function canSwap(int $player_id): bool {
-        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id"));
-        $swappableLords = array_values(array_filter($lords, function($lord) { return !$lord->key; }));
-
-        return count($swappableLords) >= 2;
-    }
-
-    function getScoreLords(int $player_id): int {
-        $points = 0;
-
-        for ($guild=1; $guild<=5; $guild++) {
-            $points += $this->getTopLordPoints($player_id, $guild);
-        }
-
-        return $points;
-    }
-
-    function getScoreLocations(int $player_id, int $pearls): int { 
-        $points = 0;
-
-        $locations = $this->getLocationsFromDb($this->locations->getCardsInLocation("player$player_id"));
-        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id"));
-
-        foreach($locations as $location) {
-            $points += $location->points;
-
-            if ($location->passivePower == PP_SILVER_KEYS) {
-                $points += count(array_values(array_filter($lords, function($lord) { return $lord->key === 1; })));
-            }
-
-            if ($location->passivePower == PP_GOLD_KEYS) {
-                $points += count(array_values(array_filter($lords, function($lord) { return $lord->key === 2; }))) * 2;
-            }
-
-            if ($location->passivePower == PP_PEARLS) {
-                $points += floor($pearls / 2);
-            }
-
-            if ($location->passivePower == PP_LOCATIONS) {
-                $points += count($locations) * 2;
-            }
-
-            if ($location->passivePower == PP_LORD_MAX) {
-                $points += $this->getTopLordPoints($player_id, $location->passivePowerGuild);
-            }
-
-            if ($location->passivePower == PP_LORD_COUNT) {
-                $guild = $location->passivePowerGuild;
-                $points += count(array_values(array_filter($lords, function($lord) use ($guild) { return $lord->guild == $guild; })));
-            }
-
-            if ($location->passivePower == PP_LORD_1POINT_COALITION) {
-                $coalition = $this->getScoreTopPointCoalition($player_id, 1);
-                $points += $coalition ? $coalition->size : 0;
-            }
-
-            if ($location->passivePower == PP_LORD_2POINT_COALITION) {
-                $coalition = $this->getScoreTopPointCoalition($player_id, 2);
-                $points += $coalition ? $coalition->size * 2 : 0;
-            }
-
-            if ($location->passivePower == PP_LORD_3POINT_COALITION) {
-                $coalition = $this->getScoreTopPointCoalition($player_id, 3);
-                $points += $coalition ? $coalition->size * 2 : 0;
-            }
-
-            if ($location->passivePower == PP_LORD_4POINT_COALITION) {
-                $coalition = $this->getScoreTopPointCoalition($player_id, 4);
-                $points += $coalition ? $coalition->size * 2 : 0;
-            }
-
-            if ($location->passivePower == PP_LORD_NO_KEY_NO_PEARL) {
-                $points += count(array_values(array_filter($lords, function($lord)  { return $lord->points == 0 || $lord->points == 6; })));
-            }
-        }
-
-        return $points;
-    }
-
-    function getLordInSpot(int $player_id, int $spot) {
-        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation("player$player_id", $spot));
-        return count($lords) > 0 ? $lords[0] : null;
-    }
-
-    function getCoalitionSize(int $player_id, $coalition, int $currentSpot) {
-        // we check we don't count twice the same spot
-        if (array_search($currentSpot, $coalition->alreadyCounted) !== false) {
-            return;
-        }
-
-        $coalition->size++;
-        $coalition->alreadyCounted = array_merge($coalition->alreadyCounted, [$currentSpot]);
-
-        // we only take lords having same guild
-        $filteredNeigbours = array_filter($this->NEIGHBOURS[$currentSpot], function($neighbour) use ($player_id, $coalition) {
-            $lord = $this->getLordInSpot($player_id, $neighbour);
-            return !!$lord && $coalition->guild === $lord->guild;
-        });
-
-        foreach ($filteredNeigbours as $filteredNeigbour) {
-            $coalition->size += $this->getCoalitionSize($player_id, $coalition, $filteredNeigbour);
-        }
-    }
-
-    function getScoreTopCoalition(int $player_id) {
-        $topCoalition = null;
-
-        for ($spot = 1; $spot <= SPOT_NUMBER; $spot++) {
-            $lordInSpot = $this->getLordInSpot($player_id, $spot);
-
-            if ($lordInSpot) {
-                $coalition = new stdClass();
-                $coalition->spot = $spot;
-                $coalition->size = 0;
-                $coalition->guild = $lordInSpot->guild;
-                $coalition->alreadyCounted = [];
-                $this->getCoalitionSize($player_id, $coalition, $spot);
-                
-                if (!$topCoalition || $coalition->size > $topCoalition->size) {
-                    $topCoalition = $coalition;
-                }
-            }
-        }
-
-        return $topCoalition;
-    }
-
-    function getPointCoalitionSize(int $player_id, $coalition, int $currentSpot) {
-        // we check we don't count twice the same spot
-        if (array_search($currentSpot, $coalition->alreadyCounted) !== false) {
-            return;
-        }
-
-        $coalition->size++;
-        $coalition->alreadyCounted = array_merge($coalition->alreadyCounted, [$currentSpot]);
-
-        // we only take lords having same guild
-        $filteredNeigbours = array_filter($this->NEIGHBOURS[$currentSpot], function($neighbour) use ($player_id, $coalition) {
-            $lord = $this->getLordInSpot($player_id, $neighbour);
-            return !!$lord && $coalition->points === $lord->points;
-        });
-
-        foreach ($filteredNeigbours as $filteredNeigbour) {
-            $coalition->size += $this->getPointCoalitionSize($player_id, $coalition, $filteredNeigbour);
-        }
-    }
-
-    function getScoreTopPointCoalition(int $player_id, int $points) {
-        $topCoalition = null;
-
-        for ($spot = 1; $spot <= SPOT_NUMBER; $spot++) {
-            $lordInSpot = $this->getLordInSpot($player_id, $spot);
-
-            if ($lordInSpot && $lordInSpot->points == $points) {
-                $coalition = new stdClass();
-                $coalition->spot = $spot;
-                $coalition->size = 0;
-                $coalition->points = $points;
-                $coalition->alreadyCounted = [];
-                $this->getPointCoalitionSize($player_id, $coalition, $spot);
-                
-                if (!$topCoalition || $coalition->size > $topCoalition->size) {
-                    $topCoalition = $coalition;
-                }
-            }
-        }
-
-        return $topCoalition;
-    }
-
-    function getGuildName(int $guild) {
-        $guildName = null;
-        switch ($guild) {
-            case 1: $guildName = _('Farmer'); break;
-            case 2: $guildName = _('Military'); break;
-            case 3: $guildName = _('Merchant'); break;
-            case 4: $guildName = _('Politician'); break;
-            case 5: $guildName = _('Mage'); break;
-        }
-        return $guildName;
-    }
-
-    function getPlayerScore($player_id) {
-        $score = new Score();
-
-        // lords 
-        $score->lords = $this->getScoreLords($player_id);
-        // locations
-        $currentPlayerPearls = intval(self::getUniqueValueFromDB( "SELECT player_score_aux FROM `player` WHERE player_id = $player_id"));
-        $score->locations = $this->getScoreLocations($player_id, $currentPlayerPearls);
-        // coalition
-        $coalition = $this->getScoreTopCoalition($player_id);
-        $score->coalition = $coalition ? $coalition->size * 3 : 0;
-        // pearl master
-        $score->pearlMaster = intval(self::getGameStateValue('pearlMasterPlayer')) == $player_id ? 5 : 0;
-
-        $points = $score->getTotal();
-
-        return $score;
-    }
-
-    function getAndSavePlayerScore($player_id) {
-        $score = $this->getPlayerScore($player_id);
-
-        $points = $score->getTotal();
-        self::DbQuery("UPDATE player SET player_score = $points WHERE player_id = $player_id");
-
-        return $score;
-    }
-    
-//////////////////////////////////////////////////////////////////////////////
-//////////// Game state arguments
-////////////
-
-    /*
-        Here, you can create methods defined as "game state arguments" (see "args" property in states.inc.php).
-        These methods function is to return some additional information that is specific to the current
-        game state.
-    */
-    
-    function argLordStackSelection() {
-        $limitToHidden = null;
-        $count = $this->getRemainingLords();
-
-        if ($count > 0) {
-            if (self::getGameStateValue('AP_FIRST_LORD') > 0) {
-                $limitToHidden = 1;
-            } else if (self::getGameStateValue('AP_FIRST_LORDS') > 0) {
-                $limitToHidden = 2;
-            }
-        }
-
-        return [
-            'limitToHidden' => $limitToHidden,
-            'max' => intval(min(3, $count)),
-        ];
-    }
-    
-    function argLordSelection() {
-        $lords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
-        return [
-            'lords' => $lords,
-            'multiple' => self::getGameStateValue('stackSelection') != 1,
-            'remainingLords' => $this->getRemainingLords(),
-        ];
-    }
-    
-    function argLordPlacement() {
-        return [
-            'remainingLords' => $this->getRemainingLords(),
-        ];
-    }
-    
-    function argLocationStackSelection() {
-        $count = $this->locations->countCardInLocation('deck');
-        return [
-            'allHidden' => self::getGameStateValue('AP_DECK_LOCATION') == self::getActivePlayerId(),
-            'max' => intval(min(3, $count)),
-        ];
-    }
-
-    function argLocationSelection() {
-        $locations = $this->getLocationsFromDb($this->locations->getCardsInLocation('location_sel'));    
-        return [ 
-            'locations' => $locations,
-            'remainingLocations' => $this->getRemainingLocations(),
-        ];
-    }
-
-    function argLocationPlacement() { 
-        return [
-            'remainingLocations' => $this->getRemainingLocations(),
-        ];
-    }
-
-//////////////////////////////////////////////////////////////////////////////
-//////////// Game state actions
-////////////
-
-    /*
-        Here, you can create methods defined as "game state actions" (see "action" property in states.inc.php).
-        The action method of state X is called everytime the current game state is set to X.
-    */
-
-    function stPlayLord() {
-        $lord = $this->getLordFromDb(array_values($this->lords->getCardsInLocation('lord_pick'))[0]);
-        $player_id = intval(self::getActivePlayerId());
-
-        $topLordPoints = $this->getTopLordPoints($player_id, $lord->guild);
-
-        $spot = $this->lords->countCardInLocation("player${player_id}") + 1;
-        $this->lords->moveCard($lord->id, "player${player_id}", $spot);
-
-        $stackSelection = self::getGameStateValue('stackSelection') == 1;
-        $remainingLords = [];
-        if ($stackSelection) {
-            $remainingLords = $this->placeRemainingLordSelectionToTable(false);
-        } else {
-            $remainingLords = $this->getLordsFromDb($this->lords->getCardsInLocation('lord_selection'));
-        }
-        
-        $pearls = $lord->pearls;
-        if ($pearls) {
-            self::DbQuery("UPDATE player SET player_score_aux = player_score_aux + $pearls WHERE player_id = $player_id");
-        }
-        
-        $message = null;
-        switch ($lord->type) {
-            case 1: $message = clienttranslate('${player_name} plays 0 point ${guild_name} lord with swap power'); break;
-            case 2: $message = clienttranslate('${player_name} plays 1 point ${guild_name} lord with silver key'); break;
-            case 3: $message = clienttranslate('${player_name} plays 2 points ${guild_name} lord with gold key'); break;
-            case 4: $message = clienttranslate('${player_name} plays 3 points ${guild_name} lord and gets 2 pearls'); break;
-            case 5: $message = clienttranslate('${player_name} plays 4 points ${guild_name} lord and get 1 pearl'); break;
-            case 6: $message = clienttranslate('${player_name} plays 6 points ${guild_name} lord and reveal a lord from the deck'); break;
-        }
-
-        $newScore = $this->getAndSavePlayerScore($player_id);
-
-        self::notifyAllPlayers('lordPlayed', $message, [
-            'playerId' => $player_id,
-            'player_name' => self::getActivePlayerName(),
-            'lord' => $lord,
-            'spot' => $spot,
-            'stackSelection' => $stackSelection,
-            'discardedLords' => $remainingLords,
-            'newScore' => $newScore,
-            'pearls' => $pearls,
-            'guild' => $lord->guild,
-            'guild_name' => $this->getGuildName($lord->guild),
-            'i18n' => ['guild_name'],
-        ]);
-
-        if ($lord->showExtraLord && $this->getRemainingLords() > 0) {
-            $extraLord = $this->addExtraLord();
-
-            self::notifyAllPlayers('extraLordRevealed', clienttranslate('A ${guild_name} lord is added in the discard pile'), [
-                'lord' => $extraLord,
-                'guild' => $extraLord->guild,
-                'guild_name' => $this->getGuildName($extraLord->guild),
-                'i18n' => ['guild_name'],
-                'remainingLords' => $this->getRemainingLords(),
-            ]);
-        }
-
-        if ($lord->pearls > 0) {
-            $this->checkPearlMaster($player_id);
-        }
-
-        self::incStat(1, 'played_lords', $player_id);
-
-        if ($lord->swap && $this->canSwap($player_id)) {
-            $this->gamestate->nextState('swap');
-            self::giveExtraTime($player_id);
-        } else if ($lord->key && $this->canConstruct($player_id, $lord->key)) {
-            $this->gamestate->nextState('addLocation');
-            self::giveExtraTime($player_id);
-        } else {
-            $this->gamestate->nextState('next');
-        }
-    }
-
-    function stAddLocation() {
-        $location = $this->getLocationFromDb(array_values($this->locations->getCardsInLocation('location_pick'))[0]);
-        $player_id = intval(self::getActivePlayerId());
-
-        $spot = $this->lords->countCardInLocation("player${player_id}");
-        $this->locations->moveCard($location->id, "player${player_id}", $spot);
-
-        $fromHidden = self::getGameStateValue('AP_DECK_LOCATION') == self::getActivePlayerId();
-
-        $remainingLocations = $this->getLocationsFromDb($this->locations->getCardsInLocation('location_sel'));
-        foreach($remainingLocations as $remainingLocation) {
-            $this->locations->moveCard($remainingLocation->id, $fromHidden ? 'deck' : 'table');
-        }
-        if ($fromHidden) {
-            $this->locations->shuffle('deck');
-        }
-        
-        $pearls = $location->pearls;
-        if ($pearls) {
-            self::DbQuery("UPDATE player SET player_score_aux = player_score_aux + $pearls WHERE player_id = $player_id");
-        }
-
-        $newScore = $this->getAndSavePlayerScore($player_id);
-        
-        self::notifyAllPlayers('locationPlayed', clienttranslate('${player_name} plays ${points} point(s) location'), [
-            'playerId' => $player_id,
-            'player_name' => self::getActivePlayerName(),
-            'location' => $location,
-            'spot' => $spot,
-            'discardedLocations' => $fromHidden ? [] : $remainingLocations,
-            'points' => $location->points,
-            'newScore' => $newScore,
-            'pearls' => $pearls,
-            'remainingLocations' => $this->getRemainingLocations(),
-        ]);
-
-        if ($location->pearls > 0) {
-            $this->checkPearlMaster($player_id);
-        }
-
-        if ($location->activePower == AP_DISCARD_LORDS && $this->lords->countCardInLocation("table") > 0) {
-            $this->lords->moveAllCardsInLocation('table', 'deck');
-            $this->lords->shuffle('deck');
-            self::notifyAllPlayers('discardLords', clienttranslate('Lords are discarded'), [                
-                'remainingLords' => $this->getRemainingLords(),
-            ]);
-        }
-        if ($location->activePower == AP_DISCARD_LOCATIONS && $this->locations->countCardInLocation("table") > 0) {
-            $this->locations->moveAllCardsInLocation('table', 'deck');
-            $this->locations->shuffle('deck');
-            self::notifyAllPlayers('discardLocations', clienttranslate('Locations are discarded'), [                
-                'remainingLocations' => $this->getRemainingLocations(),
-            ]);
-        }
-        if ($location->activePower == AP_FIRST_LORD) {
-            self::setGameStateValue('AP_FIRST_LORD', $player_id);
-            self::setGameStateValue('AP_FIRST_LORDS', 0);
-        }
-        if ($location->activePower == AP_FIRST_LORDS) {
-            self::setGameStateValue('AP_FIRST_LORDS', $player_id);
-            self::setGameStateValue('AP_FIRST_LORD', 0);
-        }
-        if ($location->activePower == AP_DECK_LOCATION) {
-            self::setGameStateValue('AP_DECK_LOCATION', $player_id);
-        }
-
-        self::incStat(1, 'played_locations', $player_id);
-
-        $this->gamestate->nextState('next');
-    }
-
-    function stEndLord() {
-
-        if ($this->lords->countCardInLocation('lord_selection') > 0) { 
-            $player_id = self::getActivePlayerId();
-            $playedLords = $this->lords->countCardInLocation("player$player_id");
-
-            if ($playedLords < SPOT_NUMBER) {
-                self::giveExtraTime($player_id);
-                $this->gamestate->nextState('nextLord');
-            } else {
-                $this->placeRemainingLordSelectionToTable(true);
-                $this->gamestate->nextState('nextPlayer');
-            }
-        } else {
-            $this->gamestate->nextState('nextPlayer');
-        }
-    }
-
-    function stNextPlayer() {        
-        $player_id = self::getActivePlayerId();
-
-        self::incStat(1, 'turns_number');
-        self::incStat(1, 'turns_number', $player_id);
-
-        if (self::getGameStateValue('endTurn') == 0) {    
-            $playedLords = $this->lords->countCardInLocation("player$player_id");
-
-            if ($playedLords == SPOT_NUMBER) {
-                self::setGameStateValue('endTurn', $player_id);
-
-                self::notifyAllPlayers('lastTurn', clienttranslate('${player_name} has completed the pyramid, starting last turn !'), [
-                    'playerId' => $player_id,
-                    'player_name' => self::getActivePlayerName()
-                ]);
-            }
-        }
-
-        $player_id = self::activeNextPlayer();
-        self::giveExtraTime($player_id);
-
-        if (self::getGameStateValue('endTurn') == $player_id) {
-            $this->gamestate->nextState('showScore');
-        } else {
-            // if we come back to card player, we erase constraint
-            if (self::getGameStateValue('AP_FIRST_LORD') == $player_id) {
-                self::setGameStateValue('AP_FIRST_LORD', 0);
-            }
-            if (self::getGameStateValue('AP_FIRST_LORDS') == $player_id) {
-                self::setGameStateValue('AP_FIRST_LORDS', 0);
-            }
-
-            $this->gamestate->nextState('nextPlayer');
-        }
-    }
-
-    function stShowScore() {
-        $sql = "SELECT player_id id, player_name, player_score_aux pearls FROM player ORDER BY player_no ASC";
-        $players = self::getCollectionFromDb($sql);
-
-        // we reinit points as we gave points for lords & locations
-        self::DbQuery("UPDATE player SET player_score = 0"); // TODO remove
-
-        $playersPoints = [];
-
-        // lords 
-        foreach ($players as $player_id => $playerDb) {
-            $points = $this->getScoreLords($player_id);
-
-            $playersPoints[$player_id] = $points;
-            self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_lords = $points WHERE player_id = $player_id");
-            // TODO self::DbQuery("UPDATE player SET player_score_lords = $points WHERE player_id = $player_id");
-
-            self::notifyAllPlayers('scoreLords', clienttranslate('${player_name} wins ${points} points with lords'), [
-                'playerId' => $player_id,
-                'player_name' => $playerDb['player_name'],
-                'points' => $points,
-            ]);
-
-            self::setStat($points, 'lords_points', $player_id);
-        }
-
-        // locations
-        foreach ($players as $player_id => $playerDb) {
-            $points = $this->getScoreLocations($player_id, intval($playerDb['pearls']));
-
-            $playersPoints[$player_id] += $points;
-            self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_locations = $points WHERE player_id = $player_id");
-            // TODO self::DbQuery("UPDATE player SET player_score_locations = $points WHERE player_id = $player_id");
-
-            self::notifyAllPlayers('scoreLocations', clienttranslate('${player_name} wins ${points} points with locations'), [
-                'playerId' => $player_id,
-                'player_name' => $playerDb['player_name'],
-                'points' => $points,
-            ]);
-            
-            self::setStat($points, 'locations_points', $player_id);
-        }
-
-        // coalition
-        foreach ($players as $player_id => $playerDb) {
-            $coalition = $this->getScoreTopCoalition($player_id);
-            $points = $coalition->size * 3;
-
-            $playersPoints[$player_id] += $points;
-            self::DbQuery("UPDATE player SET player_score = player_score + $points, player_score_coalition = $points WHERE player_id = $player_id");
-            // TODO self::DbQuery("UPDATE player SET player_score_coalition = $points WHERE player_id = $player_id");
-
-            self::notifyAllPlayers('scoreCoalition', clienttranslate('${player_name} wins ${points} points with greatest Lords Coalition'), [
-                'playerId' => $player_id,
-                'player_name' => $playerDb['player_name'],
-                'points' => $points,
-                'coalition' => $coalition,
-            ]);
-
-            self::setStat($coalition->size, 'coalition_size', $player_id);
-        }
-
-        // pearl master
-        $pearlMaster = intval(self::getGameStateValue('pearlMasterPlayer'));
-        $playerDb = array_values(array_filter($players, function($player) use ($pearlMaster) { return intval($player['id']) == $pearlMaster; }))[0];
-
-        $playersPoints[$pearlMaster] += 5;
-        self::DbQuery("UPDATE player SET player_score = player_score + 5 WHERE player_id = $pearlMaster"); // TODO remove
-
-        self::notifyAllPlayers('scorePearlMaster', clienttranslate('${player_name} is the Pearl Master and wins 5 points'), [
-            'playerId' => $pearlMaster,
-            'player_name' => $playerDb['player_name'],
-        ]);
-
-        foreach ($players as $player_id => $playerDb) {
-            self::setStat(intval($playerDb['pearls']), 'pearls', $player_id);
-            self::setStat($player_id == $pearlMaster ? 1 : 0, 'pearl_master', $player_id);
-        }
-
-        // total
-        foreach ($players as $player_id => $playerDb) {
-            $points = $playersPoints[$player_id];
-            self::notifyAllPlayers('scoreTotal', clienttranslate('${player_name} has ${points} points in total'), [
-                'playerId' => $player_id,
-                'player_name' => $playerDb['player_name'],
-                'points' => $points,
-            ]);
-
-            self::setStat($points, 'total_points', $player_id);
-        }
-
-        $this->gamestate->nextState('endGame');
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1198,7 +369,7 @@ class Conspiracy extends Table
     
     */
     
-    function upgradeTableDb( $from_version ) {
+    function upgradeTableDb($from_version) {
         // $from_version is the current version of this game database, in numerical form.
         // For example, if the game was running with a release of your game named "140430-1345",
         // $from_version is equal to 1404301345
@@ -1221,7 +392,5 @@ class Conspiracy extends Table
 //        // Please add your future database scheme changes here
 //
 //
-
-
     }    
 }
