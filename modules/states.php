@@ -13,7 +13,7 @@ trait StateTrait {
 
     function stLordStackSelection() {
         if ($this->isSoloMode() && $this->isOpponentTurn()) {
-            $piles = $this->getLordDeckPiles(true);
+            $piles = $this->getLordDeckPiles(true, true);
 
             if (count($piles) == 1) {
                 $this->chooseVisibleStack($piles[0], true);

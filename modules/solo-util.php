@@ -124,7 +124,7 @@ trait SoloUtilTrait {
         $this->setOpponent($opponent);
     }
 
-    function getLordDeckPiles(bool $canRedirect) {
+    function getLordDeckPiles(bool $canRedirect, bool $notif) {
         $visibleLords = [];
         for ($guild=1; $guild<=5; $guild++) {
             $visibleLords[$guild] = $this->getLordsFromDb($this->lords->getCardsInLocation('table', $guild));
@@ -132,14 +132,26 @@ trait SoloUtilTrait {
 
         $lordConditions = $this->SOLO_LORD_CONDITIONS[$this->getOpponentLord()];
 
-        foreach($lordConditions as $condition) {
+        foreach($lordConditions as $index => $condition) {
             $piles = $this->pilesMatchingCondition($visibleLords, $condition);
-            if (count($piles) > 0) {
+            $count = count($piles);
+
+            if ($notif) {
+                self::notifyAllPlayers('matchingPiles', clienttranslate('${count} pile(s) meet Legendary opponent condition ${conditionNumber}'), [
+                    'conditionNumber' => $index + 1,
+                    'count' => $count,
+                    'condition' => $condition,
+                ]);
+            }
+
+            if ($count > 0) {
                 return $piles;
             }
         }
 
         if ($canRedirect) {
+            self::notifyAllPlayers('noMatchingPiles', clienttranslate('No Legendary opponent condition can be applied, revealing a new Lord'), []);
+
             $this->revealExtraLord();
 
             $this->gamestate->nextState('soloCardAdded');

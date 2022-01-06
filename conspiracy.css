@@ -548,6 +548,7 @@
   border-radius: 10px;
   box-shadow: 1px 1px 3px black;
   margin: 8px 2px;
+  position: relative;
 }
 .sololord.sololord1 {
   background-image: url("img/sololord1.jpg");
@@ -564,7 +565,57 @@
 .sololord.sololord5 {
   background-image: url("img/sololord5.jpg");
 }
+.sololord .condition {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  bottom: 7px;
+  opacity: 0;
+  box-shadow: 0px 0px 5px 8px yellow;
+}
+.sololord .condition.over3.condition1 {
+  left: 34px;
+}
+.sololord .condition.over3.condition2 {
+  left: 93px;
+}
+.sololord .condition.over3.condition3 {
+  left: 152px;
+}
+.sololord .condition.over4.condition1 {
+  left: 17px;
+}
+.sololord .condition.over4.condition2 {
+  left: 68px;
+}
+.sololord .condition.over4.condition3 {
+  left: 119px;
+}
+.sololord .condition.over4.condition4 {
+  left: 169px;
+}
+.sololord .condition[data-count="1"] {
+  box-shadow: 0px 0px 5px 8px green;
+}
+.sololord .condition[data-count="0"] {
+  box-shadow: 0px 0px 5px 8px red;
+}
+.sololord .condition.show {
+  animation: show-condition 1.5s 1 forwards;
+}
 
+@keyframes show-condition {
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
 #score {
   display: none;
   justify-content: center;

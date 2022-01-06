@@ -451,10 +451,15 @@ class Conspiracy implements ConspiracyGame {
                         <div class="player_score">
                             <span id="player_score_0" class="player_score_value">10</span> <i class="fa fa-star" id="icon_point_0"></i>           
                         </div>
-                        <div class="sololord sololord${gamedatas.opponent.lord}"></div>
+                        <div id="sololord-img" class="sololord sololord${gamedatas.opponent.lord}"></div>
                     </div>
                 </div>
             </div>`, `overall_player_board_${players[0].id}`, 'after');
+
+            const conditionNumber = gamedatas.opponent.lord == 2 || gamedatas.opponent.lord == 4 ? 4 : 3;
+            for (let i=1; i<=conditionNumber; i++) {
+                dojo.place(`<div id="sololord-condition${i}" class="condition condition${i} over${conditionNumber}"></div>`, `sololord-img`);
+            }
 
             const opponentScoreCounter = new ebg.counter();
             opponentScoreCounter.create(`player_score_0`);
@@ -797,6 +802,7 @@ class Conspiracy implements ConspiracyGame {
             ['locationPlayed', ANIMATION_MS],
             ['discardLords', ANIMATION_MS],
             ['discardLocations', ANIMATION_MS],
+            ['matchingPiles', 1500],
             ['newPearlMaster', 1],
             ['newPlayAgainPlayer', 1],
             ['discardLordPick', 1],
@@ -881,6 +887,13 @@ class Conspiracy implements ConspiracyGame {
     notif_discardLocations(notif: Notif<NotifDiscardLocationsArgs>) {
         this.locationsStacks.discardVisible();
         this.setRemainingLocations(notif.args.remainingLocations);
+    }
+
+    notif_matchingPiles(notif: Notif<NotifMatchingPilesArgs>) {
+        const conditionDiv = document.getElementById(`sololord-condition${notif.args.conditionNumber}`);
+        conditionDiv.dataset.count = ''+notif.args.count;
+        conditionDiv.classList.add('show');
+        setTimeout(() => conditionDiv.classList.remove('show'), 2000);
     }
 
     notif_newPearlMaster(notif: Notif<NotifNewPearlMasterArgs>) {

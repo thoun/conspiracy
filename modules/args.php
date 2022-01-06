@@ -27,7 +27,7 @@ trait ArgsTrait {
         $opponentTurn = $this->isSoloMode() && $this->isOpponentTurn();
         $piles = [];
         if ($opponentTurn) {
-            $piles = $this->getLordDeckPiles(false);
+            $piles = $this->getLordDeckPiles(false, false);
         }
 
         return [

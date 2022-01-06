@@ -1305,7 +1305,11 @@ var Conspiracy = /** @class */ (function () {
         var players = Object.values(gamedatas.players);
         var solo = players.length === 1;
         if (solo) {
-            dojo.place("\n            <div id=\"overall_player_board_0\" class=\"player-board current-player-board\">\t\t\t\t\t\n                <div class=\"player_board_inner\" id=\"player_board_inner_982fff\">\n                    \n                    <div class=\"emblemwrap\" id=\"avatar_active_wrap_0\">\n                        <div alt=\"\" class=\"avatar avatar_active opponent-avatar\" id=\"avatar_active_0\"></div>\n                    </div>\n                                               \n                    <div class=\"player-name\" id=\"player_name_0\">\n                        " + _("Legendary opponent") + "\n                    </div>\n                    <div id=\"player_board_0\" class=\"player_board_content\">\n                        <div class=\"player_score\">\n                            <span id=\"player_score_0\" class=\"player_score_value\">10</span> <i class=\"fa fa-star\" id=\"icon_point_0\"></i>           \n                        </div>\n                        <div class=\"sololord sololord" + gamedatas.opponent.lord + "\"></div>\n                    </div>\n                </div>\n            </div>", "overall_player_board_" + players[0].id, 'after');
+            dojo.place("\n            <div id=\"overall_player_board_0\" class=\"player-board current-player-board\">\t\t\t\t\t\n                <div class=\"player_board_inner\" id=\"player_board_inner_982fff\">\n                    \n                    <div class=\"emblemwrap\" id=\"avatar_active_wrap_0\">\n                        <div alt=\"\" class=\"avatar avatar_active opponent-avatar\" id=\"avatar_active_0\"></div>\n                    </div>\n                                               \n                    <div class=\"player-name\" id=\"player_name_0\">\n                        " + _("Legendary opponent") + "\n                    </div>\n                    <div id=\"player_board_0\" class=\"player_board_content\">\n                        <div class=\"player_score\">\n                            <span id=\"player_score_0\" class=\"player_score_value\">10</span> <i class=\"fa fa-star\" id=\"icon_point_0\"></i>           \n                        </div>\n                        <div id=\"sololord-img\" class=\"sololord sololord" + gamedatas.opponent.lord + "\"></div>\n                    </div>\n                </div>\n            </div>", "overall_player_board_" + players[0].id, 'after');
+            var conditionNumber = gamedatas.opponent.lord == 2 || gamedatas.opponent.lord == 4 ? 4 : 3;
+            for (var i = 1; i <= conditionNumber; i++) {
+                dojo.place("<div id=\"sololord-condition" + i + "\" class=\"condition condition" + i + " over" + conditionNumber + "\"></div>", "sololord-img");
+            }
             var opponentScoreCounter = new ebg.counter();
             opponentScoreCounter.create("player_score_0");
             opponentScoreCounter.setValue(gamedatas.opponent.score);
@@ -1557,6 +1561,7 @@ var Conspiracy = /** @class */ (function () {
             ['locationPlayed', ANIMATION_MS],
             ['discardLords', ANIMATION_MS],
             ['discardLocations', ANIMATION_MS],
+            ['matchingPiles', 1500],
             ['newPearlMaster', 1],
             ['newPlayAgainPlayer', 1],
             ['discardLordPick', 1],
@@ -1626,6 +1631,12 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.notif_discardLocations = function (notif) {
         this.locationsStacks.discardVisible();
         this.setRemainingLocations(notif.args.remainingLocations);
+    };
+    Conspiracy.prototype.notif_matchingPiles = function (notif) {
+        var conditionDiv = document.getElementById("sololord-condition" + notif.args.conditionNumber);
+        conditionDiv.dataset.count = '' + notif.args.count;
+        conditionDiv.classList.add('show');
+        setTimeout(function () { return conditionDiv.classList.remove('show'); }, 2000);
     };
     Conspiracy.prototype.notif_newPearlMaster = function (notif) {
         var _a;

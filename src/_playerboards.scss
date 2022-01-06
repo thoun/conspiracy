@@ -115,10 +115,72 @@ $minimap-lord-margin: 1px;
   border-radius: 10px;
   box-shadow: 1px 1px 3px black;
   margin: 8px 2px;
+  position: relative;
 
   @for $i from 1 through 5 {
       &.sololord#{$i} {
           background-image: url('img/sololord#{$i}.jpg');
       }
+  }
+
+  .condition {
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    bottom: 7px;
+    opacity: 0;
+    box-shadow: 0px 0px 5px 8px yellow;
+
+    &.over3 {
+      &.condition1 {
+        left: 34px;
+      }
+      &.condition2 {
+        left: 93px;
+      }
+      &.condition3 {
+        left: 152px;
+      }
+    }
+
+    &.over4 {
+      &.condition1 {
+        left: 17px;
+      }
+      &.condition2 {
+        left: 68px;
+      }
+      &.condition3 {
+        left: 119px;
+      }
+      &.condition4 {
+        left: 169px;
+      }
+    }
+
+    &[data-count="1"] {
+      box-shadow: 0px 0px 5px 8px green;
+    }
+
+    &[data-count="0"] {
+      box-shadow: 0px 0px 5px 8px red;
+    }
+
+    &.show {
+      animation: show-condition 1.5s 1 forwards;
+    }
+  }
+}
+
+@keyframes show-condition {
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% { 
+    opacity: 0;
   }
 }

@@ -131,6 +131,12 @@ interface NotifDiscardLocationsArgs {
     remainingLocations: number;
 }
 
+interface NotifMatchingPilesArgs {
+    conditionNumber: number;
+    count: number;
+    condition: number;
+}
+
 interface NotifNewScoreArgs {
     playerId: number;
     newScore: Score;
