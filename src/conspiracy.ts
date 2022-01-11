@@ -802,7 +802,7 @@ class Conspiracy implements ConspiracyGame {
             ['locationPlayed', ANIMATION_MS],
             ['discardLords', ANIMATION_MS],
             ['discardLocations', ANIMATION_MS],
-            ['matchingPiles', 1500],
+            ['matchingPiles', 1000],
             ['newPearlMaster', 1],
             ['newPlayAgainPlayer', 1],
             ['discardLordPick', 1],

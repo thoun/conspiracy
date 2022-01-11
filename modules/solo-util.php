@@ -178,7 +178,7 @@ trait SoloUtilTrait {
         switch ($condition) {
             case SOLO_CONDITION_SEVERAL_LORDS: 
                 $countLords = count($visibleLords);
-                return $countLords >= 3 ? $countLords : 0;
+                return $countLords >= 2 ? $countLords : 0;
             case SOLO_CONDITION_KEY:
                 $countKeys = count(array_filter($visibleLords, function($lord) { return $lord->key > 0; }));
                 return $countKeys;
