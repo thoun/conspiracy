@@ -382,6 +382,9 @@ trait UtilTrait {
         // pearl master
         $score->pearlMaster = intval(self::getGameStateValue('pearlMasterPlayer')) == $player_id ? 5 : 0;
 
+        // compute total score
+        $score->getTotal();
+
         return $score;
     }
 
