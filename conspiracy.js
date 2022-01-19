@@ -1286,7 +1286,7 @@ var Conspiracy = /** @class */ (function () {
         document.getElementById('playermat-container-modal').appendChild(document.getElementById("player-table-mat-" + playerId));
     };
     Conspiracy.prototype.closePopin = function () {
-        if (!this.playerInPopin) {
+        if (this.playerInPopin === null) {
             return;
         }
         document.getElementById('popin_showPlayermat_container').style.display = 'none';

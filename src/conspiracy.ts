@@ -409,7 +409,7 @@ class Conspiracy implements ConspiracyGame {
     }
 
     private closePopin() {
-        if (!this.playerInPopin) {
+        if (this.playerInPopin === null) {
             return;
         }
         
