@@ -828,6 +828,14 @@ var PlayerTableSpotStock = /** @class */ (function () {
         var cardId = (_a = this.locationsStock.items[0]) === null || _a === void 0 ? void 0 : _a.id;
         cardId && document.getElementById(this.locationsStock.container_div.id + "_item_" + cardId).classList.add('highlight');
     };
+    PlayerTableSpotStock.prototype.markForbiddenKey = function () {
+        if (!this.locationsStock.items.length) {
+            var lordType = Math.floor(this.lordsStock.items[0].type / 10);
+            if ([2, 3].includes(lordType)) {
+                $("player" + this.playerId + "-spot" + this.spotNumber + "-location-stock").classList.add('forbidden-key');
+            }
+        }
+    };
     return PlayerTableSpotStock;
 }());
 var SPOTS_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
@@ -841,6 +849,9 @@ var PlayerTable = /** @class */ (function () {
         dojo.place("<div id=\"player-table-wrapper-" + this.playerId + "\" class=\"player-table-wrapper\">\n            <div id=\"player-table-mat-" + this.playerId + "\" class=\"player-table-mat mat" + player.mat + "\">\n                <div id=\"player-table-" + this.playerId + "\" class=\"player-table\">\n                    <div class=\"player-name mat" + player.mat + "\" style=\"color: #" + player.color + ";\">\n                        " + (player.name || _('Legendary opponent')) + "\n                    </div>\n                </div>\n            </div>\n        </div>", 'players-tables');
         SPOTS_NUMBERS.forEach(function (spotNumber) {
             _this.spotsStock[spotNumber] = new PlayerTableSpotStock(game, _this, player, spots[spotNumber], spotNumber);
+            if (spots[spotNumber].location) {
+                _this.markForbiddenKeysTo(spotNumber);
+            }
         });
         this.checkTopLordToken();
     }
@@ -865,6 +876,12 @@ var PlayerTable = /** @class */ (function () {
     };
     PlayerTable.prototype.addLocation = function (spot, location, fromStock) {
         this.spotsStock[spot].setLocation(location, fromStock);
+        this.markForbiddenKeysTo(spot);
+    };
+    PlayerTable.prototype.markForbiddenKeysTo = function (spot) {
+        for (var i = 1; i < spot; i++) {
+            this.spotsStock[i].markForbiddenKey();
+        }
     };
     PlayerTable.prototype.setSelectableForSwap = function (selectable) {
         var _this = this;

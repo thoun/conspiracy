@@ -81,6 +81,21 @@
     }
 }
 
+.forbidden-key {
+    width: 186px;
+
+    &::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 40px;
+        height: 96px;
+        background: url('img/forbidden.svg') center;
+        background-repeat: no-repeat;
+        background-size: contain;
+    }
+}
 
 
 @for $i from 1 through 5 {

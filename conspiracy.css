@@ -306,6 +306,21 @@
   box-shadow: 0 0 5px 2px white;
 }
 
+.forbidden-key {
+  width: 186px;
+}
+.forbidden-key::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+  height: 96px;
+  background: url("img/forbidden.svg") center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
 .highlight-guild1 {
   animation: highlight-guild1-animation 0.75s alternate 2;
 }

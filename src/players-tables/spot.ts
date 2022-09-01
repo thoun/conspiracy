@@ -154,4 +154,13 @@ class PlayerTableSpotStock {
         const cardId = this.locationsStock.items[0]?.id;
         cardId && document.getElementById(`${this.locationsStock.container_div.id}_item_${cardId}`).classList.add('highlight');
     }
+    
+    public markForbiddenKey() {
+        if (!this.locationsStock.items.length) {
+            const lordType = Math.floor(this.lordsStock.items[0].type / 10);
+            if ([2, 3].includes(lordType)) {
+                $(`player${this.playerId}-spot${this.spotNumber}-location-stock`).classList.add('forbidden-key');
+            }
+        }
+    }
 }

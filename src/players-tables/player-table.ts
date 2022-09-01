@@ -25,6 +25,9 @@ class PlayerTable {
 
         SPOTS_NUMBERS.forEach(spotNumber => {
             this.spotsStock[spotNumber] = new PlayerTableSpotStock(game, this, player, spots[spotNumber], spotNumber);
+            if (spots[spotNumber].location) {
+                this.markForbiddenKeysTo(spotNumber);
+            }
         });
 
         this.checkTopLordToken();
@@ -54,6 +57,13 @@ class PlayerTable {
 
     public addLocation(spot: number, location: Location, fromStock: Stock | null) {
         this.spotsStock[spot].setLocation(location, fromStock);
+        this.markForbiddenKeysTo(spot);
+    }
+
+    private markForbiddenKeysTo(spot: number) {
+        for (let i = 1; i < spot; i++) {
+            this.spotsStock[i].markForbiddenKey();
+        }
     }
 
     public setSelectableForSwap(selectable: boolean) {
