@@ -97,13 +97,7 @@ class LordsStacks extends AbstractStacks<Lord> {
             return;
         }
 
-        if(!(this.game as any).checkAction('chooseDeckStack')) {
-            return;
-        }
-
-        this.game.takeAction('chooseLordDeckStack', {
-            number
-        });
+        this.game.chooseLordDeckStack(number);
 
         event.stopPropagation();
     }

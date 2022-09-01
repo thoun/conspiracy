@@ -38,6 +38,7 @@ class Conspiracy implements ConspiracyGame {
     private goldKeyCounters: Counter[] = [];
     private swapSpots: number[];
     private playerInPopin: number | null = null;
+    private isTouch = window.matchMedia('(hover: none)').matches;
 
     public zoom: number = 1;
 
@@ -318,10 +319,34 @@ class Conspiracy implements ConspiracyGame {
     public onUpdateActionButtons(stateName: string, args: any) {
         if((this as any).isCurrentPlayerActive()) {
             switch (stateName) {
+                case 'lordStackSelection':
+                    if (this.isTouch) {
+                        const lordArgs = args as EnteringLordStackSelectionArgs;
+
+                        if (lordArgs.limitToHidden !== null) {
+                            const adjustedLimitToHidden = Math.min(lordArgs.max, lordArgs.limitToHidden);
+                            (this as any).addActionButton(`chooseLordDeckStack${adjustedLimitToHidden}_button`, _("Pick ${number} from deck").replace('${number}', ''+adjustedLimitToHidden), () => this.chooseLordDeckStack(adjustedLimitToHidden));
+                        } else {
+                            for (let i = 1; i <= 3 && i <= lordArgs.max; i++) {
+                                (this as any).addActionButton(`chooseLordDeckStack${i}_button`, _("Pick ${number} from deck").replace('${number}', ''+i), () => this.chooseLordDeckStack(i));
+                            }
+                        }
+                    }
+                    break;
                 case 'lordSwap':
-                    (this as any).addActionButton('swap_button', _("Swap"), 'onSwap');
-                    (this as any).addActionButton('dontSwap_button', _("Don't swap"), 'onDontSwap', null, false, 'red');
+                    (this as any).addActionButton('swap_button', _("Swap"), () => this.onSwap());
+                    (this as any).addActionButton('dontSwap_button', _("Don't swap"), () => this.onDontSwap(), null, false, 'red');
                     dojo.addClass('swap_button', 'disabled');
+                    break;
+                case 'locationStackSelection':
+                    if (this.isTouch) {
+                        const locationArgs = args as EnteringLocationStackSelectionArgs;
+                        if (!locationArgs.allHidden) {
+                            for (let i = 1; i <= 3 && i <= locationArgs.max; i++) {
+                                (this as any).addActionButton(`chooseLordDeckStack${i}_button`, _("Pick ${number} from deck").replace('${number}', ''+i), () => this.chooseLocationDeckStack(i));
+                            }
+                        }
+                    }
                     break;
                 case 'useReplay':
                     (this as any).addActionButton('useReplayToen_button', _("Use Replay token"), () => this.useReplayToken(1));
@@ -589,6 +614,36 @@ class Conspiracy implements ConspiracyGame {
         this.playersTables[playerId] = new PlayerTable(this, playerId > 0 ? gamedatas.players[playerId] : gamedatas.opponent as any, gamedatas.playersTables[playerId]);
     }
 
+    public chooseLordDeckStack(number: number) {
+        if(!(this as any).checkAction('chooseDeckStack')) {
+            return;
+        }
+
+        this.takeAction('chooseLordDeckStack', {
+            number
+        });
+    }
+
+    public chooseLocationDeckStack(number: number) {
+        if(!(this as any).checkAction('chooseDeckStack')) {
+            return;
+        }
+
+        this.takeAction('chooseLocationDeckStack', {
+            number
+        });
+    }
+
+    public chooseVisibleLocation(id: string) {
+        if(!(this as any).checkAction('chooseVisibleLocation')) {
+            return;
+        }
+
+        this.takeAction('chooseVisibleLocation', {
+            id
+        });
+    }
+
     public lordPick(id: number) {
         if(!(this as any).checkAction('addLord')) {
             return;
@@ -619,7 +674,7 @@ class Conspiracy implements ConspiracyGame {
         });
     }
 
-    public takeAction(action: string, data?: any) {
+    private takeAction(action: string, data?: any) {
         data = data || {};
         data.lock = true;
         (this as any).ajaxcall(`/conspiracy/conspiracy/${action}.html`, data, this, () => {});

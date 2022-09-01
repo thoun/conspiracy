@@ -74,7 +74,9 @@ interface ConspiracyGamedatas {
 }
 
 interface ConspiracyGame extends Game {
-    takeAction: (action: string, data?: any) => void;
+    chooseLordDeckStack(number: number): void;
+    chooseLocationDeckStack(number: number): void;
+    chooseVisibleLocation(id: string): void;
     lordPick: (id: number) => void;
     lordStockPick: (guild: number) => void;
     setCanSwap(swapSpots: number[]);

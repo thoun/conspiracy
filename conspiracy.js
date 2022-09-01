@@ -583,12 +583,7 @@ var LordsStacks = /** @class */ (function (_super) {
         if (isNaN(number)) {
             return;
         }
-        if (!this.game.checkAction('chooseDeckStack')) {
-            return;
-        }
-        this.game.takeAction('chooseLordDeckStack', {
-            number: number
-        });
+        this.game.chooseLordDeckStack(number);
         event.stopPropagation();
     };
     LordsStacks.prototype.setupNewLordCard = function (card_div, card_type_id, card_id) {
@@ -688,21 +683,14 @@ var LocationsStacks = /** @class */ (function (_super) {
         if (isNaN(number)) {
             return;
         }
-        if (!this.game.checkAction('chooseDeckStack')) {
-            return;
-        }
-        this.game.takeAction('chooseLocationDeckStack', {
-            number: number
-        });
+        this.game.chooseLocationDeckStack(number);
         event.stopPropagation();
     };
     LocationsStacks.prototype.onVisibleLocationClick = function (control_name, item_id) {
-        if (!item_id || !this.game.checkAction('chooseVisibleLocation')) {
+        if (!item_id) {
             return;
         }
-        this.game.takeAction('chooseVisibleLocation', {
-            id: item_id
-        });
+        this.game.chooseVisibleLocation(item_id);
     };
     return LocationsStacks;
 }(AbstractStacks));
@@ -991,6 +979,7 @@ var Conspiracy = /** @class */ (function () {
         this.silverKeyCounters = [];
         this.goldKeyCounters = [];
         this.playerInPopin = null;
+        this.isTouch = window.matchMedia('(hover: none)').matches;
         this.zoom = 1;
         var zoomStr = localStorage.getItem(LOCAL_STORAGE_ZOOM_KEY);
         if (zoomStr) {
@@ -1222,10 +1211,42 @@ var Conspiracy = /** @class */ (function () {
         var _this = this;
         if (this.isCurrentPlayerActive()) {
             switch (stateName) {
+                case 'lordStackSelection':
+                    if (this.isTouch) {
+                        var lordArgs = args;
+                        if (lordArgs.limitToHidden !== null) {
+                            var adjustedLimitToHidden_2 = Math.min(lordArgs.max, lordArgs.limitToHidden);
+                            this.addActionButton("chooseLordDeckStack" + adjustedLimitToHidden_2 + "_button", _("Pick ${number} from deck").replace('${number}', '' + adjustedLimitToHidden_2), function () { return _this.chooseLordDeckStack(adjustedLimitToHidden_2); });
+                        }
+                        else {
+                            var _loop_1 = function (i) {
+                                this_1.addActionButton("chooseLordDeckStack" + i + "_button", _("Pick ${number} from deck").replace('${number}', '' + i), function () { return _this.chooseLordDeckStack(i); });
+                            };
+                            var this_1 = this;
+                            for (var i = 1; i <= 3 && i <= lordArgs.max; i++) {
+                                _loop_1(i);
+                            }
+                        }
+                    }
+                    break;
                 case 'lordSwap':
-                    this.addActionButton('swap_button', _("Swap"), 'onSwap');
-                    this.addActionButton('dontSwap_button', _("Don't swap"), 'onDontSwap', null, false, 'red');
+                    this.addActionButton('swap_button', _("Swap"), function () { return _this.onSwap(); });
+                    this.addActionButton('dontSwap_button', _("Don't swap"), function () { return _this.onDontSwap(); }, null, false, 'red');
                     dojo.addClass('swap_button', 'disabled');
+                    break;
+                case 'locationStackSelection':
+                    if (this.isTouch) {
+                        var locationArgs = args;
+                        if (!locationArgs.allHidden) {
+                            var _loop_2 = function (i) {
+                                this_2.addActionButton("chooseLordDeckStack" + i + "_button", _("Pick ${number} from deck").replace('${number}', '' + i), function () { return _this.chooseLocationDeckStack(i); });
+                            };
+                            var this_2 = this;
+                            for (var i = 1; i <= 3 && i <= locationArgs.max; i++) {
+                                _loop_2(i);
+                            }
+                        }
+                    }
                     break;
                 case 'useReplay':
                     this.addActionButton('useReplayToen_button', _("Use Replay token"), function () { return _this.useReplayToken(1); });
@@ -1394,6 +1415,30 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.createPlayerTable = function (gamedatas, playerId) {
         this.playersTables[playerId] = new PlayerTable(this, playerId > 0 ? gamedatas.players[playerId] : gamedatas.opponent, gamedatas.playersTables[playerId]);
+    };
+    Conspiracy.prototype.chooseLordDeckStack = function (number) {
+        if (!this.checkAction('chooseDeckStack')) {
+            return;
+        }
+        this.takeAction('chooseLordDeckStack', {
+            number: number
+        });
+    };
+    Conspiracy.prototype.chooseLocationDeckStack = function (number) {
+        if (!this.checkAction('chooseDeckStack')) {
+            return;
+        }
+        this.takeAction('chooseLocationDeckStack', {
+            number: number
+        });
+    };
+    Conspiracy.prototype.chooseVisibleLocation = function (id) {
+        if (!this.checkAction('chooseVisibleLocation')) {
+            return;
+        }
+        this.takeAction('chooseVisibleLocation', {
+            id: id
+        });
     };
     Conspiracy.prototype.lordPick = function (id) {
         if (!this.checkAction('addLord')) {

@@ -94,25 +94,17 @@ class LocationsStacks extends AbstractStacks<Location> {
             return;
         }
 
-        if(!(this.game as any).checkAction('chooseDeckStack')) {
-            return;
-        }
-
-        this.game.takeAction('chooseLocationDeckStack', {
-            number
-        });
+        this.game.chooseLocationDeckStack(number);
 
         event.stopPropagation();
     }
 
     public onVisibleLocationClick(control_name: string, item_id: string) {
-        if (!item_id || !(this.game as any).checkAction('chooseVisibleLocation')) {
+        if (!item_id) {
             return;
         }
 
-        this.game.takeAction('chooseVisibleLocation', {
-            id: item_id
-        });
+        this.game.chooseVisibleLocation(item_id);
     }
 
 }
