@@ -31,7 +31,8 @@ interface Dojo {
     removeClass: (nodeId: string, className?: string) => void;
     toggleClass: (nodeId: string, className: string, forceValue: boolean) => void;
     connect: Function;
-    query: Function;
+    query: (query: string) => any; //HTMLElement[]; with some more functions
+    forEach: Function;
     subscribe: Function;
     string: any;
     fx: any;

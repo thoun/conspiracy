@@ -86,3 +86,15 @@ $game_options = [
         ]]
     ],
 ];
+
+$game_preferences = [
+    201 => [
+        'name' => totranslate('Show sign on used keys'),
+        'needReload' => false,
+        'values' => [
+            1 => ['name' => totranslate('Enabled')],
+            2 => ['name' => totranslate('Disabled')],
+        ],
+        'default' => 2,
+    ],
+];

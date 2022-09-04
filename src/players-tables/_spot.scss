@@ -94,6 +94,15 @@
         background: url('img/forbidden.svg') center;
         background-repeat: no-repeat;
         background-size: contain;
+        display: none;
+    }
+}
+
+html[data-show-forbidden="true"] {
+    .forbidden-key {
+        &::after {
+            display: unset;
+        }
     }
 }
 

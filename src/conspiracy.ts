@@ -104,6 +104,7 @@ class Conspiracy implements ConspiracyGame {
         this.addHelp();
 
         this.setupNotifications();
+        this.setupPreferences();
 
         document.getElementById('zoom-out').addEventListener('click', () => this.zoomOut());
         document.getElementById('zoom-in').addEventListener('click', () => this.zoomIn());
@@ -364,6 +365,37 @@ class Conspiracy implements ConspiracyGame {
 
 
     ///////////////////////////////////////////////////
+
+    private setupPreferences() {
+        // Extract the ID and value from the UI control
+        const onchange = (e) => {
+          var match = e.target.id.match(/^preference_control_(\d+)$/);
+          if (!match) {
+            return;
+          }
+          var prefId = +match[1];
+          var prefValue = +e.target.value;
+          (this as any).prefs[prefId].value = prefValue;
+          this.onPreferenceChange(prefId, prefValue);
+        }
+        
+        // Call onPreferenceChange() when any value changes
+        dojo.query(".preference_control").connect("onchange", onchange);
+        
+        // Call onPreferenceChange() now
+        dojo.forEach(
+          dojo.query("#ingame_menu_content .preference_control"),
+          el => onchange({ target: el })
+        );
+    }
+      
+    private onPreferenceChange(prefId: number, prefValue: number) {
+        switch (prefId) {
+            case 201:
+                document.getElementsByTagName('html')[0].dataset.showForbidden = (prefValue == 1).toString();
+                break;
+        }
+    }
     
 
     private setZoom(zoom: number = 1) {
