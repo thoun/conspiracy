@@ -1,3 +1,4 @@
+@import '../node_modules/bga-zoom/bga-zoom';
 @import 'stacks/stacks';
 @import 'players-tables/players-tables';
 @import 'tokens';
@@ -84,43 +85,4 @@ td.highlight {
     100% { 
         background: white;
     }
-}
-
-
-
-#zoom-wrapper {
-  position: relative;
-
-  #zoom-controls {
-    position: absolute;
-    top: 0;
-    right: 0;
-
-    button {
-      width: 40px;
-      height: 40px;
-      background: url('img/zoom.svg');
-      background-size: auto 220%;
-
-      &:not(.disabled) {
-        cursor: pointer;
-      }
-
-      &.disabled {
-        cursor: not-allowed;
-        opacity: 0.5;
-      }
-    }
-
-    #zoom-in {
-      background-position: 6% 94%;
-    }
-    #zoom-out {
-      background-position: 82% 94%;
-    }
-  }
-
-  #full-table {
-    transform-origin: left top;
-  }
 }

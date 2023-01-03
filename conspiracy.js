@@ -1,3 +1,97 @@
+var DEFAULT_ZOOM_LEVELS = [0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1];
+var ZoomManager = /** @class */ (function () {
+    /**
+     * @param settings: a `ZoomManagerSettings` object
+     */
+    function ZoomManager(settings) {
+        var _this = this;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+        this.settings = settings;
+        if (!settings.element) {
+            throw new DOMException('You need to set the element to wrap in the zoom element');
+        }
+        this.zoomLevels = (_a = settings.zoomLevels) !== null && _a !== void 0 ? _a : DEFAULT_ZOOM_LEVELS;
+        this.zoom = this.settings.defaultZoom || 1;
+        if (this.settings.localStorageZoomKey) {
+            var zoomStr = localStorage.getItem(this.settings.localStorageZoomKey);
+            if (zoomStr) {
+                this.zoom = Number(zoomStr);
+            }
+        }
+        this.wrapper = document.createElement('div');
+        this.wrapper.id = 'bga-zoom-wrapper';
+        this.wrapElement(this.wrapper, settings.element);
+        this.wrapper.appendChild(settings.element);
+        settings.element.classList.add('bga-zoom-inner');
+        if ((_c = (_b = settings.zoomControls) === null || _b === void 0 ? void 0 : _b.visible) !== null && _c !== void 0 ? _c : true) {
+            var zoomControls = document.createElement('div');
+            zoomControls.id = 'bga-zoom-controls';
+            zoomControls.dataset.position = (_e = (_d = settings.zoomControls) === null || _d === void 0 ? void 0 : _d.position) !== null && _e !== void 0 ? _e : 'top-right';
+            this.zoomOutButton = document.createElement('button');
+            this.zoomOutButton.type = 'button';
+            this.zoomOutButton.addEventListener('click', function () { return _this.zoomOut(); });
+            if ((_f = settings.zoomControls) === null || _f === void 0 ? void 0 : _f.customZoomOutElement) {
+                settings.zoomControls.customZoomOutElement(this.zoomOutButton);
+            }
+            else {
+                this.zoomOutButton.classList.add("bga-zoom-out-".concat((_h = (_g = settings.zoomControls) === null || _g === void 0 ? void 0 : _g.color) !== null && _h !== void 0 ? _h : 'black', "-icon"));
+            }
+            this.zoomInButton = document.createElement('button');
+            this.zoomInButton.type = 'button';
+            this.zoomInButton.addEventListener('click', function () { return _this.zoomIn(); });
+            if ((_j = settings.zoomControls) === null || _j === void 0 ? void 0 : _j.customZoomInElement) {
+                settings.zoomControls.customZoomInElement(this.zoomInButton);
+            }
+            else {
+                this.zoomInButton.classList.add("bga-zoom-in-".concat((_l = (_k = settings.zoomControls) === null || _k === void 0 ? void 0 : _k.color) !== null && _l !== void 0 ? _l : 'black', "-icon"));
+            }
+            zoomControls.appendChild(this.zoomOutButton);
+            zoomControls.appendChild(this.zoomInButton);
+            this.wrapper.appendChild(zoomControls);
+        }
+        if (this.zoom !== 1) {
+            this.setZoom(this.zoom);
+        }
+        window.addEventListener('resize', function () { return _this.zoomOrDimensionChanged(); });
+        new ResizeObserver(function () { return _this.zoomOrDimensionChanged(); }).observe(settings.element);
+    }
+    ZoomManager.prototype.wrapElement = function (wrapper, element) {
+        element.parentNode.insertBefore(wrapper, element);
+        wrapper.appendChild(element);
+    };
+    ZoomManager.prototype.setZoom = function (zoom) {
+        var _a, _b;
+        if (zoom === void 0) { zoom = 1; }
+        this.zoom = zoom;
+        if (this.settings.localStorageZoomKey) {
+            localStorage.setItem(this.settings.localStorageZoomKey, '' + this.zoom);
+        }
+        var newIndex = this.zoomLevels.indexOf(this.zoom);
+        (_a = this.zoomInButton) === null || _a === void 0 ? void 0 : _a.classList.toggle('disabled', newIndex === this.zoomLevels.length - 1);
+        (_b = this.zoomOutButton) === null || _b === void 0 ? void 0 : _b.classList.toggle('disabled', newIndex === 0);
+        this.settings.element.style.transform = zoom === 1 ? '' : "scale(".concat(zoom, ")");
+        this.zoomOrDimensionChanged();
+    };
+    ZoomManager.prototype.zoomOrDimensionChanged = function () {
+        this.settings.element.style.width = "".concat(this.wrapper.getBoundingClientRect().width / this.zoom, "px");
+        this.wrapper.style.height = "".concat(this.settings.element.getBoundingClientRect().height, "px");
+    };
+    ZoomManager.prototype.zoomIn = function () {
+        if (this.zoom === this.zoomLevels[this.zoomLevels.length - 1]) {
+            return;
+        }
+        var newIndex = this.zoomLevels.indexOf(this.zoom) + 1;
+        this.setZoom(newIndex === -1 ? 1 : this.zoomLevels[newIndex]);
+    };
+    ZoomManager.prototype.zoomOut = function () {
+        if (this.zoom === this.zoomLevels[0]) {
+            return;
+        }
+        var newIndex = this.zoomLevels.indexOf(this.zoom) - 1;
+        this.setZoom(newIndex === -1 ? 1 : this.zoomLevels[newIndex]);
+    };
+    return ZoomManager;
+}());
 function slideToObjectAndAttach(game, object, destinationId, posX, posY) {
     var destination = document.getElementById(destinationId);
     if (destination.contains(object)) {
@@ -38,7 +132,7 @@ function getUniqueId(type, guild) {
 }
 function setupLordCards(lordStocks) {
     var _this = this;
-    var cardsurl = g_gamethemeurl + "img/lords.jpg";
+    var cardsurl = "".concat(g_gamethemeurl, "img/lords.jpg");
     lordStocks.forEach(function (lordStock) {
         return GUILD_IDS.forEach(function (guild, guildIndex) {
             return LORDS_IDS.forEach(function (lordType, index) {
@@ -48,8 +142,8 @@ function setupLordCards(lordStocks) {
     });
 }
 function setupLocationCards(locationStocks) {
-    var cardsurl = g_gamethemeurl + "img/locations.jpg";
-    var bonuscardsurl = g_gamethemeurl + "img/bonus-locations.jpg";
+    var cardsurl = "".concat(g_gamethemeurl, "img/locations.jpg");
+    var bonuscardsurl = "".concat(g_gamethemeurl, "img/bonus-locations.jpg");
     locationStocks.forEach(function (locationStock) {
         locationStock.addItemType(0, 0, cardsurl, 0);
         LOCATIONS_UNIQUE_IDS.forEach(function (id, index) {
@@ -187,7 +281,7 @@ function getLordTooltip(typeWithGuild) {
             break;
     }
     if (message) {
-        message += "<br/><br/>" + dojo.string.substitute(_("Guild : ${guild_name}"), { guild_name: getGuildName(guild) });
+        message += "<br/><br/>".concat(dojo.string.substitute(_("Guild : ${guild_name}"), { guild_name: getGuildName(guild) }));
     }
     return message;
 }
@@ -195,13 +289,13 @@ function moveToAnotherStock(sourceStock, destinationStock, uniqueId, cardId) {
     if (sourceStock === destinationStock) {
         return;
     }
-    var sourceStockItemId = sourceStock.container_div.id + "_item_" + cardId;
+    var sourceStockItemId = "".concat(sourceStock.container_div.id, "_item_").concat(cardId);
     if (document.getElementById(sourceStockItemId)) {
         destinationStock.addToStockWithId(uniqueId, cardId, sourceStockItemId);
         sourceStock.removeFromStockById(cardId);
     }
     else {
-        console.warn(sourceStockItemId + " not found in ", sourceStock);
+        console.warn("".concat(sourceStockItemId, " not found in "), sourceStock);
         destinationStock.addToStockWithId(uniqueId, cardId, sourceStock.container_div.id);
     }
 }
@@ -364,7 +458,7 @@ var LordStock = /** @class */ (function () {
         };
         dojo.connect(this.stock, 'onChangeSelection', this, 'click');
         setupLordCards([this.stock]);
-        visibleLords.forEach(function (lord) { return _this.stock.addToStockWithId(_this.lordsStacks.getCardUniqueId(lord), "" + lord.id); });
+        visibleLords.forEach(function (lord) { return _this.stock.addToStockWithId(_this.lordsStacks.getCardUniqueId(lord), "".concat(lord.id)); });
         //this.updateSize();
         this.div.addEventListener('click', function () { return _this.click(); });
     }
@@ -373,20 +467,20 @@ var LordStock = /** @class */ (function () {
     };
     LordStock.prototype.addLords = function (lords) {
         var _this = this;
-        lords.forEach(function (lord) { return _this.stock.addToStockWithId(_this.lordsStacks.getCardUniqueId(lord), "" + lord.id); });
+        lords.forEach(function (lord) { return _this.stock.addToStockWithId(_this.lordsStacks.getCardUniqueId(lord), "".concat(lord.id)); });
     };
     LordStock.prototype.removeAllTo = function (to) {
         this.stock.removeAllTo(to);
     };
     LordStock.prototype.updateSize = function () {
         var size = this.stock.items.length;
-        this.div.style.width = LORD_WIDTH + (Math.max(size - 1, 0) * LORD_OVERLAP_WIDTH) + "px";
-        this.div.style.height = LORD_HEIGHT + (Math.max(size - 1, 0) * LORD_OVERLAP_HEIGHT) + "px";
+        this.div.style.width = "".concat(LORD_WIDTH + (Math.max(size - 1, 0) * LORD_OVERLAP_WIDTH), "px");
+        this.div.style.height = "".concat(LORD_HEIGHT + (Math.max(size - 1, 0) * LORD_OVERLAP_HEIGHT), "px");
         this.div.style.display = size ? 'inline-block' : 'none';
     };
     Object.defineProperty(LordStock.prototype, "div", {
         get: function () {
-            return document.getElementById("lord-visible-stock" + this.guild);
+            return document.getElementById("lord-visible-stock".concat(this.guild));
         },
         enumerable: false,
         configurable: true
@@ -450,20 +544,20 @@ var AbstractStacks = /** @class */ (function () {
     AbstractStacks.prototype.setPick = function (showPick, pickSelectable, collection) {
         var _this = this;
         if (collection) {
-            this.pickStock.items.filter(function (item) { return !collection.some(function (i) { return item.id === "" + i.id; }); }).forEach(function (item) { return _this.pickStock.removeFromStockById("" + item.id); });
+            this.pickStock.items.filter(function (item) { return !collection.some(function (i) { return item.id === "".concat(i.id); }); }).forEach(function (item) { return _this.pickStock.removeFromStockById("".concat(item.id)); });
             setTimeout(function () { return _this.pickStock.updateDisplay(); }, 100);
         }
         this.pickDiv.style.display = showPick ? 'block' : 'none';
         var action = pickSelectable ? 'add' : 'remove';
         this.pickDiv.classList[action]('selectable');
         this.pickSelectable = pickSelectable;
-        collection === null || collection === void 0 ? void 0 : collection.filter(function (item) { return !_this.pickStock.items.some(function (i) { return i.id === "" + item.id; }); }).forEach(function (item) {
-            var from = _this.getStockContaining("" + item.id);
+        collection === null || collection === void 0 ? void 0 : collection.filter(function (item) { return !_this.pickStock.items.some(function (i) { return i.id === "".concat(item.id); }); }).forEach(function (item) {
+            var from = _this.getStockContaining("".concat(item.id));
             if (from) {
-                moveToAnotherStock(from, _this.pickStock, _this.getCardUniqueId(item), "" + item.id);
+                moveToAnotherStock(from, _this.pickStock, _this.getCardUniqueId(item), "".concat(item.id));
             }
             else {
-                _this.pickStock.addToStockWithId(_this.getCardUniqueId(item), "" + item.id, _this.pileDiv.id);
+                _this.pickStock.addToStockWithId(_this.getCardUniqueId(item), "".concat(item.id), _this.pileDiv.id);
             }
         });
     };
@@ -507,7 +601,7 @@ var LordsStacks = /** @class */ (function (_super) {
         _this.pickStock.onItemCreate = dojo.hitch(_this, 'setupNewLordCard');
         setupLordCards([_this.pickStock]);
         _this.setPickStockClick();
-        pickLords.forEach(function (lord) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(lord), "" + lord.id); });
+        pickLords.forEach(function (lord) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(lord), "".concat(lord.id)); });
         _this.game.addTooltipHtmlToClass('lord-hidden-pile-tooltip', _("Reveal 1 to 3 hidden lords. Choose one, the others are discarded"));
         return _this;
     }
@@ -565,7 +659,7 @@ var LordsStacks = /** @class */ (function (_super) {
         var guilds = new Set(lords.map(function (lord) { return lord.guild; }));
         guilds.forEach(function (guild) {
             return lords.filter(function (lord) { return lord.guild === guild; }).forEach(function (lord) {
-                return moveToAnotherStock(_this.pickStock, _this.lordsStocks[guild].getStock(), _this.getCardUniqueId(lord), "" + lord.id);
+                return moveToAnotherStock(_this.pickStock, _this.lordsStocks[guild].getStock(), _this.getCardUniqueId(lord), "".concat(lord.id));
             });
         });
     };
@@ -620,8 +714,8 @@ var LocationsStacks = /** @class */ (function (_super) {
         _this.pickStock.image_items_per_row = 13;
         _this.setPickStockClick();
         setupLocationCards([_this.visibleLocationsStock, _this.pickStock]);
-        visibleLocations.forEach(function (location) { return _this.visibleLocationsStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
-        pickLocations.forEach(function (location) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(location), "" + location.id); });
+        visibleLocations.forEach(function (location) { return _this.visibleLocationsStock.addToStockWithId(_this.getCardUniqueId(location), "".concat(location.id)); });
+        pickLocations.forEach(function (location) { return _this.pickStock.addToStockWithId(_this.getCardUniqueId(location), "".concat(location.id)); });
         _this.game.addTooltipHtmlToClass('location-hidden-pile-tooltip', _("Reveal 1 to 3 hidden locations. Choose one, the others are discarded"));
         return _this;
     }
@@ -660,7 +754,7 @@ var LocationsStacks = /** @class */ (function (_super) {
     };
     LocationsStacks.prototype.discardPick = function (locations) {
         var _this = this;
-        locations.forEach(function (location) { return moveToAnotherStock(_this.pickStock, _this.visibleLocationsStock, _this.getCardUniqueId(location), "" + location.id); });
+        locations.forEach(function (location) { return moveToAnotherStock(_this.pickStock, _this.visibleLocationsStock, _this.getCardUniqueId(location), "".concat(location.id)); });
     };
     LocationsStacks.prototype.getCardUniqueId = function (location) {
         var _a;
@@ -702,9 +796,9 @@ var PlayerTableSpotStock = /** @class */ (function () {
         this.spot = spot;
         this.spotNumber = spotNumber;
         this.playerId = Number(player.id);
-        dojo.place("<div id=\"player-table-" + this.playerId + "-spot" + spotNumber + "\" class=\"player-table-spot spot" + spotNumber + "\">\n                <div id=\"player" + this.playerId + "-spot" + spotNumber + "-lord-stock\"></div>\n                <div id=\"player" + this.playerId + "-spot" + spotNumber + "-location-stock\" class=\"player-table-spot-location\"></div>\n                <div id=\"player" + this.playerId + "-spot" + spotNumber + "-token\" class=\"player-table-spot-token\"></div>\n        </div>", "player-table-" + this.playerId);
+        dojo.place("<div id=\"player-table-".concat(this.playerId, "-spot").concat(spotNumber, "\" class=\"player-table-spot spot").concat(spotNumber, "\">\n                <div id=\"player").concat(this.playerId, "-spot").concat(spotNumber, "-lord-stock\"></div>\n                <div id=\"player").concat(this.playerId, "-spot").concat(spotNumber, "-location-stock\" class=\"player-table-spot-location\"></div>\n                <div id=\"player").concat(this.playerId, "-spot").concat(spotNumber, "-token\" class=\"player-table-spot-token\"></div>\n        </div>"), "player-table-".concat(this.playerId));
         this.lordsStock = new ebg.stock();
-        this.lordsStock.create(this.game, $("player" + this.playerId + "-spot" + spotNumber + "-lord-stock"), LORD_WIDTH, LORD_HEIGHT);
+        this.lordsStock.create(this.game, $("player".concat(this.playerId, "-spot").concat(spotNumber, "-lord-stock")), LORD_WIDTH, LORD_HEIGHT);
         this.lordsStock.setSelectionMode(0);
         this.lordsStock.setSelectionAppearance('class');
         this.lordsStock.selectionClass = 'selected';
@@ -714,17 +808,17 @@ var PlayerTableSpotStock = /** @class */ (function () {
         setupLordCards([this.lordsStock]);
         var lord = spot.lord;
         if (lord) {
-            this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), "" + lord.id);
+            this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), "".concat(lord.id));
         }
         this.locationsStock = new ebg.stock();
-        this.locationsStock.create(this.game, $("player" + this.playerId + "-spot" + spotNumber + "-location-stock"), LOCATION_WIDTH, LOCATION_HEIGHT);
+        this.locationsStock.create(this.game, $("player".concat(this.playerId, "-spot").concat(spotNumber, "-location-stock")), LOCATION_WIDTH, LOCATION_HEIGHT);
         this.locationsStock.setSelectionMode(0);
         this.locationsStock.onItemCreate = dojo.hitch(this, 'setupNewLocationCard');
         this.locationsStock.image_items_per_row = 13;
         setupLocationCards([this.locationsStock]);
         var location = spot.location;
         if (location) {
-            this.locationsStock.addToStockWithId(this.playerId == 0 ? 0 : getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id);
+            this.locationsStock.addToStockWithId(this.playerId == 0 ? 0 : getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "".concat(location.id));
         }
     }
     PlayerTableSpotStock.prototype.hasLord = function () {
@@ -738,7 +832,7 @@ var PlayerTableSpotStock = /** @class */ (function () {
     };
     Object.defineProperty(PlayerTableSpotStock.prototype, "tokenWrapper", {
         get: function () {
-            return document.getElementById("player" + this.playerId + "-spot" + this.spotNumber + "-token");
+            return document.getElementById("player".concat(this.playerId, "-spot").concat(this.spotNumber, "-token"));
         },
         enumerable: false,
         configurable: true
@@ -748,20 +842,20 @@ var PlayerTableSpotStock = /** @class */ (function () {
     };
     PlayerTableSpotStock.prototype.setLord = function (lord, fromStock) {
         if (fromStock) {
-            moveToAnotherStock(fromStock, this.lordsStock, getUniqueId(lord.type, lord.guild), "" + lord.id);
+            moveToAnotherStock(fromStock, this.lordsStock, getUniqueId(lord.type, lord.guild), "".concat(lord.id));
         }
         else {
-            this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), "" + lord.id, 'lord-hidden-pile');
+            this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), "".concat(lord.id), 'lord-hidden-pile');
         }
         this.spot.lord = lord;
     };
     PlayerTableSpotStock.prototype.setLocation = function (location, fromStock) {
         var _a, _b;
         if (fromStock) {
-            moveToAnotherStock(fromStock, this.locationsStock, this.playerId == 0 ? 0 : getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "" + location.id);
+            moveToAnotherStock(fromStock, this.locationsStock, this.playerId == 0 ? 0 : getUniqueId(location.type, (_a = location.passivePowerGuild) !== null && _a !== void 0 ? _a : 0), "".concat(location.id));
         }
         else {
-            this.locationsStock.addToStockWithId(this.playerId == 0 ? 0 : getUniqueId(location.type, (_b = location.passivePowerGuild) !== null && _b !== void 0 ? _b : 0), "" + location.id, 'location-hidden-pile');
+            this.locationsStock.addToStockWithId(this.playerId == 0 ? 0 : getUniqueId(location.type, (_b = location.passivePowerGuild) !== null && _b !== void 0 ? _b : 0), "".concat(location.id), 'location-hidden-pile');
         }
         this.spot.location = location;
     };
@@ -770,11 +864,11 @@ var PlayerTableSpotStock = /** @class */ (function () {
             return;
         }
         if (this.spot.lord.key) { // can't swap
-            dojo.toggleClass("player" + this.playerId + "-spot" + this.spotNumber + "-lord-stock_item_" + this.spot.lord.id, 'disabled', selectable);
+            dojo.toggleClass("player".concat(this.playerId, "-spot").concat(this.spotNumber, "-lord-stock_item_").concat(this.spot.lord.id), 'disabled', selectable);
         }
         else { // can swap
             this.lordsStock.setSelectionMode(selectable ? 2 : 0);
-            dojo.toggleClass("player" + this.playerId + "-spot" + this.spotNumber + "-lord-stock_item_" + this.spot.lord.id, 'selectable', selectable);
+            dojo.toggleClass("player".concat(this.playerId, "-spot").concat(this.spotNumber, "-lord-stock_item_").concat(this.spot.lord.id), 'selectable', selectable);
             if (!selectable) {
                 this.lordsStock.unselectAll();
             }
@@ -791,7 +885,7 @@ var PlayerTableSpotStock = /** @class */ (function () {
     };
     PlayerTableSpotStock.prototype.placeTopLordToken = function () {
         var guild = this.spot.lord.guild;
-        var tokenDiv = document.getElementById("top-lord-token-" + guild + "-" + this.playerId);
+        var tokenDiv = document.getElementById("top-lord-token-".concat(guild, "-").concat(this.playerId));
         this.addTokenDiv(tokenDiv);
     };
     PlayerTableSpotStock.prototype.setupNewLordCard = function (card_div, card_type_id, card_id) {
@@ -816,23 +910,23 @@ var PlayerTableSpotStock = /** @class */ (function () {
         var _a;
         if (guild === void 0) { guild = null; }
         var cardId = (_a = this.lordsStock.items[0]) === null || _a === void 0 ? void 0 : _a.id;
-        cardId && document.getElementById(this.lordsStock.container_div.id + "_item_" + cardId).classList.add("highlight" + (guild ? "-guild" + guild : ''));
+        cardId && document.getElementById("".concat(this.lordsStock.container_div.id, "_item_").concat(cardId)).classList.add("highlight".concat(guild ? "-guild".concat(guild) : ''));
     };
     PlayerTableSpotStock.prototype.clearLordHighlight = function () {
         var _a;
         var cardId = (_a = this.lordsStock.items[0]) === null || _a === void 0 ? void 0 : _a.id;
-        cardId && document.getElementById(this.lordsStock.container_div.id + "_item_" + cardId).classList.remove('highlight');
+        cardId && document.getElementById("".concat(this.lordsStock.container_div.id, "_item_").concat(cardId)).classList.remove('highlight');
     };
     PlayerTableSpotStock.prototype.highlightLocation = function () {
         var _a;
         var cardId = (_a = this.locationsStock.items[0]) === null || _a === void 0 ? void 0 : _a.id;
-        cardId && document.getElementById(this.locationsStock.container_div.id + "_item_" + cardId).classList.add('highlight');
+        cardId && document.getElementById("".concat(this.locationsStock.container_div.id, "_item_").concat(cardId)).classList.add('highlight');
     };
     PlayerTableSpotStock.prototype.markForbiddenKey = function () {
         if (!this.locationsStock.items.length) {
             var lordType = Math.floor(this.lordsStock.items[0].type / 10);
             if ([2, 3].includes(lordType)) {
-                $("player" + this.playerId + "-spot" + this.spotNumber + "-location-stock").classList.add('forbidden-key');
+                $("player".concat(this.playerId, "-spot").concat(this.spotNumber, "-location-stock")).classList.add('forbidden-key');
             }
         }
     };
@@ -846,7 +940,7 @@ var PlayerTable = /** @class */ (function () {
         this.spotsStock = [];
         this.swapSpots = null;
         this.playerId = Number(player.id);
-        dojo.place("<div id=\"player-table-wrapper-" + this.playerId + "\" class=\"player-table-wrapper\">\n            <div id=\"player-table-mat-" + this.playerId + "\" class=\"player-table-mat mat" + player.mat + "\">\n                <div id=\"player-table-" + this.playerId + "\" class=\"player-table\">\n                    <div class=\"player-name mat" + player.mat + "\" style=\"color: #" + player.color + ";\">\n                        " + (player.name || _('Legendary opponent')) + "\n                    </div>\n                </div>\n            </div>\n        </div>", 'players-tables');
+        dojo.place("<div id=\"player-table-wrapper-".concat(this.playerId, "\" class=\"player-table-wrapper\">\n            <div id=\"player-table-mat-").concat(this.playerId, "\" class=\"player-table-mat mat").concat(player.mat, "\">\n                <div id=\"player-table-").concat(this.playerId, "\" class=\"player-table\">\n                    <div class=\"player-name mat").concat(player.mat, "\" style=\"color: #").concat(player.color, ";\">\n                        ").concat(player.name || _('Legendary opponent'), "\n                    </div>\n                </div>\n            </div>\n        </div>"), 'players-tables');
         SPOTS_NUMBERS.forEach(function (spotNumber) {
             _this.spotsStock[spotNumber] = new PlayerTableSpotStock(game, _this, player, spots[spotNumber], spotNumber);
             if (spots[spotNumber].location) {
@@ -948,32 +1042,36 @@ var Minimap = /** @class */ (function () {
     function Minimap(playerId, spots) {
         var _this = this;
         this.playerId = playerId;
-        var html = "<div id=\"minimap-" + playerId + "\" class=\"minimap\">";
+        var html = "<div id=\"minimap-".concat(playerId, "\" class=\"minimap\">");
         SPOTS_NUMBERS.forEach(function (spotNumber) {
-            return html += "<div class=\"player-table-spot spot" + spotNumber + "\"></div>";
+            return html += "<div class=\"player-table-spot spot".concat(spotNumber, "\"></div>");
         });
         html += "</div>";
-        dojo.place(html, "lord-counter-wrapper-" + playerId);
+        dojo.place(html, "lord-counter-wrapper-".concat(playerId));
         SPOTS_NUMBERS.filter(function (spotNumber) { return !!spots[spotNumber - 1].lord; }).forEach(function (spotNumber) { return _this.setGuildToSpot(spotNumber, spots[spotNumber - 1].lord.guild); });
     }
     Minimap.prototype.setGuildToSpot = function (spotNumber, guild) {
-        document.getElementById("minimap-" + this.playerId).getElementsByClassName("spot" + spotNumber)[0].style.background = GUILD_COLOR[guild];
+        document.getElementById("minimap-".concat(this.playerId)).getElementsByClassName("spot".concat(spotNumber))[0].style.background = GUILD_COLOR[guild];
     };
     Minimap.prototype.addLord = function (spot, lord) {
         this.setGuildToSpot(spot, lord.guild);
     };
     Minimap.prototype.lordSwapped = function (args) {
-        var colorLordSpot1 = document.getElementById("minimap-" + this.playerId).getElementsByClassName("spot" + args.spot1)[0].style.background;
-        var colorLordSpot2 = document.getElementById("minimap-" + this.playerId).getElementsByClassName("spot" + args.spot2)[0].style.background;
-        document.getElementById("minimap-" + this.playerId).getElementsByClassName("spot" + args.spot1)[0].style.background = colorLordSpot2;
-        document.getElementById("minimap-" + this.playerId).getElementsByClassName("spot" + args.spot2)[0].style.background = colorLordSpot1;
+        var colorLordSpot1 = document.getElementById("minimap-".concat(this.playerId)).getElementsByClassName("spot".concat(args.spot1))[0].style.background;
+        var colorLordSpot2 = document.getElementById("minimap-".concat(this.playerId)).getElementsByClassName("spot".concat(args.spot2))[0].style.background;
+        document.getElementById("minimap-".concat(this.playerId)).getElementsByClassName("spot".concat(args.spot1))[0].style.background = colorLordSpot2;
+        document.getElementById("minimap-".concat(this.playerId)).getElementsByClassName("spot".concat(args.spot2))[0].style.background = colorLordSpot1;
     };
     return Minimap;
 }());
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 var ANIMATION_MS = 500;
 var SCORE_MS = 1500;
@@ -985,8 +1083,6 @@ LOG_GUILD_COLOR[2] = '#770405';
 LOG_GUILD_COLOR[3] = '#097138';
 LOG_GUILD_COLOR[4] = '#011d4d';
 LOG_GUILD_COLOR[5] = '#522886';
-var ZOOM_LEVELS = [0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1];
-var ZOOM_LEVELS_MARGIN = [-300, -166, -100, -60, -33, -14, 0];
 var LOCAL_STORAGE_ZOOM_KEY = 'Conspiracy-zoom';
 var Conspiracy = /** @class */ (function () {
     function Conspiracy() {
@@ -997,11 +1093,6 @@ var Conspiracy = /** @class */ (function () {
         this.goldKeyCounters = [];
         this.playerInPopin = null;
         this.isTouch = window.matchMedia('(hover: none)').matches;
-        this.zoom = 1;
-        var zoomStr = localStorage.getItem(LOCAL_STORAGE_ZOOM_KEY);
-        if (zoomStr) {
-            this.zoom = Number(zoomStr);
-        }
     }
     /*
         setup:
@@ -1023,8 +1114,8 @@ var Conspiracy = /** @class */ (function () {
         if (!gamedatas.bonusLocations) {
             this.dontPreloadImage('bonus-locations.jpg');
         }
-        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(function (i) { return !Object.values(gamedatas.players).some(function (player) { return Number(player.mat) === i; }); }).forEach(function (i) { return _this.dontPreloadImage("playmat_" + i + ".jpg"); });
-        [1, 2, 3, 4, 5].filter(function (i) { var _a; return i != ((_a = gamedatas.opponent) === null || _a === void 0 ? void 0 : _a.lord); }).forEach(function (i) { return _this.dontPreloadImage("sololord" + i + ".jpg"); });
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(function (i) { return !Object.values(gamedatas.players).some(function (player) { return Number(player.mat) === i; }); }).forEach(function (i) { return _this.dontPreloadImage("playmat_".concat(i, ".jpg")); });
+        [1, 2, 3, 4, 5].filter(function (i) { var _a; return i != ((_a = gamedatas.opponent) === null || _a === void 0 ? void 0 : _a.lord); }).forEach(function (i) { return _this.dontPreloadImage("sololord".concat(i, ".jpg")); });
         log("Starting game setup");
         this.gamedatas = gamedatas;
         log('gamedatas', gamedatas);
@@ -1047,11 +1138,13 @@ var Conspiracy = /** @class */ (function () {
         this.addHelp();
         this.setupNotifications();
         this.setupPreferences();
-        document.getElementById('zoom-out').addEventListener('click', function () { return _this.zoomOut(); });
-        document.getElementById('zoom-in').addEventListener('click', function () { return _this.zoomIn(); });
-        if (this.zoom !== 1) {
-            this.setZoom(this.zoom);
-        }
+        this.zoomManager = new ZoomManager({
+            element: document.getElementById('full-table'),
+            localStorageZoomKey: LOCAL_STORAGE_ZOOM_KEY,
+            zoomControls: {
+                color: 'white',
+            },
+        });
         log("Ending game setup");
     };
     ///////////////////////////////////////////////////
@@ -1068,7 +1161,7 @@ var Conspiracy = /** @class */ (function () {
                 var argsLordStackSelection = args.args;
                 if (argsLordStackSelection) {
                     var limitToHidden = argsLordStackSelection.limitToHidden;
-                    this.setGamestateDescription(argsLordStackSelection.opponentTurn ? 'pile' : (limitToHidden ? "limitToHidden" + limitToHidden : ''), argsLordStackSelection.opponentTurn);
+                    this.setGamestateDescription(argsLordStackSelection.opponentTurn ? 'pile' : (limitToHidden ? "limitToHidden".concat(limitToHidden) : ''), argsLordStackSelection.opponentTurn);
                     this.onEnteringLordStackSelection(argsLordStackSelection);
                 }
                 break;
@@ -1113,9 +1206,9 @@ var Conspiracy = /** @class */ (function () {
         if (property === void 0) { property = ''; }
         if (opponentTurn === void 0) { opponentTurn = false; }
         var originalState = this.gamedatas.gamestates[this.gamedatas.gamestate.id];
-        var oppoentTurnText = opponentTurn ? " (" + _("OPPONENT'S TURN") + ")" : '';
-        this.gamedatas.gamestate.description = "" + originalState['description' + property] + oppoentTurnText;
-        this.gamedatas.gamestate.descriptionmyturn = "" + originalState['descriptionmyturn' + property] + oppoentTurnText;
+        var oppoentTurnText = opponentTurn ? " (".concat(_("OPPONENT'S TURN"), ")") : '';
+        this.gamedatas.gamestate.description = "".concat(originalState['description' + property]) + oppoentTurnText;
+        this.gamedatas.gamestate.descriptionmyturn = "".concat(originalState['descriptionmyturn' + property]) + oppoentTurnText;
         this.updatePageTitle();
     };
     Conspiracy.prototype.onEnteringLordStackSelection = function (args) {
@@ -1170,13 +1263,13 @@ var Conspiracy = /** @class */ (function () {
         players.forEach(function (player) {
             //if we are a reload of end state, we display values, else we wait for notifications
             var score = fromReload ? player.newScore : null;
-            dojo.place("<tr id=\"score" + player.id + "\">\n                <td class=\"player-name\" style=\"color: #" + player.color + "\">" + player.name + "</td>\n                <td id=\"lords-score" + player.id + "\" class=\"score-number lords-score\">" + ((score === null || score === void 0 ? void 0 : score.lords) !== undefined ? score.lords : '') + "</td>\n                <td id=\"locations-score" + player.id + "\" class=\"score-number locations-score\">" + ((score === null || score === void 0 ? void 0 : score.locations) !== undefined ? score.locations : '') + "</td>\n                <td id=\"coalition-score" + player.id + "\" class=\"score-number coalition-score\">" + ((score === null || score === void 0 ? void 0 : score.coalition) !== undefined ? score.coalition : '') + "</td>\n                <td id=\"masterPearl-score" + player.id + "\" class=\"score-number masterPearl-score\">" + ((score === null || score === void 0 ? void 0 : score.pearlMaster) !== undefined ? score.pearlMaster : '') + "</td>\n                <td class=\"score-number total\">" + ((score === null || score === void 0 ? void 0 : score.total) !== undefined ? score.total : '') + "</td>\n            </tr>", 'score-table-body');
+            dojo.place("<tr id=\"score".concat(player.id, "\">\n                <td class=\"player-name\" style=\"color: #").concat(player.color, "\">").concat(player.name, "</td>\n                <td id=\"lords-score").concat(player.id, "\" class=\"score-number lords-score\">").concat((score === null || score === void 0 ? void 0 : score.lords) !== undefined ? score.lords : '', "</td>\n                <td id=\"locations-score").concat(player.id, "\" class=\"score-number locations-score\">").concat((score === null || score === void 0 ? void 0 : score.locations) !== undefined ? score.locations : '', "</td>\n                <td id=\"coalition-score").concat(player.id, "\" class=\"score-number coalition-score\">").concat((score === null || score === void 0 ? void 0 : score.coalition) !== undefined ? score.coalition : '', "</td>\n                <td id=\"masterPearl-score").concat(player.id, "\" class=\"score-number masterPearl-score\">").concat((score === null || score === void 0 ? void 0 : score.pearlMaster) !== undefined ? score.pearlMaster : '', "</td>\n                <td class=\"score-number total\">").concat((score === null || score === void 0 ? void 0 : score.total) !== undefined ? score.total : '', "</td>\n            </tr>"), 'score-table-body');
         });
         this.addTooltipHtmlToClass('lords-score', _("The total of Influence Points from the Lords with the Coat of Arms tokens (the most influential Lord of each color in your Senate Chamber)."));
         this.addTooltipHtmlToClass('locations-score', _("The total of Influence Points from the Locations you control."));
         this.addTooltipHtmlToClass('coalition-score', _("The biggest area of adjacent Lords of the same color is identified and 3 points are scored for each Lord within it"));
         this.addTooltipHtmlToClass('masterPearl-score', _("The player who has the Pearl Master token gains a bonus of 5 Influence Points."));
-        if (this.zoom == 1 && !document.getElementById('page-content').style.zoom) {
+        if (this.zoomManager.zoom == 1 && !document.getElementById('page-content').style.zoom) {
             // scale down 
             Array.from(document.getElementsByClassName('player-table-wrapper')).forEach(function (elem) { return elem.classList.add('scaled-down'); });
         }
@@ -1234,11 +1327,11 @@ var Conspiracy = /** @class */ (function () {
                         var lordArgs = args;
                         if (lordArgs.limitToHidden !== null) {
                             var adjustedLimitToHidden_2 = Math.min(lordArgs.max, lordArgs.limitToHidden);
-                            this.addActionButton("chooseLordDeckStack" + adjustedLimitToHidden_2 + "_button", _("Pick ${number} from deck").replace('${number}', '' + adjustedLimitToHidden_2), function () { return _this.chooseLordDeckStack(adjustedLimitToHidden_2); });
+                            this.addActionButton("chooseLordDeckStack".concat(adjustedLimitToHidden_2, "_button"), _("Pick ${number} from deck").replace('${number}', '' + adjustedLimitToHidden_2), function () { return _this.chooseLordDeckStack(adjustedLimitToHidden_2); });
                         }
                         else {
                             var _loop_1 = function (i) {
-                                this_1.addActionButton("chooseLordDeckStack" + i + "_button", _("Pick ${number} from deck").replace('${number}', '' + i), function () { return _this.chooseLordDeckStack(i); });
+                                this_1.addActionButton("chooseLordDeckStack".concat(i, "_button"), _("Pick ${number} from deck").replace('${number}', '' + i), function () { return _this.chooseLordDeckStack(i); });
                             };
                             var this_1 = this;
                             for (var i = 1; i <= 3 && i <= lordArgs.max; i++) {
@@ -1257,7 +1350,7 @@ var Conspiracy = /** @class */ (function () {
                         var locationArgs = args;
                         if (!locationArgs.allHidden) {
                             var _loop_2 = function (i) {
-                                this_2.addActionButton("chooseLordDeckStack" + i + "_button", _("Pick ${number} from deck").replace('${number}', '' + i), function () { return _this.chooseLocationDeckStack(i); });
+                                this_2.addActionButton("chooseLordDeckStack".concat(i, "_button"), _("Pick ${number} from deck").replace('${number}', '' + i), function () { return _this.chooseLocationDeckStack(i); });
                             };
                             var this_2 = this;
                             for (var i = 1; i <= 3 && i <= locationArgs.max; i++) {
@@ -1301,41 +1394,6 @@ var Conspiracy = /** @class */ (function () {
                 break;
         }
     };
-    Conspiracy.prototype.setZoom = function (zoom) {
-        if (zoom === void 0) { zoom = 1; }
-        this.zoom = zoom;
-        localStorage.setItem(LOCAL_STORAGE_ZOOM_KEY, '' + this.zoom);
-        var newIndex = ZOOM_LEVELS.indexOf(this.zoom);
-        dojo.toggleClass('zoom-in', 'disabled', newIndex === ZOOM_LEVELS.length - 1);
-        dojo.toggleClass('zoom-out', 'disabled', newIndex === 0);
-        var div = document.getElementById('full-table');
-        if (zoom === 1) {
-            div.style.transform = '';
-            div.style.margin = '';
-        }
-        else {
-            div.style.transform = "scale(" + zoom + ")";
-            div.style.margin = "0 " + ZOOM_LEVELS_MARGIN[newIndex] + "% " + (1 - zoom) * -100 + "% 0";
-        }
-        this.lordsStacks.pickStock.updateDisplay();
-        this.locationsStacks.visibleLocationsStock.updateDisplay();
-        this.locationsStacks.pickStock.updateDisplay();
-        document.getElementById('zoom-wrapper').style.height = div.getBoundingClientRect().height + "px";
-    };
-    Conspiracy.prototype.zoomIn = function () {
-        if (this.zoom === ZOOM_LEVELS[ZOOM_LEVELS.length - 1]) {
-            return;
-        }
-        var newIndex = ZOOM_LEVELS.indexOf(this.zoom) + 1;
-        this.setZoom(ZOOM_LEVELS[newIndex]);
-    };
-    Conspiracy.prototype.zoomOut = function () {
-        if (this.zoom === ZOOM_LEVELS[0]) {
-            return;
-        }
-        var newIndex = ZOOM_LEVELS.indexOf(this.zoom) - 1;
-        this.setZoom(ZOOM_LEVELS[newIndex]);
-    };
     Conspiracy.prototype.createViewPlayermatPopin = function () {
         var _this = this;
         dojo.place("<div id=\"popin_showPlayermat_container\" class=\"conspiracy_popin_container\">\n            <div id=\"popin_showPlayermat_underlay\" class=\"conspiracy_popin_underlay\"></div>\n                <div id=\"popin_showPlayermat_wrapper\" class=\"conspiracy_popin_wrapper\">\n                <div id=\"popin_showPlayermat\" class=\"conspiracy_popin\">\n                    <a id=\"popin_showPlayermat_close\" class=\"closeicon\"><i class=\"fa fa-times fa-2x\" aria-hidden=\"true\"></i></a>\n                    <a id=\"popin_showPlayermat_left\" class=\"left arrow\"></a>\n                    <a id=\"popin_showPlayermat_right\" class=\"right arrow\"></a>\n                                \n                    <div id=\"playermat-container-modal\" class=\"player-table-wrapper\" style=\"touch-action: pan-y; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\">\n                    </div>\n                </div>\n            </div>\n        </div>", $(document.body));
@@ -1347,21 +1405,21 @@ var Conspiracy = /** @class */ (function () {
         document.getElementById('playermat-container-modal').style.zoom = document.getElementById('page-content').style.zoom;
         this.playerInPopin = playerId;
         document.getElementById('popin_showPlayermat_container').style.display = 'block';
-        document.getElementById('playermat-container-modal').appendChild(document.getElementById("player-table-mat-" + playerId));
+        document.getElementById('playermat-container-modal').appendChild(document.getElementById("player-table-mat-".concat(playerId)));
     };
     Conspiracy.prototype.closePopin = function () {
         if (this.playerInPopin === null) {
             return;
         }
         document.getElementById('popin_showPlayermat_container').style.display = 'none';
-        document.getElementById("player-table-wrapper-" + this.playerInPopin).appendChild(document.getElementById("player-table-mat-" + this.playerInPopin));
+        document.getElementById("player-table-wrapper-".concat(this.playerInPopin)).appendChild(document.getElementById("player-table-mat-".concat(this.playerInPopin)));
         this.playerInPopin = null;
     };
     Conspiracy.prototype.changePopinPlayer = function (delta) {
-        document.getElementById("player-table-wrapper-" + this.playerInPopin).appendChild(document.getElementById("player-table-mat-" + this.playerInPopin));
+        document.getElementById("player-table-wrapper-".concat(this.playerInPopin)).appendChild(document.getElementById("player-table-mat-".concat(this.playerInPopin)));
         var playerIds = this.gamedatas.playerorder.map(function (val) { return Number(val); });
         this.playerInPopin = playerIds[(playerIds.indexOf(this.playerInPopin) + delta) % playerIds.length];
-        document.getElementById('playermat-container-modal').appendChild(document.getElementById("player-table-mat-" + this.playerInPopin));
+        document.getElementById('playermat-container-modal').appendChild(document.getElementById("player-table-mat-".concat(this.playerInPopin)));
     };
     Conspiracy.prototype.createPlayerPanels = function (gamedatas) {
         var _this = this;
@@ -1369,49 +1427,49 @@ var Conspiracy = /** @class */ (function () {
         var players = Object.values(gamedatas.players);
         var solo = players.length === 1;
         if (solo) {
-            dojo.place("\n            <div id=\"overall_player_board_0\" class=\"player-board current-player-board\">\t\t\t\t\t\n                <div class=\"player_board_inner\" id=\"player_board_inner_982fff\">\n                    \n                    <div class=\"emblemwrap\" id=\"avatar_active_wrap_0\">\n                        <div alt=\"\" class=\"avatar avatar_active opponent-avatar\" id=\"avatar_active_0\"></div>\n                    </div>\n                                               \n                    <div class=\"player-name\" id=\"player_name_0\">\n                        " + _("Legendary opponent") + "\n                    </div>\n                    <div id=\"player_board_0\" class=\"player_board_content\">\n                        <div class=\"player_score\">\n                            <span id=\"player_score_0\" class=\"player_score_value\">10</span> <i class=\"fa fa-star\" id=\"icon_point_0\"></i>           \n                        </div>\n                        <div id=\"sololord-img\" class=\"sololord sololord" + gamedatas.opponent.lord + "\"></div>\n                    </div>\n                </div>\n            </div>", "overall_player_board_" + players[0].id, 'after');
+            dojo.place("\n            <div id=\"overall_player_board_0\" class=\"player-board current-player-board\">\t\t\t\t\t\n                <div class=\"player_board_inner\" id=\"player_board_inner_982fff\">\n                    \n                    <div class=\"emblemwrap\" id=\"avatar_active_wrap_0\">\n                        <div alt=\"\" class=\"avatar avatar_active opponent-avatar\" id=\"avatar_active_0\"></div>\n                    </div>\n                                               \n                    <div class=\"player-name\" id=\"player_name_0\">\n                        ".concat(_("Legendary opponent"), "\n                    </div>\n                    <div id=\"player_board_0\" class=\"player_board_content\">\n                        <div class=\"player_score\">\n                            <span id=\"player_score_0\" class=\"player_score_value\">10</span> <i class=\"fa fa-star\" id=\"icon_point_0\"></i>           \n                        </div>\n                        <div id=\"sololord-img\" class=\"sololord sololord").concat(gamedatas.opponent.lord, "\"></div>\n                    </div>\n                </div>\n            </div>"), "overall_player_board_".concat(players[0].id), 'after');
             var conditionNumber = gamedatas.opponent.lord == 2 || gamedatas.opponent.lord == 4 ? 4 : 3;
             for (var i = 1; i <= conditionNumber; i++) {
-                dojo.place("<div id=\"sololord-condition" + i + "\" class=\"condition condition" + i + " over" + conditionNumber + "\"></div>", "sololord-img");
+                dojo.place("<div id=\"sololord-condition".concat(i, "\" class=\"condition condition").concat(i, " over").concat(conditionNumber, "\"></div>"), "sololord-img");
             }
             var opponentScoreCounter = new ebg.counter();
             opponentScoreCounter.create("player_score_0");
             opponentScoreCounter.setValue(gamedatas.opponent.score);
             this.scoreCtrl[0] = opponentScoreCounter;
         }
-        (solo ? __spreadArray(__spreadArray([], players), [gamedatas.opponent]) : players).forEach(function (player) {
+        (solo ? __spreadArray(__spreadArray([], players, true), [gamedatas.opponent], false) : players).forEach(function (player) {
             var playerId = Number(player.id);
             var playerTable = Object.values(gamedatas.playersTables[playerId]);
             // Lord & pearl counters
-            dojo.place("<div class=\"counters\">\n                <div id=\"lord-counter-wrapper-" + player.id + "\" class=\"lord-counter\"></div>\n                <div id=\"pearl-counter-wrapper-" + player.id + "\" class=\"pearl-counter\">\n                    <div class=\"token pearl\"></div> \n                    <span id=\"pearl-counter-" + player.id + "\" class=\"left\"></span>\n                </div>\n            </div>", "player_board_" + player.id);
+            dojo.place("<div class=\"counters\">\n                <div id=\"lord-counter-wrapper-".concat(player.id, "\" class=\"lord-counter\"></div>\n                <div id=\"pearl-counter-wrapper-").concat(player.id, "\" class=\"pearl-counter\">\n                    <div class=\"token pearl\"></div> \n                    <span id=\"pearl-counter-").concat(player.id, "\" class=\"left\"></span>\n                </div>\n            </div>"), "player_board_".concat(player.id));
             _this.minimaps[playerId] = new Minimap(playerId, playerTable);
             var pearlCounter = new ebg.counter();
-            pearlCounter.create("pearl-counter-" + player.id);
+            pearlCounter.create("pearl-counter-".concat(player.id));
             pearlCounter.setValue(player.pearls);
             _this.pearlCounters[playerId] = pearlCounter;
             // keys counters
-            dojo.place("<div class=\"counters\">\n                <div id=\"silver-key-counter-wrapper-" + player.id + "\" class=\"key-counter silver-key-counter\">\n                    <div id=\"silver-key-" + player.id + "\" class=\"token silver key\"></div> \n                    <span id=\"silver-key-counter-" + player.id + "\" class=\"left\"></span>\n                </div>\n                <div id=\"gold-key-counter-wrapper-" + player.id + "\" class=\"key-counter gold-key-counter\">\n                    <div id=\"gold-key-" + player.id + "\"  class=\"token gold key\"></div> \n                    <span id=\"gold-key-counter-" + player.id + "\" class=\"left\"></span>\n                </div>\n            </div>", "player_board_" + player.id);
+            dojo.place("<div class=\"counters\">\n                <div id=\"silver-key-counter-wrapper-".concat(player.id, "\" class=\"key-counter silver-key-counter\">\n                    <div id=\"silver-key-").concat(player.id, "\" class=\"token silver key\"></div> \n                    <span id=\"silver-key-counter-").concat(player.id, "\" class=\"left\"></span>\n                </div>\n                <div id=\"gold-key-counter-wrapper-").concat(player.id, "\" class=\"key-counter gold-key-counter\">\n                    <div id=\"gold-key-").concat(player.id, "\"  class=\"token gold key\"></div> \n                    <span id=\"gold-key-counter-").concat(player.id, "\" class=\"left\"></span>\n                </div>\n            </div>"), "player_board_".concat(player.id));
             var lastLocationSpotIndex = playerTable.map(function (spot, spotIndex) { return spot.location ? spotIndex : -1; }).reduce(function (a, b) { return a > b ? a : b; }, -1);
             var silverKeyAvailable = playerTable.filter(function (spot, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length > 0;
-            dojo.toggleClass("silver-key-counter-wrapper-" + player.id, 'available', silverKeyAvailable);
+            dojo.toggleClass("silver-key-counter-wrapper-".concat(player.id), 'available', silverKeyAvailable);
             var silverKeyCounter = new ebg.counter();
-            silverKeyCounter.create("silver-key-counter-" + player.id);
+            silverKeyCounter.create("silver-key-counter-".concat(player.id));
             silverKeyCounter.setValue(playerTable.filter(function (spot) { var _a; return ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length);
             _this.silverKeyCounters[playerId] = silverKeyCounter;
             var goldKeyAvailable = playerTable.filter(function (spot, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 2; }).length > 0;
-            dojo.toggleClass("gold-key-counter-wrapper-" + player.id, 'available', goldKeyAvailable);
+            dojo.toggleClass("gold-key-counter-wrapper-".concat(player.id), 'available', goldKeyAvailable);
             var goldKeyCounter = new ebg.counter();
-            goldKeyCounter.create("gold-key-counter-" + player.id);
+            goldKeyCounter.create("gold-key-counter-".concat(player.id));
             goldKeyCounter.setValue(playerTable.filter(function (spot) { var _a; return ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 2; }).length);
             _this.goldKeyCounters[playerId] = goldKeyCounter;
             // top lord tokens
             var html = "<div class=\"top-lord-tokens\">";
-            GUILD_IDS.forEach(function (guild) { return html += "<div class=\"token guild" + guild + " token-guild" + guild + "\" id=\"top-lord-token-" + guild + "-" + player.id + "\"></div>"; });
+            GUILD_IDS.forEach(function (guild) { return html += "<div class=\"token guild".concat(guild, " token-guild").concat(guild, "\" id=\"top-lord-token-").concat(guild, "-").concat(player.id, "\"></div>"); });
             html += "</div>";
-            dojo.place(html, "player_board_" + player.id);
+            dojo.place(html, "player_board_".concat(player.id));
             // pearl master token
-            dojo.place("<div id=\"player_board_" + player.id + "_pearlMasterWrapper\" class=\"pearlMasterWrapper\"></div>", "player_board_" + player.id);
-            dojo.place("<div id=\"player_board_" + player.id + "_playAgainWrapper\" class=\"playAgainWrapper\"></div>", "player_board_" + player.id);
+            dojo.place("<div id=\"player_board_".concat(player.id, "_pearlMasterWrapper\" class=\"pearlMasterWrapper\"></div>"), "player_board_".concat(player.id));
+            dojo.place("<div id=\"player_board_".concat(player.id, "_playAgainWrapper\" class=\"playAgainWrapper\"></div>"), "player_board_".concat(player.id));
             if (gamedatas.pearlMasterPlayer === playerId) {
                 _this.placePearlMasterToken(gamedatas.pearlMasterPlayer);
             }
@@ -1420,8 +1478,8 @@ var Conspiracy = /** @class */ (function () {
             }
             // vision popup button
             /*if (playerId !== Number((this as any).player_id)) {*/
-            dojo.place("<div id=\"show-playermat-" + player.id + "\" class=\"show-playermat-button\">\n                    <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 85.333343 145.79321\">\n                    <path fill=\"currentColor\" d=\"M 1.6,144.19321 C 0.72,143.31321 0,141.90343 0,141.06039 0,140.21734 5.019,125.35234 11.15333,108.02704 L 22.30665,76.526514 14.626511,68.826524 C 8.70498,62.889705 6.45637,59.468243 4.80652,53.884537 0.057,37.810464 3.28288,23.775161 14.266011,12.727735 23.2699,3.6711383 31.24961,0.09115725 42.633001,0.00129225 c 15.633879,-0.123414 29.7242,8.60107205 36.66277,22.70098475 8.00349,16.263927 4.02641,36.419057 -9.54327,48.363567 l -6.09937,5.36888 10.8401,30.526466 c 5.96206,16.78955 10.84011,32.03102 10.84011,33.86992 0,1.8389 -0.94908,3.70766 -2.10905,4.15278 -1.15998,0.44513 -19.63998,0.80932 -41.06667,0.80932 -28.52259,0 -39.386191,-0.42858 -40.557621,-1.6 z M 58.000011,54.483815 c 3.66666,-1.775301 9.06666,-5.706124 11.99999,-8.735161 l 5.33334,-5.507342 -6.66667,-6.09345 C 59.791321,26.035633 53.218971,23.191944 43.2618,23.15582 33.50202,23.12041 24.44122,27.164681 16.83985,34.94919 c -4.926849,5.045548 -5.023849,5.323672 -2.956989,8.478106 3.741259,5.709878 15.032709,12.667218 24.11715,14.860013 4.67992,1.129637 13.130429,-0.477436 20,-3.803494 z m -22.33337,-2.130758 c -2.8907,-1.683676 -6.3333,-8.148479 -6.3333,-11.893186 0,-11.58942 14.57544,-17.629692 22.76923,-9.435897 8.41012,8.410121 2.7035,22.821681 -9,22.728685 -2.80641,-0.0223 -6.15258,-0.652121 -7.43593,-1.399602 z m 14.6667,-6.075289 c 3.72801,-4.100734 3.78941,-7.121364 0.23656,-11.638085 -2.025061,-2.574448 -3.9845,-3.513145 -7.33333,-3.513145 -10.93129,0 -13.70837,13.126529 -3.90323,18.44946 3.50764,1.904196 7.30574,0.765377 11,-3.29823 z m -11.36999,0.106494 c -3.74071,-2.620092 -4.07008,-7.297494 -0.44716,-6.350078 3.2022,0.837394 4.87543,-1.760912 2.76868,-4.29939 -1.34051,-1.615208 -1.02878,-1.94159 1.85447,-1.94159 4.67573,0 8.31873,5.36324 6.2582,9.213366 -1.21644,2.27295 -5.30653,5.453301 -7.0132,5.453301 -0.25171,0 -1.79115,-0.934022 -3.42099,-2.075605 z\"></path>\n                    </svg>\n                </div>", "player_board_" + player.id);
-            dojo.connect($("show-playermat-" + player.id), 'onclick', _this, function () { return _this.movePlayerTableToPopin(Number(player.id)); });
+            dojo.place("<div id=\"show-playermat-".concat(player.id, "\" class=\"show-playermat-button\">\n                    <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 85.333343 145.79321\">\n                    <path fill=\"currentColor\" d=\"M 1.6,144.19321 C 0.72,143.31321 0,141.90343 0,141.06039 0,140.21734 5.019,125.35234 11.15333,108.02704 L 22.30665,76.526514 14.626511,68.826524 C 8.70498,62.889705 6.45637,59.468243 4.80652,53.884537 0.057,37.810464 3.28288,23.775161 14.266011,12.727735 23.2699,3.6711383 31.24961,0.09115725 42.633001,0.00129225 c 15.633879,-0.123414 29.7242,8.60107205 36.66277,22.70098475 8.00349,16.263927 4.02641,36.419057 -9.54327,48.363567 l -6.09937,5.36888 10.8401,30.526466 c 5.96206,16.78955 10.84011,32.03102 10.84011,33.86992 0,1.8389 -0.94908,3.70766 -2.10905,4.15278 -1.15998,0.44513 -19.63998,0.80932 -41.06667,0.80932 -28.52259,0 -39.386191,-0.42858 -40.557621,-1.6 z M 58.000011,54.483815 c 3.66666,-1.775301 9.06666,-5.706124 11.99999,-8.735161 l 5.33334,-5.507342 -6.66667,-6.09345 C 59.791321,26.035633 53.218971,23.191944 43.2618,23.15582 33.50202,23.12041 24.44122,27.164681 16.83985,34.94919 c -4.926849,5.045548 -5.023849,5.323672 -2.956989,8.478106 3.741259,5.709878 15.032709,12.667218 24.11715,14.860013 4.67992,1.129637 13.130429,-0.477436 20,-3.803494 z m -22.33337,-2.130758 c -2.8907,-1.683676 -6.3333,-8.148479 -6.3333,-11.893186 0,-11.58942 14.57544,-17.629692 22.76923,-9.435897 8.41012,8.410121 2.7035,22.821681 -9,22.728685 -2.80641,-0.0223 -6.15258,-0.652121 -7.43593,-1.399602 z m 14.6667,-6.075289 c 3.72801,-4.100734 3.78941,-7.121364 0.23656,-11.638085 -2.025061,-2.574448 -3.9845,-3.513145 -7.33333,-3.513145 -10.93129,0 -13.70837,13.126529 -3.90323,18.44946 3.50764,1.904196 7.30574,0.765377 11,-3.29823 z m -11.36999,0.106494 c -3.74071,-2.620092 -4.07008,-7.297494 -0.44716,-6.350078 3.2022,0.837394 4.87543,-1.760912 2.76868,-4.29939 -1.34051,-1.615208 -1.02878,-1.94159 1.85447,-1.94159 4.67573,0 8.31873,5.36324 6.2582,9.213366 -1.21644,2.27295 -5.30653,5.453301 -7.0132,5.453301 -0.25171,0 -1.79115,-0.934022 -3.42099,-2.075605 z\"></path>\n                    </svg>\n                </div>"), "player_board_".concat(player.id));
+            dojo.connect($("show-playermat-".concat(player.id)), 'onclick', _this, function () { return _this.movePlayerTableToPopin(Number(player.id)); });
             /*}*/
             _this.setNewScore({
                 playerId: playerId,
@@ -1432,17 +1490,17 @@ var Conspiracy = /** @class */ (function () {
         this.addTooltipHtmlToClass('pearl-counter', _("Number of pearls"));
         this.addTooltipHtmlToClass('silver-key-counter', _("Number of silver keys (surrounded if a silver key is available)"));
         this.addTooltipHtmlToClass('gold-key-counter', _("Number of gold keys (surrounded if a gold key is available)"));
-        GUILD_IDS.forEach(function (guild) { return _this.addTooltipHtmlToClass("token-guild" + guild, _("The Coat of Arms token indicates the most influential Lord of each color.")); });
+        GUILD_IDS.forEach(function (guild) { return _this.addTooltipHtmlToClass("token-guild".concat(guild), _("The Coat of Arms token indicates the most influential Lord of each color.")); });
     };
     Conspiracy.prototype.updateKeysForPlayer = function (playerId) {
         var playerTable = this.playersTables[playerId];
         var lastLocationSpotIndex = playerTable.spotsStock.map(function (spotStock, spotIndex) { return spotStock.hasLocation() ? spotIndex : -1; }).reduce(function (a, b) { return a > b ? a : b; }, -1);
         var silverKeyAvailable = playerTable.spotsStock.filter(function (spotStock, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spotStock.getLord()) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length > 0;
-        dojo.toggleClass("silver-key-counter-wrapper-" + playerId, 'available', silverKeyAvailable);
+        dojo.toggleClass("silver-key-counter-wrapper-".concat(playerId), 'available', silverKeyAvailable);
         var totalSilverKeyCounter = playerTable.spotsStock.filter(function (spotStock) { var _a; return ((_a = spotStock.getLord()) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length;
         this.silverKeyCounters[playerId].toValue(totalSilverKeyCounter);
         var goldKeyAvailable = playerTable.spotsStock.filter(function (spotStock, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spotStock.getLord()) === null || _a === void 0 ? void 0 : _a.key) === 2; }).length > 0;
-        dojo.toggleClass("gold-key-counter-wrapper-" + playerId, 'available', goldKeyAvailable);
+        dojo.toggleClass("gold-key-counter-wrapper-".concat(playerId), 'available', goldKeyAvailable);
         var totalGoldKeyCounter = playerTable.spotsStock.filter(function (spotStock) { var _a; return ((_a = spotStock.getLord()) === null || _a === void 0 ? void 0 : _a.key) === 2; }).length;
         this.goldKeyCounters[playerId].toValue(totalGoldKeyCounter);
     };
@@ -1450,9 +1508,9 @@ var Conspiracy = /** @class */ (function () {
         var _this = this;
         var players = Object.values(gamedatas.players).sort(function (a, b) { return a.playerNo - b.playerNo; });
         var playerIndex = players.findIndex(function (player) { return Number(player.id) === Number(_this.player_id); });
-        var orderedPlayers = playerIndex > 0 ? __spreadArray(__spreadArray([], players.slice(playerIndex)), players.slice(0, playerIndex)) : players;
+        var orderedPlayers = playerIndex > 0 ? __spreadArray(__spreadArray([], players.slice(playerIndex), true), players.slice(0, playerIndex), true) : players;
         var solo = orderedPlayers.length === 1;
-        (solo ? __spreadArray(__spreadArray([], orderedPlayers), [gamedatas.opponent]) : orderedPlayers).forEach(function (player) {
+        (solo ? __spreadArray(__spreadArray([], orderedPlayers, true), [gamedatas.opponent], false) : orderedPlayers).forEach(function (player) {
             return _this.createPlayerTable(gamedatas, Number(player.id));
         });
     };
@@ -1510,25 +1568,25 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.takeAction = function (action, data) {
         data = data || {};
         data.lock = true;
-        this.ajaxcall("/conspiracy/conspiracy/" + action + ".html", data, this, function () { });
+        this.ajaxcall("/conspiracy/conspiracy/".concat(action, ".html"), data, this, function () { });
     };
     Conspiracy.prototype.placePearlMasterToken = function (playerId) {
         var pearlMasterToken = document.getElementById('pearlMasterToken');
         if (pearlMasterToken) {
-            slideToObjectAndAttach(this, pearlMasterToken, "player_board_" + playerId + "_pearlMasterWrapper");
+            slideToObjectAndAttach(this, pearlMasterToken, "player_board_".concat(playerId, "_pearlMasterWrapper"));
         }
         else {
-            dojo.place('<div id="pearlMasterToken" class="token"></div>', "player_board_" + playerId + "_pearlMasterWrapper");
+            dojo.place('<div id="pearlMasterToken" class="token"></div>', "player_board_".concat(playerId, "_pearlMasterWrapper"));
             this.addTooltipHtml('pearlMasterToken', _("Pearl Master token. At the end of the game, the player possessing the Pearl Master token gains a bonus of 5 Influence Points."));
         }
     };
     Conspiracy.prototype.placePlayAgainToken = function (playerId) {
         var playAgainToken = document.getElementById('playAgainToken');
         if (playAgainToken) {
-            slideToObjectAndAttach(this, playAgainToken, "player_board_" + playerId + "_playAgainWrapper");
+            slideToObjectAndAttach(this, playAgainToken, "player_board_".concat(playerId, "_playAgainWrapper"));
         }
         else {
-            dojo.place('<div id="playAgainToken" class="token"></div>', "player_board_" + playerId + "_playAgainWrapper");
+            dojo.place('<div id="playAgainToken" class="token"></div>', "player_board_".concat(playerId, "_playAgainWrapper"));
             this.addTooltipHtml('playAgainToken', _("Replay token. You can use it to gain an extra turn when you play it."));
         }
     };
@@ -1560,8 +1618,8 @@ var Conspiracy = /** @class */ (function () {
         this.takeAction('useReplayToken', { use: use });
     };
     Conspiracy.prototype.setScore = function (playerId, column, score) {
-        var cell = document.getElementById("score" + playerId).getElementsByTagName('td')[column];
-        cell.innerHTML = "" + score;
+        var cell = document.getElementById("score".concat(playerId)).getElementsByTagName('td')[column];
+        cell.innerHTML = "".concat(score);
         cell.classList.add('highlight');
     };
     Conspiracy.prototype.addHelp = function () {
@@ -1573,16 +1631,16 @@ var Conspiracy = /** @class */ (function () {
         var helpDialog = new ebg.popindialog();
         helpDialog.create('conspiracyHelpDialog');
         helpDialog.setTitle(_("Cards help"));
-        var html = "<div id=\"help-popin\">\n            <h1>" + _("Lords") + "</h1>\n            <div id=\"help-lords\" class=\"help-section\">\n                <table>";
-        LORDS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"lord" + number + "\" class=\"lord\"></div></td><td>" + getLordTooltip(number * 10 + 3) + "</td></tr>"; });
-        html += "</table>\n            </div>\n            <h1>" + _("Locations") + "</h1>\n            <div id=\"help-locations\" class=\"help-section\">\n                <table>";
-        LOCATIONS_UNIQUE_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location" + number + "\" class=\"location\"></div></td><td>" + getLocationTooltip(number * 10) + "</td></tr>"; });
-        LOCATIONS_GUILDS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location" + number + "\" class=\"location\"></div></td><td>" + getLocationTooltip(number * 10) + "</td></tr>"; });
+        var html = "<div id=\"help-popin\">\n            <h1>".concat(_("Lords"), "</h1>\n            <div id=\"help-lords\" class=\"help-section\">\n                <table>");
+        LORDS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"lord".concat(number, "\" class=\"lord\"></div></td><td>").concat(getLordTooltip(number * 10 + 3), "</td></tr>"); });
+        html += "</table>\n            </div>\n            <h1>".concat(_("Locations"), "</h1>\n            <div id=\"help-locations\" class=\"help-section\">\n                <table>");
+        LOCATIONS_UNIQUE_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location".concat(number, "\" class=\"location\"></div></td><td>").concat(getLocationTooltip(number * 10), "</td></tr>"); });
+        LOCATIONS_GUILDS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location".concat(number, "\" class=\"location\"></div></td><td>").concat(getLocationTooltip(number * 10), "</td></tr>"); });
         html += "</table>\n            </div>";
         if (this.gamedatas.bonusLocations) {
-            html += "<h1>" + _("Bonus locations") + "</h1>\n                <div id=\"help-locations\" class=\"help-section\">\n                    <table>";
-            LOCATIONS_BONUS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location" + number + "\" class=\"location\"></div></td><td>" + getLocationTooltip(number * 10) + "</td></tr>"; });
-            html += "</table>\n                    <div id=\"alliance\">\n                        <hr>\n                        " + _("An alliance is an area of adjacent Lords of the same value, regardless of their color.") + "\n                        <div class=\"example-wrapper\">\n                            <div class=\"example\"></div>\n                        </div>\n                    </div>\n                </div>";
+            html += "<h1>".concat(_("Bonus locations"), "</h1>\n                <div id=\"help-locations\" class=\"help-section\">\n                    <table>");
+            LOCATIONS_BONUS_IDS.forEach(function (number) { return html += "<tr><td><div id=\"location".concat(number, "\" class=\"location\"></div></td><td>").concat(getLocationTooltip(number * 10), "</td></tr>"); });
+            html += "</table>\n                    <div id=\"alliance\">\n                        <hr>\n                        ".concat(_("An alliance is an area of adjacent Lords of the same value, regardless of their color."), "\n                        <div class=\"example-wrapper\">\n                            <div class=\"example\"></div>\n                        </div>\n                    </div>\n                </div>");
         }
         html += "</div>";
         // Show the dialog
@@ -1591,9 +1649,9 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.setNewScoreTooltip = function (playerId) {
         var score = (playerId > 0 ? this.gamedatas.players[playerId] : this.gamedatas.opponent).newScore;
-        var html = "\n            " + _("Lords points") + " : <strong>" + score.lords + "</strong><br>\n            " + _("Locations points") + " : <strong>" + score.locations + "</strong><br>\n            " + _("Coalition points") + " : <strong>" + score.coalition + "</strong><br>\n            " + _("Pearl Master points") + " : <strong>" + score.pearlMaster + "</strong><br>\n        ";
-        this.addTooltipHtml("player_score_" + playerId, html);
-        this.addTooltipHtml("icon_point_" + playerId, html);
+        var html = "\n            ".concat(_("Lords points"), " : <strong>").concat(score.lords, "</strong><br>\n            ").concat(_("Locations points"), " : <strong>").concat(score.locations, "</strong><br>\n            ").concat(_("Coalition points"), " : <strong>").concat(score.coalition, "</strong><br>\n            ").concat(_("Pearl Master points"), " : <strong>").concat(score.pearlMaster, "</strong><br>\n        ");
+        this.addTooltipHtml("player_score_".concat(playerId), html);
+        this.addTooltipHtml("icon_point_".concat(playerId), html);
     };
     Conspiracy.prototype.setNewScore = function (args) {
         var _this = this;
@@ -1604,7 +1662,7 @@ var Conspiracy = /** @class */ (function () {
                 if (playersIds.length == 1) {
                     playersIds.push(0);
                 }
-                playersIds.forEach(function (playerId) { return document.getElementById("player_score_" + playerId).innerHTML = '-'; });
+                playersIds.forEach(function (playerId) { return document.getElementById("player_score_".concat(playerId)).innerHTML = '-'; });
             }, 100);
         }
         else {
@@ -1662,12 +1720,12 @@ var Conspiracy = /** @class */ (function () {
             ['scoreTotal', SCORE_MS],
         ];
         notifs.forEach(function (notif) {
-            dojo.subscribe(notif[0], _this, "notif_" + notif[0]);
+            dojo.subscribe(notif[0], _this, "notif_".concat(notif[0]));
             _this.notifqueue.setSynchronous(notif[0], notif[1]);
         });
     };
     Conspiracy.prototype.notif_lordPlayed = function (notif) {
-        var from = this.lordsStacks.getStockContaining("" + notif.args.lord.id);
+        var from = this.lordsStacks.getStockContaining("".concat(notif.args.lord.id));
         this.playersTables[notif.args.playerId].addLord(notif.args.spot, notif.args.lord, from);
         this.minimaps[notif.args.playerId].addLord(notif.args.spot, notif.args.lord);
         this.setNewScore(notif.args);
@@ -1691,7 +1749,7 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.notif_locationPlayed = function (notif) {
         var _a;
-        var from = this.locationsStacks.getStockContaining("" + notif.args.location.id);
+        var from = this.locationsStacks.getStockContaining("".concat(notif.args.location.id));
         this.playersTables[notif.args.playerId].addLocation(notif.args.spot, notif.args.location, from);
         this.setNewScore(notif.args);
         this.pearlCounters[notif.args.playerId].incValue(notif.args.pearls);
@@ -1721,7 +1779,7 @@ var Conspiracy = /** @class */ (function () {
         this.setRemainingLocations(notif.args.remainingLocations);
     };
     Conspiracy.prototype.notif_matchingPiles = function (notif) {
-        var conditionDiv = document.getElementById("sololord-condition" + notif.args.conditionNumber);
+        var conditionDiv = document.getElementById("sololord-condition".concat(notif.args.conditionNumber));
         conditionDiv.dataset.count = '' + notif.args.count;
         conditionDiv.classList.add('show');
         setTimeout(function () { return conditionDiv.classList.remove('show'); }, 2000);
@@ -1747,7 +1805,7 @@ var Conspiracy = /** @class */ (function () {
         this.placePlayAgainToken(playerId);
     };
     Conspiracy.prototype.notif_lastTurn = function () {
-        dojo.place("<div id=\"last-round\">\n            " + _("This is the last round of the game!") + "\n        </div>", 'page-title');
+        dojo.place("<div id=\"last-round\">\n            ".concat(_("This is the last round of the game!"), "\n        </div>"), 'page-title');
     };
     Conspiracy.prototype.notif_scoreLords = function (notif) {
         log('notif_scoreLords', notif.args);
@@ -1794,7 +1852,7 @@ var Conspiracy = /** @class */ (function () {
             if (log && args && !args.processed) {
                 // Representation of the color of a card
                 if (args.guild !== undefined && args.guild_name !== undefined && args.guild_name[0] !== '<') {
-                    args.guild_name = "<span class='log-guild-name' style='color: " + LOG_GUILD_COLOR[args.guild] + "'>" + _(args.guild_name) + "</span>";
+                    args.guild_name = "<span class='log-guild-name' style='color: ".concat(LOG_GUILD_COLOR[args.guild], "'>").concat(_(args.guild_name), "</span>");
                 }
             }
         }

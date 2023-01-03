@@ -20,8 +20,6 @@ LOG_GUILD_COLOR[3] = '#097138';
 LOG_GUILD_COLOR[4] = '#011d4d';
 LOG_GUILD_COLOR[5] = '#522886';
 
-const ZOOM_LEVELS = [0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1];
-const ZOOM_LEVELS_MARGIN = [-300, -166, -100, -60, -33, -14, 0];
 const LOCAL_STORAGE_ZOOM_KEY = 'Conspiracy-zoom';
 
 class Conspiracy implements ConspiracyGame {
@@ -30,6 +28,7 @@ class Conspiracy implements ConspiracyGame {
     private locationsStacks: LocationsStacks;
     private lordCounter: Counter;
     private locationCounter: Counter;
+    private zoomManager: ZoomManager;
 
     private playersTables: PlayerTable[] = [];
     private minimaps: Minimap[] = [];
@@ -40,13 +39,7 @@ class Conspiracy implements ConspiracyGame {
     private playerInPopin: number | null = null;
     private isTouch = window.matchMedia('(hover: none)').matches;
 
-    public zoom: number = 1;
-
-    constructor() {    
-        const zoomStr = localStorage.getItem(LOCAL_STORAGE_ZOOM_KEY);
-        if (zoomStr) {
-            this.zoom = Number(zoomStr);
-        }
+    constructor() {
     }
     
     /*
@@ -106,11 +99,13 @@ class Conspiracy implements ConspiracyGame {
         this.setupNotifications();
         this.setupPreferences();
 
-        document.getElementById('zoom-out').addEventListener('click', () => this.zoomOut());
-        document.getElementById('zoom-in').addEventListener('click', () => this.zoomIn());
-        if (this.zoom !== 1) {
-            this.setZoom(this.zoom);
-        }
+        this.zoomManager = new ZoomManager({
+            element: document.getElementById('full-table'),
+            localStorageZoomKey: LOCAL_STORAGE_ZOOM_KEY,
+            zoomControls: {
+                color: 'white',
+            },
+        });
 
         log( "Ending game setup" );
     }
@@ -259,7 +254,7 @@ class Conspiracy implements ConspiracyGame {
         (this as any).addTooltipHtmlToClass('coalition-score', _("The biggest area of adjacent Lords of the same color is identified and 3 points are scored for each Lord within it"));
         (this as any).addTooltipHtmlToClass('masterPearl-score', _("The player who has the Pearl Master token gains a bonus of 5 Influence Points."));
 
-        if(this.zoom == 1 && !(document.getElementById('page-content') as any).style.zoom) {
+        if (this.zoomManager.zoom == 1 && !(document.getElementById('page-content') as any).style.zoom) {
             // scale down 
             Array.from(document.getElementsByClassName('player-table-wrapper')).forEach(elem => elem.classList.add('scaled-down'));
         }
@@ -395,46 +390,6 @@ class Conspiracy implements ConspiracyGame {
                 document.getElementsByTagName('html')[0].dataset.showForbidden = (prefValue == 1).toString();
                 break;
         }
-    }
-    
-
-    private setZoom(zoom: number = 1) {
-        this.zoom = zoom;
-        localStorage.setItem(LOCAL_STORAGE_ZOOM_KEY, ''+this.zoom);
-        const newIndex = ZOOM_LEVELS.indexOf(this.zoom);
-        dojo.toggleClass('zoom-in', 'disabled', newIndex === ZOOM_LEVELS.length - 1);
-        dojo.toggleClass('zoom-out', 'disabled', newIndex === 0);
-
-        const div = document.getElementById('full-table');
-        if (zoom === 1) {
-            div.style.transform = '';
-            div.style.margin = '';
-        } else {
-            div.style.transform = `scale(${zoom})`;
-            div.style.margin = `0 ${ZOOM_LEVELS_MARGIN[newIndex]}% ${(1-zoom)*-100}% 0`;
-        }
-
-        this.lordsStacks.pickStock.updateDisplay();
-        this.locationsStacks.visibleLocationsStock.updateDisplay();
-        this.locationsStacks.pickStock.updateDisplay();
-
-        document.getElementById('zoom-wrapper').style.height = `${div.getBoundingClientRect().height}px`;
-    }
-
-    public zoomIn() {
-        if (this.zoom === ZOOM_LEVELS[ZOOM_LEVELS.length - 1]) {
-            return;
-        }
-        const newIndex = ZOOM_LEVELS.indexOf(this.zoom) + 1;
-        this.setZoom(ZOOM_LEVELS[newIndex]);
-    }
-
-    public zoomOut() {
-        if (this.zoom === ZOOM_LEVELS[0]) {
-            return;
-        }
-        const newIndex = ZOOM_LEVELS.indexOf(this.zoom) - 1;
-        this.setZoom(ZOOM_LEVELS[newIndex]);
     }
 
     private createViewPlayermatPopin()  {
