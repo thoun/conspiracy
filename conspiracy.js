@@ -7,7 +7,7 @@ var ZoomManager = /** @class */ (function () {
      */
     function ZoomManager(settings) {
         var _this = this;
-        var _a, _b, _c;
+        var _a, _b, _c, _d, _e;
         this.settings = settings;
         if (!settings.element) {
             throw new DOMException('You need to set the element to wrap in the zoom element');
@@ -25,15 +25,28 @@ var ZoomManager = /** @class */ (function () {
         this.wrapElement(this.wrapper, settings.element);
         this.wrapper.appendChild(settings.element);
         settings.element.classList.add('bga-zoom-inner');
-        if ((_c = (_b = settings.zoomControls) === null || _b === void 0 ? void 0 : _b.visible) !== null && _c !== void 0 ? _c : true) {
+        if ((_b = settings.smooth) !== null && _b !== void 0 ? _b : true) {
+            settings.element.dataset.smooth = 'true';
+            settings.element.addEventListener('transitionend', function () { return _this.zoomOrDimensionChanged(); });
+        }
+        if ((_d = (_c = settings.zoomControls) === null || _c === void 0 ? void 0 : _c.visible) !== null && _d !== void 0 ? _d : true) {
             this.initZoomControls(settings);
         }
         if (this._zoom !== 1) {
             this.setZoom(this._zoom);
         }
-        window.addEventListener('resize', function () { return _this.zoomOrDimensionChanged(); });
+        window.addEventListener('resize', function () {
+            var _a;
+            _this.zoomOrDimensionChanged();
+            if ((_a = _this.settings.autoZoom) === null || _a === void 0 ? void 0 : _a.expectedWidth) {
+                _this.setAutoZoom();
+            }
+        });
         if (window.ResizeObserver) {
             new ResizeObserver(function () { return _this.zoomOrDimensionChanged(); }).observe(settings.element);
+        }
+        if ((_e = this.settings.autoZoom) === null || _e === void 0 ? void 0 : _e.expectedWidth) {
+            this.setAutoZoom();
         }
     }
     Object.defineProperty(ZoomManager.prototype, "zoom", {
@@ -46,6 +59,28 @@ var ZoomManager = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    ZoomManager.prototype.setAutoZoom = function () {
+        var _this = this;
+        var _a, _b, _c;
+        var zoomWrapperWidth = document.getElementById('bga-zoom-wrapper').clientWidth;
+        if (!zoomWrapperWidth) {
+            setTimeout(function () { return _this.setAutoZoom(); }, 200);
+            return;
+        }
+        var expectedWidth = (_a = this.settings.autoZoom) === null || _a === void 0 ? void 0 : _a.expectedWidth;
+        var newZoom = this.zoom;
+        while (newZoom > this.zoomLevels[0] && newZoom > ((_c = (_b = this.settings.autoZoom) === null || _b === void 0 ? void 0 : _b.minZoomLevel) !== null && _c !== void 0 ? _c : 0) && zoomWrapperWidth / newZoom < expectedWidth) {
+            newZoom = this.zoomLevels[this.zoomLevels.indexOf(newZoom) - 1];
+        }
+        if (this._zoom == newZoom) {
+            if (this.settings.localStorageZoomKey) {
+                localStorage.setItem(this.settings.localStorageZoomKey, '' + this._zoom);
+            }
+        }
+        else {
+            this.setZoom(newZoom);
+        }
+    };
     /**
      * Set the zoom level. Ideally, use a zoom level in the zoomLevels range.
      * @param zoom zool level
@@ -69,7 +104,7 @@ var ZoomManager = /** @class */ (function () {
      * If the browsert is recent enough (>= Safari 13.1) it will just be ignored.
      */
     ZoomManager.prototype.manualHeightUpdate = function () {
-        if (window.ResizeObserver) {
+        if (!window.ResizeObserver) {
             this.zoomOrDimensionChanged();
         }
     };
@@ -1206,6 +1241,7 @@ var Conspiracy = /** @class */ (function () {
             zoomControls: {
                 color: 'white',
             },
+            smooth: false,
         });
         log("Ending game setup");
     };

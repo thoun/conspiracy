@@ -105,6 +105,7 @@ class Conspiracy implements ConspiracyGame {
             zoomControls: {
                 color: 'white',
             },
+            smooth: false,
         });
 
         log( "Ending game setup" );
