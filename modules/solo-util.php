@@ -229,24 +229,19 @@ trait SoloUtilTrait {
     }
 
     function getSpotsInAreaForSpot(int $spot, array $cardsColors, array $spotAlreadyVisited) {
-        $neighbours = array_values(array_filter($this->NEIGHBOURS[$spot], function ($neighbour) use ($spotAlreadyVisited) { return !in_array($neighbour, $spotAlreadyVisited); }));
-
-        $biggest = [$spot];
+        $neighbours = array_values(array_filter($this->NEIGHBOURS[$spot], fn ($neighbour) => !in_array($neighbour, $spotAlreadyVisited) && array_key_exists($neighbour, $cardsColors) && $cardsColors[$spot] == $cardsColors[$neighbour]));
+        $area = [$spot];
 
         foreach($neighbours as $neighbour) {
-            if (array_key_exists($neighbour, $cardsColors) && $cardsColors[$spot] == $cardsColors[$neighbour]) {
+            if (array_key_exists($neighbour, $cardsColors)) {
                 $area = array_merge(
-                    [$spot],
+                    $area,
                     $this->getSpotsInAreaForSpot($neighbour, $cardsColors, array_merge($spotAlreadyVisited, [$spot]))
                 );
-
-                if (count($area) > count($biggest)) {
-                    $biggest = $area;
-                }
             }
         }
 
-        return $biggest;
+        return $area;
     }
 
     function createdNewColorArea(int $playerId, int $spot) {
