@@ -378,7 +378,7 @@ function getLordTooltip(typeWithGuild) {
             break;
     }
     if (message) {
-        message += "<br/><br/>".concat(dojo.string.substitute(_("Guild : ${guild_name}"), { guild_name: getGuildName(guild) }));
+        message += "\n        <br/><br/>\n        ".concat(_("Points :"), " <strong>").concat(type == 6 ? type : type - 1, "</strong>\n        <br/><br/>\n        ").concat(dojo.string.substitute(_("Guild : ${guild_name}"), { guild_name: getGuildName(guild) }), "\n        ");
     }
     return message;
 }
