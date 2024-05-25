@@ -1226,6 +1226,14 @@ var Conspiracy = /** @class */ (function () {
         this.locationCounter.create('remaining-location-counter');
         this.setRemainingLocations(gamedatas.remainingLocations);
         this.createPlayerTables(gamedatas);
+        this.zoomManager = new ZoomManager({
+            element: document.getElementById('full-table'),
+            localStorageZoomKey: LOCAL_STORAGE_ZOOM_KEY,
+            zoomControls: {
+                color: 'white',
+            },
+            smooth: false,
+        });
         if (gamedatas.endTurn) {
             this.notif_lastTurn();
         }
@@ -1235,14 +1243,6 @@ var Conspiracy = /** @class */ (function () {
         this.addHelp();
         this.setupNotifications();
         this.setupPreferences();
-        this.zoomManager = new ZoomManager({
-            element: document.getElementById('full-table'),
-            localStorageZoomKey: LOCAL_STORAGE_ZOOM_KEY,
-            zoomControls: {
-                color: 'white',
-            },
-            smooth: false,
-        });
         log("Ending game setup");
     };
     ///////////////////////////////////////////////////
