@@ -11,9 +11,7 @@ trait SoloActionTrait {
         (note: each method below must match an input method in nicodemus.action.php)
     */
 
-    function useReplayToken(int $use) {
-        self::checkAction('useReplayToken'); 
-        
+    function actUseReplayToken(int $use) {
         self::setGameStateValue('usePlayAgain', $use);
         $this->gamestate->nextState('nextPlayer');
     }

@@ -101,7 +101,7 @@ trait UtilTrait {
     function revealExtraLord() {
         $extraLord = $this->addExtraLord();
 
-        self::notifyAllPlayers('extraLordRevealed', clienttranslate('A ${guild_name} lord is added in the discard pile'), [
+        $this->notify->all('extraLordRevealed', clienttranslate('A ${guild_name} lord is added in the discard pile'), [
             'lord' => $extraLord,
             'guild' => $extraLord->guild,
             'guild_name' => $this->getGuildName($extraLord->guild),
@@ -120,7 +120,7 @@ trait UtilTrait {
             
             if ($currentPlayerPearls >= $masterPearlPearls && $pearlMasterPlayer != $player_id) {
                 self::setGameStateValue('pearlMasterPlayer', $player_id);
-                self::notifyAllPlayers('newPearlMaster', clienttranslate('${player_name} becomes the new Pearl Master'), [
+                $this->notify->all('newPearlMaster', clienttranslate('${player_name} becomes the new Pearl Master'), [
                     'playerId' => $player_id,
                     'player_name' => $this->getPlayerName($player_id),
                     'previousPlayerId' => $pearlMasterPlayer,
@@ -153,7 +153,7 @@ trait UtilTrait {
         }
 
         if ($notify) {
-            self::notifyAllPlayers('discardLordPick', '', [
+            $this->notify->all('discardLordPick', '', [
                 'discardedLords' => $remainingLords
             ]);
         }

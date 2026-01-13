@@ -1,10 +1,3 @@
-declare const define;
-declare const ebg;
-declare const $;
-declare const dojo: Dojo;
-declare const _;
-declare const g_gamethemeurl;
-
 declare const board: HTMLDivElement;
 
 const ANIMATION_MS = 500;
@@ -39,6 +32,8 @@ class Conspiracy implements ConspiracyGame {
     private playerInPopin: number | null = null;
     private isTouch = window.matchMedia('(hover: none)').matches;
 
+    public bga: Bga;
+
     constructor() {
     }
     
@@ -57,13 +52,13 @@ class Conspiracy implements ConspiracyGame {
 
     public setup(gamedatas: ConspiracyGamedatas) {
         // ignore loading of some pictures
-        (this as any).dontPreloadImage('eye-shadow.png');
-        (this as any).dontPreloadImage('publisher.png');
+        this.bga.images.dontPreloadImage('eye-shadow.png');
+        this.bga.images.dontPreloadImage('publisher.png');
         if (!gamedatas.bonusLocations) {
-            (this as any).dontPreloadImage('bonus-locations.jpg');
+            this.bga.images.dontPreloadImage('bonus-locations.jpg');
         }
-        [1,2,3,4,5,6,7,8,9,10].filter(i => !Object.values(gamedatas.players).some(player => Number((player as any).mat) === i)).forEach(i => (this as any).dontPreloadImage(`playmat_${i}.jpg`));
-        [1,2,3,4,5].filter(i => i != gamedatas.opponent?.lord).forEach(i => (this as any).dontPreloadImage(`sololord${i}.jpg`));
+        [1,2,3,4,5,6,7,8,9,10].filter(i => !Object.values(gamedatas.players).some(player => Number((player as any).mat) === i)).forEach(i => this.bga.images.dontPreloadImage(`playmat_${i}.jpg`));
+        [1,2,3,4,5].filter(i => i != gamedatas.opponent?.lord).forEach(i => this.bga.images.dontPreloadImage(`sololord${i}.jpg`));
 
         log( "Starting game setup" );
         
@@ -105,7 +100,7 @@ class Conspiracy implements ConspiracyGame {
         this.addHelp();
 
         this.setupNotifications();
-        this.setupPreferences();
+        this.bga.userPreferences.onChange = (prefId: number, prefValue: number) => this.onPreferenceChange(prefId, prefValue);
 
         log( "Ending game setup" );
     }
@@ -162,7 +157,7 @@ class Conspiracy implements ConspiracyGame {
                 if (playersIds.length == 1) {
                     playersIds.push(0);
                 }
-                playersIds.forEach(playerId => (this as any).scoreCtrl[playerId].setValue(0));
+                playersIds.forEach(playerId => this.bga.gameui.scoreCtrl[playerId].setValue(0));
                 this.onEnteringShowScore();
                 break;
         }
@@ -360,29 +355,6 @@ class Conspiracy implements ConspiracyGame {
 
 
     ///////////////////////////////////////////////////
-
-    private setupPreferences() {
-        // Extract the ID and value from the UI control
-        const onchange = (e) => {
-          var match = e.target.id.match(/^preference_control_(\d+)$/);
-          if (!match) {
-            return;
-          }
-          var prefId = +match[1];
-          var prefValue = +e.target.value;
-          (this as any).prefs[prefId].value = prefValue;
-          this.onPreferenceChange(prefId, prefValue);
-        }
-        
-        // Call onPreferenceChange() when any value changes
-        dojo.query(".preference_control").connect("onchange", onchange);
-        
-        // Call onPreferenceChange() now
-        dojo.forEach(
-          dojo.query("#ingame_menu_content .preference_control"),
-          el => onchange({ target: el })
-        );
-    }
       
     private onPreferenceChange(prefId: number, prefValue: number) {
         switch (prefId) {
@@ -393,7 +365,7 @@ class Conspiracy implements ConspiracyGame {
     }
 
     private createViewPlayermatPopin()  {
-        dojo.place(`<div id="popin_showPlayermat_container" class="conspiracy_popin_container">
+        document.body.insertAdjacentHTML('beforeend', `<div id="popin_showPlayermat_container" class="conspiracy_popin_container">
             <div id="popin_showPlayermat_underlay" class="conspiracy_popin_underlay"></div>
                 <div id="popin_showPlayermat_wrapper" class="conspiracy_popin_wrapper">
                 <div id="popin_showPlayermat" class="conspiracy_popin">
@@ -405,11 +377,11 @@ class Conspiracy implements ConspiracyGame {
                     </div>
                 </div>
             </div>
-        </div>`, $(document.body));
+        </div>`);
 
-        dojo.connect($(`popin_showPlayermat_close`), 'onclick', this, () => this.closePopin());
-        dojo.connect($(`popin_showPlayermat_left`), 'onclick', this, () => this.changePopinPlayer(-1));
-        dojo.connect($(`popin_showPlayermat_right`), 'onclick', this, () => this.changePopinPlayer(1));
+        document.getElementById(`popin_showPlayermat_close`).addEventListener('click', () => this.closePopin());
+        document.getElementById(`popin_showPlayermat_left`).addEventListener('click', () => this.changePopinPlayer(-1));
+        document.getElementById(`popin_showPlayermat_right`).addEventListener('click', () => this.changePopinPlayer(1));
     }
 
     private movePlayerTableToPopin(playerId: number) {
@@ -554,7 +526,7 @@ class Conspiracy implements ConspiracyGame {
                     <path fill="currentColor" d="M 1.6,144.19321 C 0.72,143.31321 0,141.90343 0,141.06039 0,140.21734 5.019,125.35234 11.15333,108.02704 L 22.30665,76.526514 14.626511,68.826524 C 8.70498,62.889705 6.45637,59.468243 4.80652,53.884537 0.057,37.810464 3.28288,23.775161 14.266011,12.727735 23.2699,3.6711383 31.24961,0.09115725 42.633001,0.00129225 c 15.633879,-0.123414 29.7242,8.60107205 36.66277,22.70098475 8.00349,16.263927 4.02641,36.419057 -9.54327,48.363567 l -6.09937,5.36888 10.8401,30.526466 c 5.96206,16.78955 10.84011,32.03102 10.84011,33.86992 0,1.8389 -0.94908,3.70766 -2.10905,4.15278 -1.15998,0.44513 -19.63998,0.80932 -41.06667,0.80932 -28.52259,0 -39.386191,-0.42858 -40.557621,-1.6 z M 58.000011,54.483815 c 3.66666,-1.775301 9.06666,-5.706124 11.99999,-8.735161 l 5.33334,-5.507342 -6.66667,-6.09345 C 59.791321,26.035633 53.218971,23.191944 43.2618,23.15582 33.50202,23.12041 24.44122,27.164681 16.83985,34.94919 c -4.926849,5.045548 -5.023849,5.323672 -2.956989,8.478106 3.741259,5.709878 15.032709,12.667218 24.11715,14.860013 4.67992,1.129637 13.130429,-0.477436 20,-3.803494 z m -22.33337,-2.130758 c -2.8907,-1.683676 -6.3333,-8.148479 -6.3333,-11.893186 0,-11.58942 14.57544,-17.629692 22.76923,-9.435897 8.41012,8.410121 2.7035,22.821681 -9,22.728685 -2.80641,-0.0223 -6.15258,-0.652121 -7.43593,-1.399602 z m 14.6667,-6.075289 c 3.72801,-4.100734 3.78941,-7.121364 0.23656,-11.638085 -2.025061,-2.574448 -3.9845,-3.513145 -7.33333,-3.513145 -10.93129,0 -13.70837,13.126529 -3.90323,18.44946 3.50764,1.904196 7.30574,0.765377 11,-3.29823 z m -11.36999,0.106494 c -3.74071,-2.620092 -4.07008,-7.297494 -0.44716,-6.350078 3.2022,0.837394 4.87543,-1.760912 2.76868,-4.29939 -1.34051,-1.615208 -1.02878,-1.94159 1.85447,-1.94159 4.67573,0 8.31873,5.36324 6.2582,9.213366 -1.21644,2.27295 -5.30653,5.453301 -7.0132,5.453301 -0.25171,0 -1.79115,-0.934022 -3.42099,-2.075605 z"></path>
                     </svg>
                 </div>`, `player_board_${player.id}`);
-                dojo.connect($(`show-playermat-${player.id}`), 'onclick', this, () => this.movePlayerTableToPopin(Number(player.id)));
+                document.getElementById(`show-playermat-${player.id}`).addEventListener('click', () => this.movePlayerTableToPopin(Number(player.id)));
             /*}*/
 
             this.setNewScore({
@@ -602,69 +574,39 @@ class Conspiracy implements ConspiracyGame {
     }
 
     public chooseLordDeckStack(number: number) {
-        if(!(this as any).checkAction('chooseDeckStack')) {
-            return;
-        }
-
-        this.takeAction('chooseLordDeckStack', {
+        this.bga.actions.performAction('actChooseLordDeckStack', {
             number
         });
     }
 
     public chooseLocationDeckStack(number: number) {
-        if(!(this as any).checkAction('chooseDeckStack')) {
-            return;
-        }
-
-        this.takeAction('chooseLocationDeckStack', {
+        this.bga.actions.performAction('actChooseLocationDeckStack', {
             number
         });
     }
 
     public chooseVisibleLocation(id: string) {
-        if(!(this as any).checkAction('chooseVisibleLocation')) {
-            return;
-        }
-
-        this.takeAction('chooseVisibleLocation', {
+        this.bga.actions.performAction('actChooseVisibleLocation', {
             id
         });
     }
 
     public lordPick(id: number) {
-        if(!(this as any).checkAction('addLord')) {
-            return;
-        }
-
-        this.takeAction('pickLord', {
+        this.bga.actions.performAction('actPickLord', {
             id
         });
     }
 
     public lordStockPick(guild: number) {
-        if(!(this as any).checkAction('chooseVisibleStack')) {
-            return;
-        }
-
-        this.takeAction('chooseVisibleStack', {
+        this.bga.actions.performAction('actChooseVisibleStack', {
             guild
         });
     }
 
     public locationPick(id: number) {
-        if(!(this as any).checkAction('addLocation')) {
-            return;
-        }
-
-        this.takeAction('pickLocation', {
+        this.bga.actions.performAction('actPickLocation', {
             id
         });
-    }
-
-    private takeAction(action: string, data?: any) {
-        data = data || {};
-        data.lock = true;
-        (this as any).ajaxcall(`/conspiracy/conspiracy/${action}.html`, data, this, () => {});
     }
 
     placePearlMasterToken(playerId: number) {
@@ -699,27 +641,15 @@ class Conspiracy implements ConspiracyGame {
     }
 
     public onSwap() {
-        if(!(this as any).checkAction('next')) {
-            return;
-        }
-     
-        this.takeAction('swap', { spots: this.swapSpots.join(',') });
+        this.bga.actions.performAction('actSwap', { spots: this.swapSpots.join(',') });
     }
 
     public onDontSwap() {
-        /*if(!(this as any).checkAction('next')) {
-            return;
-        }*/
-     
-        this.takeAction('dontSwap');
+        this.bga.actions.performAction('actDontSwap');
     }
 
     public useReplayToken(use: number) {
-        if(!(this as any).checkAction('useReplayToken')) {
-            return;
-        }
-     
-        this.takeAction('useReplayToken', { use });
+        this.bga.actions.performAction('actUseReplayToken', { use });
     }
 
     private setScore(playerId: number | string, column: number, score: number) { // column 1 for lord ... 5 for pearl master
@@ -730,7 +660,7 @@ class Conspiracy implements ConspiracyGame {
 
     private addHelp() {
         dojo.place(`<button id="conspiracy-help-button">?</button>`, 'left-side');
-        dojo.connect( $('conspiracy-help-button'), 'onclick', this, () => this.showHelp());
+        document.getElementById('conspiracy-help-button').addEventListener('click', () => this.showHelp());
     }
 
     private showHelp() {

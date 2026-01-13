@@ -1287,13 +1287,13 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.setup = function (gamedatas) {
         var _this = this;
         // ignore loading of some pictures
-        this.dontPreloadImage('eye-shadow.png');
-        this.dontPreloadImage('publisher.png');
+        this.bga.images.dontPreloadImage('eye-shadow.png');
+        this.bga.images.dontPreloadImage('publisher.png');
         if (!gamedatas.bonusLocations) {
-            this.dontPreloadImage('bonus-locations.jpg');
+            this.bga.images.dontPreloadImage('bonus-locations.jpg');
         }
-        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(function (i) { return !Object.values(gamedatas.players).some(function (player) { return Number(player.mat) === i; }); }).forEach(function (i) { return _this.dontPreloadImage("playmat_".concat(i, ".jpg")); });
-        [1, 2, 3, 4, 5].filter(function (i) { var _a; return i != ((_a = gamedatas.opponent) === null || _a === void 0 ? void 0 : _a.lord); }).forEach(function (i) { return _this.dontPreloadImage("sololord".concat(i, ".jpg")); });
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(function (i) { return !Object.values(gamedatas.players).some(function (player) { return Number(player.mat) === i; }); }).forEach(function (i) { return _this.bga.images.dontPreloadImage("playmat_".concat(i, ".jpg")); });
+        [1, 2, 3, 4, 5].filter(function (i) { var _a; return i != ((_a = gamedatas.opponent) === null || _a === void 0 ? void 0 : _a.lord); }).forEach(function (i) { return _this.bga.images.dontPreloadImage("sololord".concat(i, ".jpg")); });
         log("Starting game setup");
         this.gamedatas = gamedatas;
         log('gamedatas', gamedatas);
@@ -1323,7 +1323,7 @@ var Conspiracy = /** @class */ (function () {
         }
         this.addHelp();
         this.setupNotifications();
-        this.setupPreferences();
+        this.bga.userPreferences.onChange = function (prefId, prefValue) { return _this.onPreferenceChange(prefId, prefValue); };
         log("Ending game setup");
     };
     ///////////////////////////////////////////////////
@@ -1376,7 +1376,7 @@ var Conspiracy = /** @class */ (function () {
                 if (playersIds.length == 1) {
                     playersIds.push(0);
                 }
-                playersIds.forEach(function (playerId) { return _this.scoreCtrl[playerId].setValue(0); });
+                playersIds.forEach(function (playerId) { return _this.bga.gameui.scoreCtrl[playerId].setValue(0); });
                 this.onEnteringShowScore();
                 break;
         }
@@ -1548,24 +1548,6 @@ var Conspiracy = /** @class */ (function () {
     ///////////////////////////////////////////////////
     //// Utility methods
     ///////////////////////////////////////////////////
-    Conspiracy.prototype.setupPreferences = function () {
-        var _this = this;
-        // Extract the ID and value from the UI control
-        var onchange = function (e) {
-            var match = e.target.id.match(/^preference_control_(\d+)$/);
-            if (!match) {
-                return;
-            }
-            var prefId = +match[1];
-            var prefValue = +e.target.value;
-            _this.prefs[prefId].value = prefValue;
-            _this.onPreferenceChange(prefId, prefValue);
-        };
-        // Call onPreferenceChange() when any value changes
-        dojo.query(".preference_control").connect("onchange", onchange);
-        // Call onPreferenceChange() now
-        dojo.forEach(dojo.query("#ingame_menu_content .preference_control"), function (el) { return onchange({ target: el }); });
-    };
     Conspiracy.prototype.onPreferenceChange = function (prefId, prefValue) {
         switch (prefId) {
             case 201:
@@ -1575,10 +1557,10 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.createViewPlayermatPopin = function () {
         var _this = this;
-        dojo.place("<div id=\"popin_showPlayermat_container\" class=\"conspiracy_popin_container\">\n            <div id=\"popin_showPlayermat_underlay\" class=\"conspiracy_popin_underlay\"></div>\n                <div id=\"popin_showPlayermat_wrapper\" class=\"conspiracy_popin_wrapper\">\n                <div id=\"popin_showPlayermat\" class=\"conspiracy_popin\">\n                    <a id=\"popin_showPlayermat_close\" class=\"closeicon\"><i class=\"fa fa-times fa-2x\" aria-hidden=\"true\"></i></a>\n                    <a id=\"popin_showPlayermat_left\" class=\"left arrow\"></a>\n                    <a id=\"popin_showPlayermat_right\" class=\"right arrow\"></a>\n                                \n                    <div id=\"playermat-container-modal\" class=\"player-table-wrapper\" style=\"touch-action: pan-y; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\">\n                    </div>\n                </div>\n            </div>\n        </div>", $(document.body));
-        dojo.connect($("popin_showPlayermat_close"), 'onclick', this, function () { return _this.closePopin(); });
-        dojo.connect($("popin_showPlayermat_left"), 'onclick', this, function () { return _this.changePopinPlayer(-1); });
-        dojo.connect($("popin_showPlayermat_right"), 'onclick', this, function () { return _this.changePopinPlayer(1); });
+        document.body.insertAdjacentHTML('beforeend', "<div id=\"popin_showPlayermat_container\" class=\"conspiracy_popin_container\">\n            <div id=\"popin_showPlayermat_underlay\" class=\"conspiracy_popin_underlay\"></div>\n                <div id=\"popin_showPlayermat_wrapper\" class=\"conspiracy_popin_wrapper\">\n                <div id=\"popin_showPlayermat\" class=\"conspiracy_popin\">\n                    <a id=\"popin_showPlayermat_close\" class=\"closeicon\"><i class=\"fa fa-times fa-2x\" aria-hidden=\"true\"></i></a>\n                    <a id=\"popin_showPlayermat_left\" class=\"left arrow\"></a>\n                    <a id=\"popin_showPlayermat_right\" class=\"right arrow\"></a>\n                                \n                    <div id=\"playermat-container-modal\" class=\"player-table-wrapper\" style=\"touch-action: pan-y; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\">\n                    </div>\n                </div>\n            </div>\n        </div>");
+        document.getElementById("popin_showPlayermat_close").addEventListener('click', function () { return _this.closePopin(); });
+        document.getElementById("popin_showPlayermat_left").addEventListener('click', function () { return _this.changePopinPlayer(-1); });
+        document.getElementById("popin_showPlayermat_right").addEventListener('click', function () { return _this.changePopinPlayer(1); });
     };
     Conspiracy.prototype.movePlayerTableToPopin = function (playerId) {
         document.getElementById('playermat-container-modal').style.zoom = document.getElementById('page-content').style.zoom;
@@ -1658,7 +1640,7 @@ var Conspiracy = /** @class */ (function () {
             // vision popup button
             /*if (playerId !== Number((this as any).player_id)) {*/
             dojo.place("<div id=\"show-playermat-".concat(player.id, "\" class=\"show-playermat-button\">\n                    <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 85.333343 145.79321\">\n                    <path fill=\"currentColor\" d=\"M 1.6,144.19321 C 0.72,143.31321 0,141.90343 0,141.06039 0,140.21734 5.019,125.35234 11.15333,108.02704 L 22.30665,76.526514 14.626511,68.826524 C 8.70498,62.889705 6.45637,59.468243 4.80652,53.884537 0.057,37.810464 3.28288,23.775161 14.266011,12.727735 23.2699,3.6711383 31.24961,0.09115725 42.633001,0.00129225 c 15.633879,-0.123414 29.7242,8.60107205 36.66277,22.70098475 8.00349,16.263927 4.02641,36.419057 -9.54327,48.363567 l -6.09937,5.36888 10.8401,30.526466 c 5.96206,16.78955 10.84011,32.03102 10.84011,33.86992 0,1.8389 -0.94908,3.70766 -2.10905,4.15278 -1.15998,0.44513 -19.63998,0.80932 -41.06667,0.80932 -28.52259,0 -39.386191,-0.42858 -40.557621,-1.6 z M 58.000011,54.483815 c 3.66666,-1.775301 9.06666,-5.706124 11.99999,-8.735161 l 5.33334,-5.507342 -6.66667,-6.09345 C 59.791321,26.035633 53.218971,23.191944 43.2618,23.15582 33.50202,23.12041 24.44122,27.164681 16.83985,34.94919 c -4.926849,5.045548 -5.023849,5.323672 -2.956989,8.478106 3.741259,5.709878 15.032709,12.667218 24.11715,14.860013 4.67992,1.129637 13.130429,-0.477436 20,-3.803494 z m -22.33337,-2.130758 c -2.8907,-1.683676 -6.3333,-8.148479 -6.3333,-11.893186 0,-11.58942 14.57544,-17.629692 22.76923,-9.435897 8.41012,8.410121 2.7035,22.821681 -9,22.728685 -2.80641,-0.0223 -6.15258,-0.652121 -7.43593,-1.399602 z m 14.6667,-6.075289 c 3.72801,-4.100734 3.78941,-7.121364 0.23656,-11.638085 -2.025061,-2.574448 -3.9845,-3.513145 -7.33333,-3.513145 -10.93129,0 -13.70837,13.126529 -3.90323,18.44946 3.50764,1.904196 7.30574,0.765377 11,-3.29823 z m -11.36999,0.106494 c -3.74071,-2.620092 -4.07008,-7.297494 -0.44716,-6.350078 3.2022,0.837394 4.87543,-1.760912 2.76868,-4.29939 -1.34051,-1.615208 -1.02878,-1.94159 1.85447,-1.94159 4.67573,0 8.31873,5.36324 6.2582,9.213366 -1.21644,2.27295 -5.30653,5.453301 -7.0132,5.453301 -0.25171,0 -1.79115,-0.934022 -3.42099,-2.075605 z\"></path>\n                    </svg>\n                </div>"), "player_board_".concat(player.id));
-            dojo.connect($("show-playermat-".concat(player.id)), 'onclick', _this, function () { return _this.movePlayerTableToPopin(Number(player.id)); });
+            document.getElementById("show-playermat-".concat(player.id)).addEventListener('click', function () { return _this.movePlayerTableToPopin(Number(player.id)); });
             /*}*/
             _this.setNewScore({
                 playerId: playerId,
@@ -1697,57 +1679,34 @@ var Conspiracy = /** @class */ (function () {
         this.playersTables[playerId] = new PlayerTable(this, playerId > 0 ? gamedatas.players[playerId] : gamedatas.opponent, gamedatas.playersTables[playerId]);
     };
     Conspiracy.prototype.chooseLordDeckStack = function (number) {
-        if (!this.checkAction('chooseDeckStack')) {
-            return;
-        }
-        this.takeAction('chooseLordDeckStack', {
+        this.bga.actions.performAction('actChooseLordDeckStack', {
             number: number
         });
     };
     Conspiracy.prototype.chooseLocationDeckStack = function (number) {
-        if (!this.checkAction('chooseDeckStack')) {
-            return;
-        }
-        this.takeAction('chooseLocationDeckStack', {
+        this.bga.actions.performAction('actChooseLocationDeckStack', {
             number: number
         });
     };
     Conspiracy.prototype.chooseVisibleLocation = function (id) {
-        if (!this.checkAction('chooseVisibleLocation')) {
-            return;
-        }
-        this.takeAction('chooseVisibleLocation', {
+        this.bga.actions.performAction('actChooseVisibleLocation', {
             id: id
         });
     };
     Conspiracy.prototype.lordPick = function (id) {
-        if (!this.checkAction('addLord')) {
-            return;
-        }
-        this.takeAction('pickLord', {
+        this.bga.actions.performAction('actPickLord', {
             id: id
         });
     };
     Conspiracy.prototype.lordStockPick = function (guild) {
-        if (!this.checkAction('chooseVisibleStack')) {
-            return;
-        }
-        this.takeAction('chooseVisibleStack', {
+        this.bga.actions.performAction('actChooseVisibleStack', {
             guild: guild
         });
     };
     Conspiracy.prototype.locationPick = function (id) {
-        if (!this.checkAction('addLocation')) {
-            return;
-        }
-        this.takeAction('pickLocation', {
+        this.bga.actions.performAction('actPickLocation', {
             id: id
         });
-    };
-    Conspiracy.prototype.takeAction = function (action, data) {
-        data = data || {};
-        data.lock = true;
-        this.ajaxcall("/conspiracy/conspiracy/".concat(action, ".html"), data, this, function () { });
     };
     Conspiracy.prototype.placePearlMasterToken = function (playerId) {
         var pearlMasterToken = document.getElementById('pearlMasterToken');
@@ -1779,22 +1738,13 @@ var Conspiracy = /** @class */ (function () {
         this.swapSpots = swapSpots.slice();
     };
     Conspiracy.prototype.onSwap = function () {
-        if (!this.checkAction('next')) {
-            return;
-        }
-        this.takeAction('swap', { spots: this.swapSpots.join(',') });
+        this.bga.actions.performAction('actSwap', { spots: this.swapSpots.join(',') });
     };
     Conspiracy.prototype.onDontSwap = function () {
-        /*if(!(this as any).checkAction('next')) {
-            return;
-        }*/
-        this.takeAction('dontSwap');
+        this.bga.actions.performAction('actDontSwap');
     };
     Conspiracy.prototype.useReplayToken = function (use) {
-        if (!this.checkAction('useReplayToken')) {
-            return;
-        }
-        this.takeAction('useReplayToken', { use: use });
+        this.bga.actions.performAction('actUseReplayToken', { use: use });
     };
     Conspiracy.prototype.setScore = function (playerId, column, score) {
         var cell = document.getElementById("score".concat(playerId)).getElementsByTagName('td')[column];
@@ -1804,7 +1754,7 @@ var Conspiracy = /** @class */ (function () {
     Conspiracy.prototype.addHelp = function () {
         var _this = this;
         dojo.place("<button id=\"conspiracy-help-button\">?</button>", 'left-side');
-        dojo.connect($('conspiracy-help-button'), 'onclick', this, function () { return _this.showHelp(); });
+        document.getElementById('conspiracy-help-button').addEventListener('click', function () { return _this.showHelp(); });
     };
     Conspiracy.prototype.showHelp = function () {
         var helpDialog = new ebg.popindialog();

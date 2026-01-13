@@ -19,8 +19,9 @@
   *
   */
 
+use Bga\GameFramework\Components\Deck;
+use Bga\GameFramework\Table;
 
-require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
 require_once( 'modules/constants.inc.php' );
 require_once( 'modules/lord.php' );
 require_once( 'modules/location.php' );
@@ -47,6 +48,18 @@ class Conspiracy extends Table {
 
     use DebugUtilTrait;
 
+    public Deck $lords;
+    public Deck $locations;
+
+    public array $LORDS;
+    public array $LOCATIONS_UNIQUE; 
+    public array $LOCATIONS_GUILD;
+    public array $LOCATIONS_BONUS;
+    public array $LOCATIONS;
+    public array $NEIGHBOURS;
+    public array $SOLO_LORD_CONDITIONS;
+
+
 	function __construct() {
         // Your global variables labels:
         //  Here, you can assign labels to global variables you are using for this game.
@@ -56,7 +69,7 @@ class Conspiracy extends Table {
         // Note: afterwards, you can get/set the global variables with getGameStateValue/setGameStateInitialValue/setGameStateValue
         parent::__construct();
         
-        self::initGameStateLabels([
+        $this->initGameStateLabels([
                 "pearlMasterPlayer" => 10,
 
                 //  // if > 0, indicates the player that added the constraint
@@ -76,18 +89,11 @@ class Conspiracy extends Table {
                 'SOLO_OPPONENT' => 102,
         ]);
 
-        $this->lords = self::getNew( "module.common.deck" );
-        $this->lords->init( "lord" );
+        $this->lords = $this->deckFactory->createDeck( "lord" );
         $this->lords->autoreshuffle = true;
-        $this->locations = self::getNew( "module.common.deck" );
-        $this->locations->init( "location" );
+        $this->locations = $this->deckFactory->createDeck( "location" );
         $this->locations->autoreshuffle = true;
 	}
-	
-    protected function getGameName() {
-		// Used for translations and stuff. Please do not modify.
-        return "conspiracy";
-    }	
 
     /*
         setupNewGame:
@@ -100,7 +106,7 @@ class Conspiracy extends Table {
         // Set the colors of the players with HTML color code
         // The default below is red/green/blue/orange/brown
         // The number of colors defined here must correspond to the maximum number of players allowed for the gams
-        $gameinfos = self::getGameinfos();
+        $gameinfos = $this->getGameinfos();
         $default_colors = $gameinfos['player_colors'];
  
         // Create players
@@ -119,37 +125,37 @@ class Conspiracy extends Table {
             $values[] = "('".$player_id."','$color','".$player['player_canal']."','".addslashes( $player['player_name'] )."','".addslashes( $player['player_avatar'] )."', $player_mat)";
         }
         $sql .= implode(',', $values);
-        self::DbQuery( $sql );
-        self::reattributeColorsBasedOnPreferences( $players, $gameinfos['player_colors'] );
-        self::reloadPlayersBasicInfos();
+        $this->DbQuery( $sql );
+        $this->reattributeColorsBasedOnPreferences( $players, $gameinfos['player_colors'] );
+        $this->reloadPlayersBasicInfos();
         
         /************ Start the game initialization *****/
 
         // Init global values with their initial values
-        self::setGameStateInitialValue( 'pearlMasterPlayer', -1);
-        self::setGameStateInitialValue( 'AP_FIRST_LORD', 0 );
-        self::setGameStateInitialValue( 'AP_FIRST_LORDS', 0 );
-        self::setGameStateInitialValue( 'AP_DECK_LOCATION', 0 );
-        self::setGameStateInitialValue( 'forceFirstByMilitary', 0 );
-        self::setGameStateInitialValue( 'playAgainPlayer', 0 );
-        self::setGameStateInitialValue( 'usePlayAgain', 0 );
-        self::setGameStateInitialValue( 'stackSelection', 0 );
-        self::setGameStateInitialValue( 'endTurn', 0);
+        $this->setGameStateInitialValue( 'pearlMasterPlayer', -1);
+        $this->setGameStateInitialValue( 'AP_FIRST_LORD', 0 );
+        $this->setGameStateInitialValue( 'AP_FIRST_LORDS', 0 );
+        $this->setGameStateInitialValue( 'AP_DECK_LOCATION', 0 );
+        $this->setGameStateInitialValue( 'forceFirstByMilitary', 0 );
+        $this->setGameStateInitialValue( 'playAgainPlayer', 0 );
+        $this->setGameStateInitialValue( 'usePlayAgain', 0 );
+        $this->setGameStateInitialValue( 'stackSelection', 0 );
+        $this->setGameStateInitialValue( 'endTurn', 0);
         
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
-        self::initStat('table', 'turns_number', 0);
-        self::initStat('table', 'players_number', count($players));
+        $this->tableStats->init('turns_number', 0);
+        $this->tableStats->init('players_number', count($players));
 
-        self::initStat('player', 'turns_number', 0);
-        self::initStat('player', 'played_lords', 0);
-        self::initStat('player', 'played_locations', 0);
-        self::initStat('player', 'pearls', 0);
-        self::initStat('player', 'lords_points', 0);
-        self::initStat('player', 'locations_points', 0);
-        self::initStat('player', 'coalition_size', 0);
-        self::initStat('player', 'pearl_master', 0);
-        self::initStat('player', 'total_points', 0);
+        $this->playerStats->init('turns_number', 0);
+        $this->playerStats->init('played_lords', 0);
+        $this->playerStats->init('played_locations', 0);
+        $this->playerStats->init('pearls', 0);
+        $this->playerStats->init('lords_points', 0);
+        $this->playerStats->init('locations_points', 0);
+        $this->playerStats->init('coalition_size', 0);
+        $this->playerStats->init('pearl_master', 0);
+        $this->playerStats->init('total_points', 0);
 
         // setup the initial game situation here
         $this->setupLordsCards();
@@ -180,10 +186,7 @@ class Conspiracy extends Table {
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
 
-        // TODO TEMP
-        //$this->debugSetup();
-
-        /************ End of the game initialization *****/
+        return \ST_PLAYER_LORD_STACK_SELECTION;
     }
 
     function setupLordsCards() {
@@ -225,11 +228,11 @@ class Conspiracy extends Table {
         _ when the game starts
         _ when a player refreshes the game page (F5)
     */
-    protected function getAllDatas() {
+    protected function getAllDatas(): array {
         $result = [];
     
         $sql = "SELECT player_id id, player_score score, player_score_aux pearls, player_score_lords lords, player_score_locations locations, player_score_coalition coalition, player_mat mat, player_no playerNo FROM player ";
-        $result['players'] = self::getCollectionFromDb( $sql );
+        $result['players'] = $this->getCollectionFromDb( $sql );
 
         $solo = count($result['players']) == 1;
   
@@ -268,13 +271,13 @@ class Conspiracy extends Table {
             }
         }
 
-        $result['pearlMasterPlayer'] = intval(self::getGameStateValue('pearlMasterPlayer'));
-        $result['playAgainPlayer'] = intval(self::getGameStateValue('playAgainPlayer'));
+        $result['pearlMasterPlayer'] = intval($this->getGameStateValue('pearlMasterPlayer'));
+        $result['playAgainPlayer'] = intval($this->getGameStateValue('playAgainPlayer'));
 
-        $stateName = $this->gamestate->state()['name']; 
+        $stateName = $this->gamestate->getCurrentMainState()->name; 
         $isEnd = $stateName === 'showScore' || $stateName === 'gameEnd';
         if (!$isEnd) {
-            $endTurn = intval(self::getGameStateValue('endTurn'));
+            $endTurn = intval($this->getGameStateValue('endTurn'));
             $result['endTurn'] = $endTurn > 0 || $endTurn == -1;
             
         }
@@ -286,7 +289,7 @@ class Conspiracy extends Table {
         $result['remainingLords'] = $this->getRemainingLords();
         $result['remainingLocations'] = $this->getRemainingLocations();
 
-        $result['hiddenScore'] = intval(self::getGameStateValue('SCORING_OPTION')) === 2;
+        $result['hiddenScore'] = intval($this->getGameStateValue('SCORING_OPTION')) === 2;
         $result['bonusLocations'] = $this->bonusLocations();
 
         if ($solo) {
@@ -309,7 +312,7 @@ class Conspiracy extends Table {
         (see states.inc.php)
     */
     function getGameProgression() {
-        $maxPlayedLords = intval(self::getUniqueValueFromDB( "SELECT count(*) FROM lord WHERE `card_location` like 'player%' GROUP BY `card_location` ORDER BY count(*) DESC LIMIT 1"));
+        $maxPlayedLords = intval($this->getUniqueValueFromDB( "SELECT count(*) FROM lord WHERE `card_location` like 'player%' GROUP BY `card_location` ORDER BY count(*) DESC LIMIT 1"));
         return $maxPlayedLords * 100 / 15;
     }
 
@@ -349,7 +352,7 @@ class Conspiracy extends Table {
         if (count($locationSelection)) {
             $this->locations->moveAllCardsInLocation('location_sel', 'table');
 
-            self::notifyAllPlayers('discardLocationPick', '', [
+            $this->notify->all('discardLocationPick', '', [
                 'discardedLocations' => $this->getLocationsFromDb($locationSelection)
             ]);
         }
@@ -383,14 +386,14 @@ class Conspiracy extends Table {
 //            // ! important ! Use DBPREFIX_<table_name> for all tables
 //
 //            $sql = "ALTER TABLE DBPREFIX_xxxxxxx ....";
-//            self::applyDbUpgradeToAllDB( $sql );
+//            $this->applyDbUpgradeToAllDB( $sql );
 //        }
 //        if( $from_version <= 1405061421 )
 //        {
 //            // ! important ! Use DBPREFIX_<table_name> for all tables
 //
 //            $sql = "CREATE TABLE DBPREFIX_xxxxxxx ....";
-//            self::applyDbUpgradeToAllDB( $sql );
+//            $this->applyDbUpgradeToAllDB( $sql );
 //        }
 //        // Please add your future database scheme changes here
 //

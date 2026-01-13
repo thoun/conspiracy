@@ -51,22 +51,12 @@
 
 
 $basicGameStates = [
-
-    // The initial state. Please do not modify.
-    ST_BGA_GAME_SETUP => array(
-        "name" => "gameSetup",
-        "description" => clienttranslate("Game setup"),
-        "type" => "manager",
-        "action" => "stGameSetup",
-        "transitions" => array( "" => ST_PLAYER_LORD_STACK_SELECTION )
-    ),
-
     ST_USE_REPLAY => [
         "name" => "useReplay",
         "description" => '',
         "descriptionmyturn" => clienttranslate('${you} can use Replay token'),
         "type" => "activeplayer",
-        "possibleactions" => ["useReplayToken"],
+        "possibleactions" => ["actUseReplayToken"],
         "transitions" => [
             "nextPlayer" => ST_NEXT_PLAYER,
         ],
@@ -92,16 +82,6 @@ $basicGameStates = [
       "action" => "stShowScore",
       "transitions" => array( "endGame" => ST_END_GAME )
     ),
-   
-    // Final state.
-    // Please do not modify.
-    ST_END_GAME => array(
-        "name" => "gameEnd",
-        "description" => clienttranslate("End of game"),
-        "type" => "manager",
-        "action" => "stGameEnd",
-        "args" => "argGameEnd"
-    ),
 
 ];
 
@@ -119,7 +99,7 @@ $lordGameStates = [
         "type" => "activeplayer",
         "args" => "argLordStackSelection",
         "action" => "stLordStackSelection",
-        "possibleactions" => array( "chooseDeckStack", "chooseVisibleStack" ),
+        "possibleactions" => array( "actChooseLordDeckStack", "actChooseVisibleStack" ),
         "transitions" => array( 
             "chooseDeckStack" => ST_PLAYER_LORD_SELECTION,
             "chooseOneOnStack" => ST_PLAY_LORD,
@@ -139,7 +119,7 @@ $lordGameStates = [
         "descriptionmyturnlast" => clienttranslate('${you} must must place the last lord'),
         "type" => "activeplayer",
         "args" => "argLordSelection",
-        "possibleactions" => array( "addLord" ),
+        "possibleactions" => array( "actPickLord" ),
         "transitions" => array( 
             "addLord" => ST_PLAY_LORD,
             "zombiePass" => ST_NEXT_PLAYER,
@@ -151,7 +131,7 @@ $lordGameStates = [
         "description" => clienttranslate('${actplayer} must choose the lord to recruit'),
         "descriptionmyturn" => clienttranslate('${you} must choose the lord to recruit'),
         "type" => "activeplayer",
-        "possibleactions" => array( "addLord" ),
+        "possibleactions" => array( "actPickLord" ),
         "transitions" => array( 
             "addLord" => ST_PLAY_LORD,
             "zombiePass" => ST_NEXT_PLAYER,
@@ -176,7 +156,7 @@ $lordGameStates = [
         "description" => clienttranslate('${actplayer} must select two lords to swap'),
         "descriptionmyturn" => clienttranslate('${you} must select two lords to swap'),
         "type" => "activeplayer",
-        "possibleactions" => array( "next" ),
+        "possibleactions" => ['actSwap', 'actDontSwap'],
         "transitions" => array( 
             "next" => ST_END_LORD,
             "zombiePass" => ST_NEXT_PLAYER,
@@ -207,7 +187,7 @@ $locationGameStates = [
         "type" => "activeplayer",
         "args" => "argLocationStackSelection",        
         "action" => "stLocationStackSelection",
-        "possibleactions" => array( "chooseDeckStack", "chooseVisibleLocation" ),
+        "possibleactions" => array( "actChooseLocationDeckStack", "actChooseVisibleLocation" ),
         "transitions" => array( 
             "chooseDeckStack" => ST_PLAYER_LOCATION_SELECTION,
             "chooseOneOnStack" => ST_ADD_LOCATION,
@@ -222,7 +202,7 @@ $locationGameStates = [
         "descriptionmyturn" => clienttranslate('${you} must choose a location'),
         "type" => "activeplayer",
         "args" => "argLocationSelection",
-        "possibleactions" => array( "addLocation" ),
+        "possibleactions" => array( "actPickLocation" ),
         "transitions" => array( 
             "addLocation" => ST_ADD_LOCATION,
             "zombiePass" => ST_NEXT_PLAYER,

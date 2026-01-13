@@ -1,5 +1,7 @@
 <?php
 
+use Bga\GameFramework\Actions\Types\IntArrayParam;
+
 trait ActionTrait {
 
     //////////////////////////////////////////////////////////////////////////////
@@ -11,10 +13,7 @@ trait ActionTrait {
         (note: each method below must match an input method in nicodemus.action.php)
     */
 
-    function chooseLordDeckStack(int $number) {
-        self::checkAction('chooseDeckStack'); 
-        // self::debug('[GBA] chooseLordDeckStack');
-
+    function actChooseLordDeckStack(int $number) {
         $count = $this->getRemainingLords();
         if ($number > $count) {
             throw new Error("Can't take $number cards, only $count in deck");
@@ -25,7 +24,7 @@ trait ActionTrait {
         $message = $number > 1 ?
           clienttranslate('${player_name} chooses to take ${number} lords from the deck') :
           clienttranslate('${player_name} chooses to take ${number} lord from the deck');
-        self::notifyAllPlayers('lordDeckNumber', $message, [
+        $this->notify->all('lordDeckNumber', $message, [
             'player_name' => self::getActivePlayerName(),
             'number' => $number,
         ]);
@@ -34,18 +33,13 @@ trait ActionTrait {
         $this->gamestate->nextState($number == 1 ? 'chooseOneOnStack' : 'chooseDeckStack');
     }
 
-    function chooseVisibleStack(int $guild, bool $skipCheckAction = false) {
-        if (!$skipCheckAction) {
-            self::checkAction('chooseVisibleStack'); 
-        }
-        // self::debug('[GBA] chooseLordVisibleStack');
-
+    function actChooseVisibleStack(int $guild) {
         $number = $this->lords->countCardInLocation('table', $guild);
 
         $this->lords->moveAllCardsInLocation('table', $number == 1 ? 'lord_pick' : 'lord_selection', $guild);
         
         $message = clienttranslate('${player_name} chooses to take all visible ${guild_name} lords');
-        self::notifyAllPlayers('lordVisiblePile', $message, [
+        $this->notify->all('lordVisiblePile', $message, [
             'player_name' => $this->getPlayerName($this->getPlayerIdToPlaceCard()),
             'guild' => $guild,
             'guild_name' => $this->getGuildName($guild),
@@ -62,9 +56,7 @@ trait ActionTrait {
         $this->gamestate->nextState($number == 1 ? 'chooseOneOnStack' : 'chooseDeckStack');
     }
 
-    function pickLord(int $id) {
-        // self::debug('[GBA] pickLord');
-
+    function actPickLord(int $id) {
         $lord = $this->getLordFromDb($this->lords->getCard($id));
         if ($lord->location !== 'lord_selection') {
             throw new Error('Picked lord is not available');
@@ -74,10 +66,7 @@ trait ActionTrait {
         $this->gamestate->nextState('addLord');
     }
 
-    function swap(string $spotsStr) {
-        self::checkAction('next'); 
-
-        $spots = explode(',', $spotsStr);
+    function actSwap(#[IntArrayParam] array $spots) {
         $spot1 = intval($spots[0]);
         $spot2 = intval($spots[1]);
 
@@ -91,7 +80,7 @@ trait ActionTrait {
 
         $newScore = $this->getAndSavePlayerScore($player_id);
 
-        self::notifyAllPlayers('lordSwapped', clienttranslate('${player_name} swaps two lords'), [
+        $this->notify->all('lordSwapped', clienttranslate('${player_name} swaps two lords'), [
             'playerId' => $player_id,
             'player_name' => self::getActivePlayerName(),
             'spot1' => $spot1,
@@ -102,17 +91,11 @@ trait ActionTrait {
         $this->gamestate->nextState('next');
     }
 
-    function dontSwap() {
-        self::checkAction('next'); 
-
+    function actDontSwap() {
         $this->gamestate->nextState('next');
     }
 
-    function chooseLocationDeckStack(int $number, bool $skipCheckAction = false) {
-        if (!$skipCheckAction) {
-            self::checkAction('chooseDeckStack');
-        } 
-        // self::debug('[GBA] chooseLocationDeckStack');
+    function actChooseLocationDeckStack(int $number) {
         $playerId = $this->getPlayerIdToPlaceCard();
 
         $count = $this->locations->countCardInLocation('deck');
@@ -142,7 +125,7 @@ trait ActionTrait {
                 clienttranslate('${player_name} chooses to take ${number} locations from the deck') :
                 clienttranslate('${player_name} chooses to take ${number} location from the deck');
         }
-        self::notifyAllPlayers('locationDeckNumber', $message, [
+        $this->notify->all('locationDeckNumber', $message, [
             'player_name' => $this->getPlayerName($this->getPlayerIdToPlaceCard()),
             'number' => $number,
         ]);
@@ -150,7 +133,7 @@ trait ActionTrait {
         $this->gamestate->nextState($number == 1 ? 'chooseOneOnStack' : 'chooseDeckStack');
     }
 
-    function pickLocation(int $id) {
+    function actPickLocation(int $id) {
         $location = $this->getLocationFromDb($this->locations->getCard($id));
         if ($location->location !== 'location_sel') {
             throw new Error('Picked location is not available');
@@ -160,12 +143,7 @@ trait ActionTrait {
         $this->gamestate->nextState('addLocation');
     }
 
-    function chooseVisibleLocation(int $id, bool $skipCheckAction = false) {        
-        // self::debug('[GBA] chooseVisibleLocation');
-        if (!$skipCheckAction) {
-            self::checkAction('chooseVisibleLocation');
-        } 
-        
+    function actChooseVisibleLocation(int $id) {
         $this->locations->moveCard($id, 'location_pick');
 
         $this->gamestate->nextState('chooseVisibleLocation');

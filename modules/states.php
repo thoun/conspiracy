@@ -16,7 +16,7 @@ trait StateTrait {
             $piles = $this->getLordDeckPiles(true, true);
 
             if (count($piles) == 1) {
-                $this->chooseVisibleStack($piles[0], true);
+                $this->actChooseVisibleStack($piles[0]);
             }
         }
     }
@@ -25,8 +25,8 @@ trait StateTrait {
         $lord = $this->getLordFromDb(array_values($this->lords->getCardsInLocation('lord_pick'))[0]);
         $player_id = $this->getPlayerIdToPlaceCard();
 
-        $spot = $this->lords->countCardInLocation("player${player_id}") + 1;
-        $this->lords->moveCard($lord->id, "player${player_id}", $spot);
+        $spot = $this->lords->countCardInLocation("player{$player_id}") + 1;
+        $this->lords->moveCard($lord->id, "player{$player_id}", $spot);
 
         $stackSelection = self::getGameStateValue('stackSelection') == 1;
         $remainingLords = [];
@@ -53,7 +53,7 @@ trait StateTrait {
 
         $newScore = $this->getAndSavePlayerScore($player_id);
 
-        self::notifyAllPlayers('lordPlayed', $message, [
+        $this->notify->all('lordPlayed', $message, [
             'playerId' => $player_id,
             'player_name' => $this->getPlayerName($player_id),
             'lord' => $lord,
@@ -82,7 +82,7 @@ trait StateTrait {
                 if ($this->createdNewColorArea($player_id, $spot)) {
                     self::setGameStateValue('playAgainPlayer', $player_id);
 
-                    self::notifyAllPlayers('newPlayAgainPlayer', clienttranslate('${player_name} gets the Replay token'), [
+                    $this->notify->all('newPlayAgainPlayer', clienttranslate('${player_name} gets the Replay token'), [
                         'playerId' => $player_id,
                         'player_name' => self::getPlayerName($player_id),
                     ]);
@@ -116,8 +116,8 @@ trait StateTrait {
         $location = $this->getLocationFromDb(array_values($this->locations->getCardsInLocation('location_pick'))[0]);
         $player_id = $this->getPlayerIdToPlaceCard();
 
-        $spot = $this->lords->countCardInLocation("player${player_id}");
-        $this->locations->moveCard($location->id, "player${player_id}", $spot);
+        $spot = $this->lords->countCardInLocation("player{$player_id}");
+        $this->locations->moveCard($location->id, "player{$player_id}", $spot);
 
         $fromHidden = $player_id > 0 && self::getGameStateValue('AP_DECK_LOCATION') == $player_id;
 
@@ -136,7 +136,7 @@ trait StateTrait {
 
         $newScore = $this->getAndSavePlayerScore($player_id);
         
-        self::notifyAllPlayers('locationPlayed', clienttranslate('${player_name} plays ${points} point(s) location'), [
+        $this->notify->all('locationPlayed', clienttranslate('${player_name} plays ${points} point(s) location'), [
             'playerId' => $player_id,
             'player_name' => $this->getPlayerName($player_id),
             'location' => $location,
@@ -156,14 +156,14 @@ trait StateTrait {
             if ($location->activePower == AP_DISCARD_LORDS && $this->lords->countCardInLocation("table") > 0) {
                 $this->lords->moveAllCardsInLocation('table', 'deck');
                 $this->lords->shuffle('deck');
-                self::notifyAllPlayers('discardLords', clienttranslate('Lords are discarded'), [                
+                $this->notify->all('discardLords', clienttranslate('Lords are discarded'), [                
                     'remainingLords' => $this->getRemainingLords(),
                 ]);
             }
             if ($location->activePower == AP_DISCARD_LOCATIONS && $this->locations->countCardInLocation("table") > 0) {
                 $this->locations->moveAllCardsInLocation('table', 'deck');
                 $this->locations->shuffle('deck');
-                self::notifyAllPlayers('discardLocations', clienttranslate('Locations are discarded'), [                
+                $this->notify->all('discardLocations', clienttranslate('Locations are discarded'), [                
                     'remainingLocations' => $this->getRemainingLocations(),
                 ]);
             }
@@ -211,7 +211,7 @@ trait StateTrait {
         $opponentTurn = $solo && $this->isOpponentTurn();
         if (intval(self::getGameStateValue('playAgainPlayer')) == $activePlayerId && !$opponentTurn && intval(self::getGameStateValue('usePlayAgain')) == 0) {
 
-            if ($this->lords->countCardInLocation("player${activePlayerId}") < 15) {
+            if ($this->lords->countCardInLocation("player{$activePlayerId}") < 15) {
                 $this->gamestate->nextState('askReplay');
                 return;
             }
@@ -232,7 +232,7 @@ trait StateTrait {
             if ($playedLords == SPOT_NUMBER) {
                 self::setGameStateValue('endTurn', $playerId == 0 ? -1 : $playerId);
 
-                self::notifyAllPlayers('lastTurn', clienttranslate('${player_name} has completed the pyramid, starting last turn !'), [
+                $this->notify->all('lastTurn', clienttranslate('${player_name} has completed the pyramid, starting last turn !'), [
                     'playerId' => $playerId,
                     'player_name' => $this->getPlayerName($playerId),
                 ]);
@@ -246,7 +246,7 @@ trait StateTrait {
             if (intval(self::getGameStateValue('usePlayAgain')) == 1) {
                 self::setGameStateValue('playAgainPlayer', 0);
 
-                self::notifyAllPlayers('newPlayAgainPlayer', clienttranslate('${player_name} gets the Replay token'), [
+                $this->notify->all('newPlayAgainPlayer', clienttranslate('${player_name} gets the Replay token'), [
                     'playerId' => 0,
                     'player_name' => self::getPlayerName(0),
                 ]);
@@ -300,7 +300,7 @@ trait StateTrait {
                 $this->setOpponentScoreLords($points);
             }
 
-            self::notifyAllPlayers('scoreLords', clienttranslate('${player_name} wins ${points} points with lords'), [
+            $this->notify->all('scoreLords', clienttranslate('${player_name} wins ${points} points with lords'), [
                 'playerId' => $playerId,
                 'player_name' => $this->getPlayerName($playerId),
                 'points' => $points,
@@ -323,7 +323,7 @@ trait StateTrait {
                 $this->setOpponentScoreLocations($points);
             }
 
-            self::notifyAllPlayers('scoreLocations', clienttranslate('${player_name} wins ${points} points with locations'), [
+            $this->notify->all('scoreLocations', clienttranslate('${player_name} wins ${points} points with locations'), [
                 'playerId' => $playerId,
                 'player_name' => $this->getPlayerName($playerId),
                 'points' => $points,
@@ -347,7 +347,7 @@ trait StateTrait {
                 $this->setOpponentScoreCoalition($points);
             }
 
-            self::notifyAllPlayers('scoreCoalition', clienttranslate('${player_name} wins ${points} points with greatest Lords Coalition'), [
+            $this->notify->all('scoreCoalition', clienttranslate('${player_name} wins ${points} points with greatest Lords Coalition'), [
                 'playerId' => $playerId,
                 'player_name' => $this->getPlayerName($playerId),
                 'points' => $points,
@@ -370,7 +370,7 @@ trait StateTrait {
             $this->setOpponentScoreCoalition(5);
         }
 
-        self::notifyAllPlayers('scorePearlMaster', clienttranslate('${player_name} is the Pearl Master and wins 5 points'), [
+        $this->notify->all('scorePearlMaster', clienttranslate('${player_name} is the Pearl Master and wins 5 points'), [
             'playerId' => $pearlMaster,
             'player_name' => $this->getPlayerName($pearlMaster),
         ]);
@@ -384,7 +384,7 @@ trait StateTrait {
         foreach ($playersWithSolo as $playerId => $playerDb) {
             $points = $playersPoints[$playerId];
 
-            self::notifyAllPlayers('scoreTotal', clienttranslate('${player_name} has ${points} points in total'), [
+            $this->notify->all('scoreTotal', clienttranslate('${player_name} has ${points} points in total'), [
                 'playerId' => $playerId,
                 'player_name' => $this->getPlayerName($playerId),
                 'points' => $points,

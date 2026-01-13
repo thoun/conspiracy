@@ -1,0 +1,57 @@
+{
+    "100": {
+        "name": "Scoring",
+        "values": {
+            "1": {
+                "name": "Visible"
+            },
+            "2": {
+                "name": "Hidden",
+                "tmdisplay": "Hidden"
+            }
+        },
+        "default": 1
+    },
+    "101": {
+        "name": "Bonus locations",
+        "values": {
+            "1": {
+                "name": "No"
+            },
+            "2": {
+                "name": "Yes"
+            }
+        },
+        "default": 1
+    },
+    "102": {
+        "name": "Legendary opponent (solo mode)",
+        "values": [
+            {
+                "name": "Random"
+            },
+            {
+                "name": "Farmer"
+            },
+            {
+                "name": "Military"
+            },
+            {
+                "name": "Merchant"
+            },
+            {
+                "name": "Politician"
+            },
+            {
+                "name": "Mage"
+            }
+        ],
+        "default": 0,
+        "displaycondition": [
+            {
+                "type": "maxplayers",
+                "value": 1
+            }
+        ]
+    }
+}

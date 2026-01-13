@@ -1,0 +1,61 @@
+{
+    "table": {
+        "turns_number": {
+            "id": 10,
+            "name": "Number of turns",
+            "type": "int"
+        },
+        "players_number": {
+            "id": 11,
+            "name": "Number of players",
+            "type": "int"
+        }
+    },
+    "player": {
+        "turns_number": {
+            "id": 10,
+            "name": "Number of turns",
+            "type": "int"
+        },
+        "played_lords": {
+            "id": 20,
+            "name": "Number of played lords",
+            "type": "int"
+        },
+        "played_locations": {
+            "id": 21,
+            "name": "Number of played locations",
+            "type": "int"
+        },
+        "pearls": {
+            "id": 22,
+            "name": "Pearl count",
+            "type": "int"
+        },
+        "lords_points": {
+            "id": 30,
+            "name": "Points won with lords",
+            "type": "int"
+        },
+        "locations_points": {
+            "id": 31,
+            "name": "Points won with locations",
+            "type": "int"
+        },
+        "coalition_size": {
+            "id": 32,
+            "name": "Top coalition size",
+            "type": "int"
+        },
+        "pearl_master": {
+            "id": 33,
+            "name": "Pearl Master",
+            "type": "bool"
+        },
+        "total_points": {
+            "id": 34,
+            "name": "Final score",
+            "type": "int"
+        }
+    }
+}

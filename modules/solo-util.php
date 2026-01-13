@@ -137,7 +137,7 @@ trait SoloUtilTrait {
             $count = count($piles);
 
             if ($notif) {
-                self::notifyAllPlayers('matchingPiles', clienttranslate('${count} pile(s) meet Legendary opponent condition ${conditionNumber}'), [
+                $this->notify->all('matchingPiles', clienttranslate('${count} pile(s) meet Legendary opponent condition ${conditionNumber}'), [
                     'conditionNumber' => $index + 1,
                     'count' => $count,
                     'condition' => $condition,
@@ -150,7 +150,7 @@ trait SoloUtilTrait {
         }
 
         if ($canRedirect) {
-            self::notifyAllPlayers('noMatchingPiles', clienttranslate('No Legendary opponent condition can be applied, revealing a new Lord'), []);
+            $this->notify->all('noMatchingPiles', clienttranslate('No Legendary opponent condition can be applied, revealing a new Lord'), []);
 
             $this->revealExtraLord();
 
@@ -202,9 +202,9 @@ trait SoloUtilTrait {
         $visibleLocations = $this->getLocationsFromDb($this->locations->getCardsInLocation('table'));
         if (count($visibleLocations) > 0) {
             $location = $visibleLocations[bga_rand(0, count($visibleLocations)-1)];
-            $this->chooseVisibleLocation($location->id, true);
+            $this->actChooseVisibleLocation($location->id);
         } else {
-            $this->chooseLocationDeckStack(1, true);
+            $this->actChooseLocationDeckStack(1);
         }
     }
 

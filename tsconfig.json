@@ -8,9 +8,7 @@
       "outFile": "conspiracy.js",
     },
     "files": [
-        "src/framework.d.ts",
-        "src/counter.d.ts",
-        "src/stock.d.ts",
+        "bga-framework.d.ts",
         "node_modules/bga-zoom/src/zoom-manager.ts",
         "src/conspiracy.d.ts",
         "src/slide-utils.ts",
