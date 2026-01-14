@@ -1127,7 +1127,7 @@ var PlayerTable = /** @class */ (function () {
         this.spotsStock = [];
         this.swapSpots = null;
         this.playerId = Number(player.id);
-        dojo.place("<div id=\"player-table-wrapper-".concat(this.playerId, "\" class=\"player-table-wrapper\">\n            <div id=\"player-table-mat-").concat(this.playerId, "\" class=\"player-table-mat mat").concat(player.mat, "\">\n                <div id=\"player-table-").concat(this.playerId, "\" class=\"player-table\">\n                    <div class=\"player-name mat").concat(player.mat, "\" style=\"color: #").concat(player.color, ";\">\n                        ").concat(player.name || _('Legendary opponent'), "\n                    </div>\n                </div>\n            </div>\n        </div>"), 'players-tables');
+        dojo.place("<div id=\"player-table-wrapper-".concat(this.playerId, "\" class=\"player-table-wrapper\">\n            <div id=\"player-table-mat-").concat(this.playerId, "\" class=\"player-table-mat mat").concat(player.mat, "\">\n                <div id=\"player-table-").concat(this.playerId, "\" class=\"player-table\">\n                    <div class=\"board-player-name mat").concat(player.mat, "\" style=\"color: #").concat(player.color, ";\">\n                        ").concat(player.name || _('Legendary opponent'), "\n                    </div>\n                </div>\n            </div>\n        </div>"), 'players-tables');
         SPOTS_NUMBERS.forEach(function (spotNumber) {
             _this.spotsStock[spotNumber] = new PlayerTableSpotStock(game, _this, player, spots[spotNumber], spotNumber);
             if (spots[spotNumber].location) {
@@ -1324,6 +1324,23 @@ var Conspiracy = /** @class */ (function () {
         this.addHelp();
         this.setupNotifications();
         this.bga.userPreferences.onChange = function (prefId, prefValue) { return _this.onPreferenceChange(prefId, prefValue); };
+        if (this.bgaInternal.flags['ingame_player_panels']) {
+            setTimeout(function () {
+                Object.keys(gamedatas.players).forEach(function (playerId) {
+                    var playerPanel = document.getElementById("overall_player_board_".concat(playerId));
+                    var playerTable = document.getElementById("player-table-".concat(playerId)).querySelector('.board-player-name');
+                    playerTable.innerHTML = '';
+                    playerTable.insertAdjacentElement('beforeend', playerPanel);
+                    playerTable.style.color = 'black';
+                    playerTable.style.fontWeight = 'inherit';
+                    playerTable.style.minWidth = '280px';
+                    playerTable.style.top = '-195px';
+                    playerTable.style.left = 'calc(50% - 140px)';
+                    playerTable.style.textAlign = 'inherit';
+                    playerTable.parentElement.parentElement.style.marginTop = '200px';
+                });
+            });
+        }
         log("Ending game setup");
     };
     ///////////////////////////////////////////////////
@@ -1588,7 +1605,11 @@ var Conspiracy = /** @class */ (function () {
         var players = Object.values(gamedatas.players);
         var solo = players.length === 1;
         if (solo) {
-            dojo.place("\n            <div id=\"overall_player_board_0\" class=\"player-board current-player-board\">\t\t\t\t\t\n                <div class=\"player_board_inner\" id=\"player_board_inner_982fff\">\n                    \n                    <div class=\"emblemwrap\" id=\"avatar_active_wrap_0\">\n                        <div alt=\"\" class=\"avatar avatar_active opponent-avatar\" id=\"avatar_active_0\"></div>\n                    </div>\n                                               \n                    <div class=\"player-name\" id=\"player_name_0\">\n                        ".concat(_("Legendary opponent"), "\n                    </div>\n                    <div id=\"player_board_0\" class=\"player_board_content\">\n                        <div class=\"player_score\">\n                            <span id=\"player_score_0\" class=\"player_score_value\">10</span> <i class=\"fa fa-star\" id=\"icon_point_0\"></i>           \n                        </div>\n                        <div id=\"sololord-img\" class=\"sololord sololord").concat(gamedatas.opponent.lord, "\"></div>\n                    </div>\n                </div>\n            </div>"), "overall_player_board_".concat(players[0].id), 'after');
+            this.bga.playerPanels.addAutomataPlayerPanel(0, _("Legendary opponent"), {
+                score: gamedatas.opponent.score,
+                iconClass: 'opponent-avatar',
+            });
+            this.bga.playerPanels.getElement(0).insertAdjacentHTML('beforeend', "<div id=\"sololord-img\" class=\"sololord sololord".concat(gamedatas.opponent.lord, "\"></div>"));
             var conditionNumber = gamedatas.opponent.lord == 2 || gamedatas.opponent.lord == 4 ? 4 : 3;
             for (var i = 1; i <= conditionNumber; i++) {
                 dojo.place("<div id=\"sololord-condition".concat(i, "\" class=\"condition condition").concat(i, " over").concat(conditionNumber, "\"></div>"), "sololord-img");
@@ -1602,14 +1623,14 @@ var Conspiracy = /** @class */ (function () {
             var playerId = Number(player.id);
             var playerTable = Object.values(gamedatas.playersTables[playerId]);
             // Lord & pearl counters
-            dojo.place("<div class=\"counters\">\n                <div id=\"lord-counter-wrapper-".concat(player.id, "\" class=\"lord-counter\"></div>\n                <div id=\"pearl-counter-wrapper-").concat(player.id, "\" class=\"pearl-counter\">\n                    <div class=\"token pearl\"></div> \n                    <span id=\"pearl-counter-").concat(player.id, "\" class=\"left\"></span>\n                </div>\n            </div>"), "player_board_".concat(player.id));
+            _this.bga.playerPanels.getElement(playerId).insertAdjacentHTML('beforeend', "<div class=\"counters\">\n                <div id=\"lord-counter-wrapper-".concat(player.id, "\" class=\"lord-counter\"></div>\n                <div id=\"pearl-counter-wrapper-").concat(player.id, "\" class=\"pearl-counter\">\n                    <div class=\"token pearl\"></div> \n                    <span id=\"pearl-counter-").concat(player.id, "\" class=\"left\"></span>\n                </div>\n            </div>"));
             _this.minimaps[playerId] = new Minimap(playerId, playerTable);
             var pearlCounter = new ebg.counter();
             pearlCounter.create("pearl-counter-".concat(player.id));
             pearlCounter.setValue(player.pearls);
             _this.pearlCounters[playerId] = pearlCounter;
             // keys counters
-            dojo.place("<div class=\"counters\">\n                <div id=\"silver-key-counter-wrapper-".concat(player.id, "\" class=\"key-counter silver-key-counter\">\n                    <div id=\"silver-key-").concat(player.id, "\" class=\"token silver key\"></div> \n                    <span id=\"silver-key-counter-").concat(player.id, "\" class=\"left\"></span>\n                </div>\n                <div id=\"gold-key-counter-wrapper-").concat(player.id, "\" class=\"key-counter gold-key-counter\">\n                    <div id=\"gold-key-").concat(player.id, "\"  class=\"token gold key\"></div> \n                    <span id=\"gold-key-counter-").concat(player.id, "\" class=\"left\"></span>\n                </div>\n            </div>"), "player_board_".concat(player.id));
+            _this.bga.playerPanels.getElement(playerId).insertAdjacentHTML('beforeend', "<div class=\"counters\">\n                <div id=\"silver-key-counter-wrapper-".concat(player.id, "\" class=\"key-counter silver-key-counter\">\n                    <div id=\"silver-key-").concat(player.id, "\" class=\"token silver key\"></div> \n                    <span id=\"silver-key-counter-").concat(player.id, "\" class=\"left\"></span>\n                </div>\n                <div id=\"gold-key-counter-wrapper-").concat(player.id, "\" class=\"key-counter gold-key-counter\">\n                    <div id=\"gold-key-").concat(player.id, "\"  class=\"token gold key\"></div> \n                    <span id=\"gold-key-counter-").concat(player.id, "\" class=\"left\"></span>\n                </div>\n            </div>"));
             var lastLocationSpotIndex = playerTable.map(function (spot, spotIndex) { return spot.location ? spotIndex : -1; }).reduce(function (a, b) { return a > b ? a : b; }, -1);
             var silverKeyAvailable = playerTable.filter(function (spot, spotIndex) { var _a; return spotIndex > lastLocationSpotIndex && ((_a = spot.lord) === null || _a === void 0 ? void 0 : _a.key) === 1; }).length > 0;
             dojo.toggleClass("silver-key-counter-wrapper-".concat(player.id), 'available', silverKeyAvailable);
@@ -1627,10 +1648,9 @@ var Conspiracy = /** @class */ (function () {
             var html = "<div class=\"top-lord-tokens\">";
             GUILD_IDS.forEach(function (guild) { return html += "<div class=\"token guild".concat(guild, " token-guild").concat(guild, "\" id=\"top-lord-token-").concat(guild, "-").concat(player.id, "\"></div>"); });
             html += "</div>";
-            dojo.place(html, "player_board_".concat(player.id));
+            _this.bga.playerPanels.getElement(playerId).insertAdjacentHTML('beforeend', html);
             // pearl master token
-            dojo.place("<div id=\"player_board_".concat(player.id, "_pearlMasterWrapper\" class=\"pearlMasterWrapper\"></div>"), "player_board_".concat(player.id));
-            dojo.place("<div id=\"player_board_".concat(player.id, "_playAgainWrapper\" class=\"playAgainWrapper\"></div>"), "player_board_".concat(player.id));
+            _this.bga.playerPanels.getElement(playerId).insertAdjacentHTML('beforeend', "\n                <div id=\"player_board_".concat(player.id, "_pearlMasterWrapper\" class=\"pearlMasterWrapper\"></div>\n                <div id=\"player_board_").concat(player.id, "_playAgainWrapper\" class=\"playAgainWrapper\"></div>\n            "));
             if (gamedatas.pearlMasterPlayer === playerId) {
                 _this.placePearlMasterToken(gamedatas.pearlMasterPlayer);
             }

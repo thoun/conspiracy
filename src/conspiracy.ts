@@ -102,6 +102,24 @@ class Conspiracy implements ConspiracyGame {
         this.setupNotifications();
         this.bga.userPreferences.onChange = (prefId: number, prefValue: number) => this.onPreferenceChange(prefId, prefValue);
 
+        if ((this as any).bgaInternal.flags['ingame_player_panels']) {
+            setTimeout(() => {
+                Object.keys(gamedatas.players).forEach(playerId => {
+                    const playerPanel = document.getElementById(`overall_player_board_${playerId}`)
+                    const playerTable = document.getElementById(`player-table-${playerId}`).querySelector('.board-player-name') as HTMLDivElement;
+                    playerTable.innerHTML = '';
+                    playerTable.insertAdjacentElement('beforeend', playerPanel);
+                    playerTable.style.color = 'black';
+                    playerTable.style.fontWeight = 'inherit';
+                    playerTable.style.minWidth = '280px';
+                    playerTable.style.top = '-195px';
+                    playerTable.style.left = 'calc(50% - 140px)';
+                    playerTable.style.textAlign = 'inherit';
+                    (playerTable.parentElement.parentElement as HTMLDivElement).style.marginTop = '200px';
+                });
+            });
+        }
+
         log( "Ending game setup" );
     }
 
@@ -420,25 +438,11 @@ class Conspiracy implements ConspiracyGame {
         const solo = players.length === 1;
 
         if (solo) {
-            dojo.place(`
-            <div id="overall_player_board_0" class="player-board current-player-board">					
-                <div class="player_board_inner" id="player_board_inner_982fff">
-                    
-                    <div class="emblemwrap" id="avatar_active_wrap_0">
-                        <div alt="" class="avatar avatar_active opponent-avatar" id="avatar_active_0"></div>
-                    </div>
-                                               
-                    <div class="player-name" id="player_name_0">
-                        ${_("Legendary opponent")}
-                    </div>
-                    <div id="player_board_0" class="player_board_content">
-                        <div class="player_score">
-                            <span id="player_score_0" class="player_score_value">10</span> <i class="fa fa-star" id="icon_point_0"></i>           
-                        </div>
-                        <div id="sololord-img" class="sololord sololord${gamedatas.opponent.lord}"></div>
-                    </div>
-                </div>
-            </div>`, `overall_player_board_${players[0].id}`, 'after');
+            this.bga.playerPanels.addAutomataPlayerPanel(0, _("Legendary opponent"), {
+                score: gamedatas.opponent.score,
+                iconClass: 'opponent-avatar',
+            });
+            this.bga.playerPanels.getElement(0).insertAdjacentHTML('beforeend', `<div id="sololord-img" class="sololord sololord${gamedatas.opponent.lord}"></div>`);
 
             const conditionNumber = gamedatas.opponent.lord == 2 || gamedatas.opponent.lord == 4 ? 4 : 3;
             for (let i=1; i<=conditionNumber; i++) {
@@ -456,14 +460,13 @@ class Conspiracy implements ConspiracyGame {
             const playerTable = Object.values(gamedatas.playersTables[playerId]);         
 
             // Lord & pearl counters
-
-            dojo.place(`<div class="counters">
+            this.bga.playerPanels.getElement(playerId).insertAdjacentHTML('beforeend', `<div class="counters">
                 <div id="lord-counter-wrapper-${player.id}" class="lord-counter"></div>
                 <div id="pearl-counter-wrapper-${player.id}" class="pearl-counter">
                     <div class="token pearl"></div> 
                     <span id="pearl-counter-${player.id}" class="left"></span>
                 </div>
-            </div>`, `player_board_${player.id}`);
+            </div>`);
 
             this.minimaps[playerId] = new Minimap(playerId, playerTable);
 
@@ -474,7 +477,7 @@ class Conspiracy implements ConspiracyGame {
 
             // keys counters
 
-            dojo.place(`<div class="counters">
+            this.bga.playerPanels.getElement(playerId).insertAdjacentHTML('beforeend', `<div class="counters">
                 <div id="silver-key-counter-wrapper-${player.id}" class="key-counter silver-key-counter">
                     <div id="silver-key-${player.id}" class="token silver key"></div> 
                     <span id="silver-key-counter-${player.id}" class="left"></span>
@@ -483,7 +486,7 @@ class Conspiracy implements ConspiracyGame {
                     <div id="gold-key-${player.id}"  class="token gold key"></div> 
                     <span id="gold-key-counter-${player.id}" class="left"></span>
                 </div>
-            </div>`, `player_board_${player.id}`);
+            </div>`);
 
             const lastLocationSpotIndex = playerTable.map((spot: PlayerTableSpot, spotIndex: number) => spot.location ? spotIndex : -1).reduce((a, b) => a > b ? a : b, -1);
 
@@ -506,11 +509,13 @@ class Conspiracy implements ConspiracyGame {
             let html = `<div class="top-lord-tokens">`;
             GUILD_IDS.forEach(guild => html += `<div class="token guild${guild} token-guild${guild}" id="top-lord-token-${guild}-${player.id}"></div>`);
             html += `</div>`;
-            dojo.place(html, `player_board_${player.id}`);
+            this.bga.playerPanels.getElement(playerId).insertAdjacentHTML('beforeend', html);
 
             // pearl master token
-            dojo.place(`<div id="player_board_${player.id}_pearlMasterWrapper" class="pearlMasterWrapper"></div>`, `player_board_${player.id}`);
-            dojo.place(`<div id="player_board_${player.id}_playAgainWrapper" class="playAgainWrapper"></div>`, `player_board_${player.id}`);
+            this.bga.playerPanels.getElement(playerId).insertAdjacentHTML('beforeend', `
+                <div id="player_board_${player.id}_pearlMasterWrapper" class="pearlMasterWrapper"></div>
+                <div id="player_board_${player.id}_playAgainWrapper" class="playAgainWrapper"></div>
+            `);
 
             if (gamedatas.pearlMasterPlayer === playerId) {
                 this.placePearlMasterToken(gamedatas.pearlMasterPlayer);
