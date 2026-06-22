@@ -700,6 +700,7 @@ html[data-show-forbidden=true] .forbidden-key::after {
 #score {
   display: none;
   justify-content: center;
+  color: black;
 }
 #score table {
   width: 492px;
@@ -731,7 +732,7 @@ html[data-show-forbidden=true] .forbidden-key::after {
 
 #conspiracy-help-button {
   position: fixed;
-  bottom: 75px;
+  bottom: 5px;
   left: 5px;
   width: 50px;
   height: 50px;
@@ -739,6 +740,7 @@ html[data-show-forbidden=true] .forbidden-key::after {
   background-position: 73% 5%;
   background-size: 800%;
   font-weight: bold;
+  color: black;
   text-shadow: 0 0 4px white;
   border-radius: 25px;
   border: 1px solid #777;
@@ -749,11 +751,6 @@ html[data-show-forbidden=true] .forbidden-key::after {
   font-family: "MoolBoran";
 }
 
-@media only screen and (min-width: 1004px) {
-  #conspiracy-help-button {
-    bottom: 5px;
-  }
-}
 #popin_conspiracyHelpDialog {
   color: #212222;
   background: #e5f4fd;

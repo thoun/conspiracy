@@ -32,7 +32,10 @@ class Conspiracy implements ConspiracyGame {
     private playerInPopin: number | null = null;
     private isTouch = window.matchMedia('(hover: none)').matches;
 
-    public bga: Bga;
+    //public bga: Bga;
+    public bga: Bga<ConspiracyPlayer>;
+    //public bga: Bga<Player, ConspiracyGamedatas>;
+    //public bga: Bga<ConspiracyPlayer, ConspiracyGamedatas>;
 
     constructor() {
     }
@@ -576,6 +579,8 @@ class Conspiracy implements ConspiracyGame {
 
     private createPlayerTable(gamedatas: ConspiracyGamedatas, playerId: number) {
         this.playersTables[playerId] = new PlayerTable(this, playerId > 0 ? gamedatas.players[playerId] : gamedatas.opponent as any, gamedatas.playersTables[playerId]);
+
+        this.bga.players.getActivePlayer
     }
 
     public chooseLordDeckStack(number: number) {

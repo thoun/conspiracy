@@ -1263,6 +1263,8 @@ LOG_GUILD_COLOR[4] = '#011d4d';
 LOG_GUILD_COLOR[5] = '#522886';
 var LOCAL_STORAGE_ZOOM_KEY = 'Conspiracy-zoom';
 var Conspiracy = /** @class */ (function () {
+    //public bga: Bga<Player, ConspiracyGamedatas>;
+    //public bga: Bga<ConspiracyPlayer, ConspiracyGamedatas>;
     function Conspiracy() {
         this.playersTables = [];
         this.minimaps = [];
@@ -1697,6 +1699,7 @@ var Conspiracy = /** @class */ (function () {
     };
     Conspiracy.prototype.createPlayerTable = function (gamedatas, playerId) {
         this.playersTables[playerId] = new PlayerTable(this, playerId > 0 ? gamedatas.players[playerId] : gamedatas.opponent, gamedatas.playersTables[playerId]);
+        this.bga.players.getActivePlayer;
     };
     Conspiracy.prototype.chooseLordDeckStack = function (number) {
         this.bga.actions.performAction('actChooseLordDeckStack', {
