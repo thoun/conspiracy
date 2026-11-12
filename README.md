@@ -14,7 +14,7 @@ In VS Code, add extension https://marketplace.visualstudio.com/items?itemName=em
             {
                 "match": ".*\\.ts$",
                 "isAsync": true,
-                "cmd": "npm run build:ts"
+                "cmd": "npm run build"
             },
             {
                 "match": ".*\\.scss$",
@@ -24,7 +24,7 @@ In VS Code, add extension https://marketplace.visualstudio.com/items?itemName=em
         ]
     }
 ```
-If you use it for another game, replace `conspiracy` mentions on package.json `build:scss` script and on tsconfig.json `files` property.
+TypeScript sources are in `src/ts/`, with `src/ts/Game.ts` as the entry point. `npm run build` generates `modules/js/Game.js` and `conspiracy.css`. Use `npm run watch` to rebuild both when sources change.
 
 ## Auto-upload builded files
 Also add one auto-FTP upload extension (for example https://marketplace.visualstudio.com/items?itemName=lukasz-wronski.ftp-sync) and configure it. The extension will detected modified files in the workspace, including builded ones, and upload them to remote server.

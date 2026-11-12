@@ -1,0 +1,172 @@
+import { PlayerTable } from "./player-table.js";
+import { LORD_WIDTH, LORD_HEIGHT, setupLordCards, getUniqueId, LOCATION_WIDTH, LOCATION_HEIGHT, setupLocationCards, moveToAnotherStock, getLordTooltip, getLocationTooltip } from "../stock-utils.js";
+import { slideToObjectAndAttach } from "../slide-utils.js";
+import { StockClass } from "../libs.js";
+
+export class PlayerTableSpotStock {
+    private playerId: number;
+    private lordsStock: Stock;
+    private locationsStock: Stock;
+
+    constructor(
+        private game: ConspiracyGame, 
+        private playerTable: PlayerTable,
+        player: Player,
+        private spot: PlayerTableSpot,
+        private spotNumber: number) {
+
+        this.playerId = Number(player.id);
+
+        const playerSpotHtml = `<div id="player-table-${this.playerId}-spot${spotNumber}" class="player-table-spot spot${spotNumber}">
+                <div id="player${this.playerId}-spot${spotNumber}-lord-stock"></div>
+                <div id="player${this.playerId}-spot${spotNumber}-location-stock" class="player-table-spot-location"></div>
+                <div id="player${this.playerId}-spot${spotNumber}-token" class="player-table-spot-token"></div>
+        </div>`;
+        document.getElementById(`player-table-${this.playerId}`).insertAdjacentHTML('beforeend', playerSpotHtml);
+
+        this.lordsStock = new StockClass() as Stock;
+        this.lordsStock.create( this.game.bga.gameui, document.getElementById(`player${this.playerId}-spot${spotNumber}-lord-stock`) as HTMLDivElement, LORD_WIDTH, LORD_HEIGHT );
+        this.lordsStock.setSelectionMode(0);
+        this.lordsStock.setSelectionAppearance('class');
+        this.lordsStock.selectionClass = 'selected';
+        this.lordsStock.onItemCreate = (cardDiv, cardTypeId, cardId) => this.setupNewLordCard(cardDiv, cardTypeId, cardId);
+        this.lordsStock.image_items_per_row = 16;
+        this.lordsStock.onChangeSelection = () => this.onLordSelection();
+        setupLordCards([this.lordsStock]);
+
+        const lord = spot.lord;
+        if (lord) {
+            this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), `${lord.id}`);
+        }
+
+        this.locationsStock = new StockClass() as Stock;
+        this.locationsStock.create( this.game.bga.gameui, document.getElementById(`player${this.playerId}-spot${spotNumber}-location-stock`) as HTMLDivElement, LOCATION_WIDTH, LOCATION_HEIGHT );
+        this.locationsStock.setSelectionMode(0);
+        this.locationsStock.onItemCreate = (cardDiv, cardTypeId, cardId) => this.setupNewLocationCard(cardDiv, cardTypeId, cardId);
+        this.locationsStock.image_items_per_row = 13;
+        setupLocationCards([this.locationsStock]);
+
+        
+        const location = spot.location;
+        if (location) {
+            this.locationsStock.addToStockWithId(this.playerId == 0 ? 0 : getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`);
+        }
+    }
+
+    public hasLord(): boolean {
+        return !!this.spot.lord;
+    }
+    public hasLocation(): boolean {
+        return !!this.spot.location;
+    }
+
+    public getLordStock(): Stock {
+        return this.lordsStock;
+    }
+
+    private get tokenWrapper(): HTMLDivElement {
+       return document.getElementById(`player${this.playerId}-spot${this.spotNumber}-token`) as HTMLDivElement;
+    }
+
+    public getLord(): Lord {
+        return this.spot.lord;
+    }
+    
+    public setLord(lord: Lord, fromStock: Stock | null) {
+        if (fromStock) {
+            moveToAnotherStock(fromStock, this.lordsStock, getUniqueId(lord.type, lord.guild), `${lord.id}`);
+        } else {
+            this.lordsStock.addToStockWithId(getUniqueId(lord.type, lord.guild), `${lord.id}`, 'lord-hidden-pile');
+        }
+        this.spot.lord = lord;
+    }
+
+    public setLocation(location: Location, fromStock: Stock | null) {
+        if (fromStock) {
+            moveToAnotherStock(fromStock, this.locationsStock, this.playerId == 0 ? 0 : getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`);
+        } else {
+            this.locationsStock.addToStockWithId(this.playerId == 0 ? 0 : getUniqueId(location.type, location.passivePowerGuild ?? 0), `${location.id}`, 'location-hidden-pile');
+        }
+        this.spot.location = location;
+    }
+
+    public setSelectableForSwap(selectable: boolean): void {
+        if (!this.spot.lord) {
+            return;
+        }
+
+        if (this.spot.lord.key) { // can't swap
+            document.getElementById(`player${this.playerId}-spot${this.spotNumber}-lord-stock_item_${this.spot.lord.id}`)?.classList.toggle('disabled', selectable);
+        } else { // can swap
+            this.lordsStock.setSelectionMode(selectable ? 2 : 0);
+            document.getElementById(`player${this.playerId}-spot${this.spotNumber}-lord-stock_item_${this.spot.lord.id}`)?.classList.toggle('selectable', selectable);
+            
+            if (!selectable) {
+                this.lordsStock.unselectAll();
+            }
+        }
+    }
+
+    onLordSelection() {
+        const items = this.lordsStock.getSelectedItems();
+        if (items.length == 1) {
+            this.playerTable.addSelectedSpot(this.spotNumber);
+        } else if (items.length == 0) {
+            this.playerTable.removeSelectedSpot(this.spotNumber);
+        }
+    }
+
+    public placeTopLordToken() {
+        const guild = this.spot.lord.guild;
+        const tokenDiv = document.getElementById(`top-lord-token-${guild}-${this.playerId}`) as HTMLDivElement;
+        this.addTokenDiv(tokenDiv);
+    }
+
+    public setupNewLordCard(card_div: HTMLElement, card_type_id: number, card_id: string) {
+        let message = getLordTooltip(card_type_id);
+
+        if (message) {
+            this.game.bga.gameui.addTooltipHtml(card_div.id, message);
+        }
+    }
+
+    public setupNewLocationCard(card_div: HTMLElement, card_type_id: number, card_id: string) {
+        let message = getLocationTooltip(card_type_id);
+
+        if (message) {
+            this.game.bga.gameui.addTooltipHtml(card_div.id, message);
+        }
+    }
+
+    public addTokenDiv(tokenDiv: HTMLDivElement) {
+        slideToObjectAndAttach(this.game.bga.gameui, tokenDiv, this.tokenWrapper.id);
+    }
+    
+    public getTokenDiv(): HTMLDivElement | undefined {
+        return this.tokenWrapper.getElementsByTagName('div')[0] as HTMLDivElement;
+    }
+    
+    public highlightLord(guild: number = null) {
+        const cardId = this.lordsStock.items[0]?.id;
+        cardId && document.getElementById(`${this.lordsStock.container_div.id}_item_${cardId}`).classList.add(`highlight${guild ? `-guild${guild}` : ''}`);
+    }
+
+    public clearLordHighlight() {
+        const cardId = this.lordsStock.items[0]?.id;
+        cardId && document.getElementById(`${this.lordsStock.container_div.id}_item_${cardId}`).classList.remove('highlight');
+    }
+
+    public highlightLocation() {
+        const cardId = this.locationsStock.items[0]?.id;
+        cardId && document.getElementById(`${this.locationsStock.container_div.id}_item_${cardId}`).classList.add('highlight');
+    }
+    
+    public markForbiddenKey() {
+        if (!this.locationsStock.items.length) {
+            const lordType = Math.floor(this.lordsStock.items[0].type / 10);
+            if ([2, 3].includes(lordType)) {
+                document.getElementById(`player${this.playerId}-spot${this.spotNumber}-location-stock`).classList.add('forbidden-key');
+            }
+        }
+    }
+}

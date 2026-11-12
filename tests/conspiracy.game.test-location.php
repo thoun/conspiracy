@@ -1,16 +1,19 @@
 <?php
+
+use Bga\Games\Conspiracy\Game;
+
 define("APP_GAMEMODULE_PATH", "../misc/"); // include path to stubs, which defines "table.game.php" and other classes
-require_once ('../conspiracy.game.php');
+require_once __DIR__ . '/../modules/php/Game.php';
 
 class FakeDeck {
     function getCardsInLocation($string) {
     }
 }
 
-class ConspiracyTestLocation extends Conspiracy { // this is your game class defined in ggg.game.php
+class ConspiracyTestLocation extends Game { // Game class in modules/php/Game.php.
     function __construct() {
         // parent::__construct();
-        include '../material.inc.php';// this is how this normally included, from constructor
+        require __DIR__ . '/../modules/php/material.inc.php';// this is how this normally included, from constructor
 
         $this->locations = new FakeDeck();
         $this->lords = new FakeDeck();

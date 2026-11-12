@@ -1,11 +1,14 @@
 <?php
-define("APP_GAMEMODULE_PATH", "../misc/"); // include path to stubs, which defines "table.game.php" and other classes
-require_once ('../conspiracy.game.php');
 
-class ConspiracyTestCoalitionRulebook extends Conspiracy { // this is your game class defined in ggg.game.php
+use Bga\Games\Conspiracy\Game;
+
+define("APP_GAMEMODULE_PATH", "../misc/"); // include path to stubs, which defines "table.game.php" and other classes
+require_once __DIR__ . '/../modules/php/Game.php';
+
+class ConspiracyTestCoalitionRulebook extends Game { // Game class in modules/php/Game.php.
     function __construct() {
         // parent::__construct();
-        include '../material.inc.php';// this is how this normally included, from constructor
+        require __DIR__ . '/../modules/php/material.inc.php';// this is how this normally included, from constructor
     }
 
     function getLordInSpot(int $player_id, int $spot) {
@@ -58,10 +61,10 @@ class ConspiracyTestCoalitionRulebook extends Conspiracy { // this is your game 
     }
 }
 
-class ConspiracyTestCoalitionNull extends Conspiracy { // this is your game class defined in ggg.game.php
+class ConspiracyTestCoalitionNull extends Game { // Game class in modules/php/Game.php.
     function __construct() {
         // parent::__construct();
-        include '../material.inc.php';// this is how this normally included, from constructor
+        require __DIR__ . '/../modules/php/material.inc.php';// this is how this normally included, from constructor
     }
 
     function getLordInSpot(int $player_id, int $spot) {
@@ -112,10 +115,10 @@ class ConspiracyTestCoalitionNull extends Conspiracy { // this is your game clas
     }
 }
 
-class ConspiracyTestCoalitionComplex extends Conspiracy { // this is your game class defined in ggg.game.php
+class ConspiracyTestCoalitionComplex extends Game { // Game class in modules/php/Game.php.
     function __construct() {
         // parent::__construct();
-        include '../material.inc.php';// this is how this normally included, from constructor
+        require __DIR__ . '/../modules/php/material.inc.php';// this is how this normally included, from constructor
     }
 
     function getLordInSpot(int $player_id, int $spot) {
@@ -167,10 +170,10 @@ class ConspiracyTestCoalitionComplex extends Conspiracy { // this is your game c
     }
 }
 
-class ConspiracyTestCoalitionBackward extends Conspiracy { // this is your game class defined in ggg.game.php
+class ConspiracyTestCoalitionBackward extends Game { // Game class in modules/php/Game.php.
     function __construct() {
         // parent::__construct();
-        include '../material.inc.php';// this is how this normally included, from constructor
+        require __DIR__ . '/../modules/php/material.inc.php';// this is how this normally included, from constructor
     }
 
     function getLordInSpot(int $player_id, int $spot) {
