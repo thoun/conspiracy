@@ -1116,11 +1116,6 @@ class Game {
                 this.onEnteringLocationPlacement(args.args);
                 break;
             case 'showScore':
-                const playersIds = Object.keys(this.gamedatas.players);
-                if (playersIds.length == 1) {
-                    playersIds.push(0);
-                }
-                playersIds.forEach(playerId => this.bga.playerPanels.getScoreCounter(Number(playerId)).setValue(0));
                 this.onEnteringShowScore();
                 break;
         }
@@ -1332,7 +1327,7 @@ class Game {
         const solo = players.length === 1;
         if (solo) {
             this.bga.playerPanels.addAutomataPlayerPanel(0, _("Legendary opponent"), {
-                score: gamedatas.opponent.score,
+                score: gamedatas.hiddenScore ? null : gamedatas.opponent.score,
                 iconClass: 'opponent-avatar',
             });
             this.bga.playerPanels.getElement(0).insertAdjacentHTML('beforeend', `<div id="sololord-img" class="sololord sololord${gamedatas.opponent.lord}"></div>`);
@@ -1514,6 +1509,9 @@ class Game {
     setScore(playerId, column, score) {
         const cell = document.getElementById(`score${playerId}`).getElementsByTagName('td')[column];
         cell.innerHTML = `${score}`;
+        if (Number(playerId) === 0 && column < 5) {
+            this.bga.playerPanels.getScoreCounter(0).incValue(score);
+        }
         cell.classList.add('highlight');
     }
     addHelp() {
@@ -1572,22 +1570,14 @@ class Game {
     }
     setNewScore(args) {
         if (this.gamedatas.hiddenScore) {
-            setTimeout(() => {
-                const playersIds = Object.keys(this.gamedatas.players);
-                if (playersIds.length == 1) {
-                    playersIds.push(0);
-                }
-                playersIds.forEach(playerId => document.getElementById(`player_score_${playerId}`).innerHTML = '-');
-            }, 100);
+            return;
         }
-        else {
-            const score = args.newScore;
-            (args.playerId ? this.gamedatas.players[args.playerId] : this.gamedatas.opponent).newScore = score;
-            if (!isNaN(score.total)) {
-                this.bga.playerPanels.getScoreCounter(Number(args.playerId))?.toValue(score.total);
-            }
-            this.setNewScoreTooltip(args.playerId);
+        const score = args.newScore;
+        (args.playerId ? this.gamedatas.players[args.playerId] : this.gamedatas.opponent).newScore = score;
+        if (Number(args.playerId) === 0 && !isNaN(score.total)) {
+            this.bga.playerPanels.getScoreCounter(0)?.toValue(score.total);
         }
+        this.setNewScoreTooltip(args.playerId);
     }
     setRemainingLords(remainingLords) {
         this.lordCounter.setValue(remainingLords);
@@ -1701,12 +1691,14 @@ class Game {
         const playerId = notif.args.playerId;
         this.placePearlMasterToken(playerId);
         if (!this.gamedatas.hiddenScore) {
-            this.bga.playerPanels.getScoreCounter(Number(playerId)).incValue(5);
+            if (Number(playerId) === 0)
+                this.bga.playerPanels.getScoreCounter(0).incValue(5);
             (playerId == 0 ? this.gamedatas.opponent : this.gamedatas.players[playerId]).newScore.pearlMaster = 5;
             this.setNewScoreTooltip(playerId);
             const previousPlayerId = notif.args.previousPlayerId;
             if (previousPlayerId >= (Object.keys(this.gamedatas.players).length > 1 ? 1 : 0)) {
-                this.bga.playerPanels.getScoreCounter(Number(previousPlayerId))?.incValue(-5);
+                if (Number(previousPlayerId) === 0)
+                    this.bga.playerPanels.getScoreCounter(0)?.incValue(-5);
                 (previousPlayerId == 0 ? this.gamedatas.opponent : this.gamedatas.players[previousPlayerId]).newScore.pearlMaster = 0;
                 this.setNewScoreTooltip(previousPlayerId);
             }
@@ -1725,19 +1717,16 @@ class Game {
     notif_scoreLords(notif) {
         log('notif_scoreLords', notif.args);
         this.setScore(notif.args.playerId, 1, notif.args.points);
-        this.bga.playerPanels.getScoreCounter(Number(notif.args.playerId)).incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightTopLords();
     }
     notif_scoreLocations(notif) {
         log('notif_scoreLocations', notif.args);
         this.setScore(notif.args.playerId, 2, notif.args.points);
-        this.bga.playerPanels.getScoreCounter(Number(notif.args.playerId)).incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightLocations();
     }
     notif_scoreCoalition(notif) {
         log('notif_scoreCoalition', notif.args);
         this.setScore(notif.args.playerId, 3, notif.args.points);
-        this.bga.playerPanels.getScoreCounter(Number(notif.args.playerId)).incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightCoalition(notif.args.coalition);
     }
     notif_scorePearlMaster(notif) {
@@ -1749,9 +1738,6 @@ class Game {
         playersIds.forEach(playerId => {
             const isPearlMaster = notif.args.playerId == Number(playerId);
             this.setScore(playerId, 4, isPearlMaster ? 5 : 0);
-            if (isPearlMaster) {
-                this.bga.playerPanels.getScoreCounter(Number(notif.args.playerId)).incValue(5);
-            }
         });
         document.getElementById('pearlMasterToken').classList.add('highlight');
     }

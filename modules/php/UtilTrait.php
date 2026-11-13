@@ -101,7 +101,7 @@ trait UtilTrait {
                 ]));
 
                 if ($player_id > 0) {
-                    $this->bga->playerScore->inc($player_id, 5, null);
+                    $this->bga->playerScore->inc($player_id, 5);
                 } else {
                     if ($this->isSoloMode()) {
                         $this->incOpponentScore(5);
@@ -109,7 +109,7 @@ trait UtilTrait {
                 }
                 if ($pearlMasterPlayer > -1) {
                     if ($pearlMasterPlayer > 0) {
-                        $this->bga->playerScore->inc((int) $pearlMasterPlayer, -5, null);
+                        $this->bga->playerScore->inc((int) $pearlMasterPlayer, -5);
                     } else {
                         if ($this->isSoloMode()) {
                             $this->incOpponentScore(-5);
@@ -357,7 +357,7 @@ trait UtilTrait {
         if ($playerId == 0) {
             $this->setOpponentScore($points);
         } else {
-            $this->bga->playerScore->set($playerId, $points, null);
+            $this->bga->playerScore->set($playerId, $points);
         }
 
         return $score;

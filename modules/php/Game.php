@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Bga\Games\Conspiracy;
 
 use Bga\GameFramework\Components\Deck;
+use Bga\GameFramework\Components\Counters\CounterVisibility;
 use Bga\GameFramework\Table;
 
 require_once __DIR__ . '/constants.inc.php';
@@ -55,6 +56,8 @@ class Game extends Table {
         //  You can use any number of global variables with IDs between 10 and 99.
         // Note: afterwards, you can get/set the global variables with getGameStateValue/setGameStateInitialValue/setGameStateValue
         parent::__construct();
+
+        $this->bga->playerScore->setVisibility(fn() => $this->isScoreHidden() ? CounterVisibility::HIDDEN : CounterVisibility::VISIBLE);
         
         $this->initGameStateLabels([
                 "pearlMasterPlayer" => 10,
@@ -177,7 +180,8 @@ class Game extends Table {
     }
 
     public function isScoreHidden(): bool {
-        return ($this->bga->tableOptions->get(100) ?? 1) === 2;
+        return ($this->bga->tableOptions->get(100) ?? 1) === 2
+            && !in_array($this->gamestate->getCurrentMainStateId(), [ST_SHOW_SCORE, ST_END_GAME], true);
     }
 
     public function getSoloOpponentOption(): int {

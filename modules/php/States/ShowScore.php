@@ -25,7 +25,7 @@ class ShowScore extends GameState {
         $solo = $this->game->isSoloMode();
 
         // we reinit points as we gave points for lords & locations
-        $this->game->bga->playerScore->setAll(0, null);
+        $this->game->bga->playerScore->setAll(0);
         if ($solo) {
             $this->game->setOpponentScore(0);
         }
@@ -40,7 +40,7 @@ class ShowScore extends GameState {
 
             $playersPoints[$playerId] = $points;
             if ($playerId > 0) {
-                $this->game->bga->playerScore->inc($playerId, $points, null);
+                $this->game->bga->playerScore->inc($playerId, $points);
                 $this->game->DbQuery("UPDATE player SET player_score_lords = $points WHERE player_id = $playerId");
             } else {
                 $this->game->incOpponentScore($points);
@@ -64,7 +64,7 @@ class ShowScore extends GameState {
 
             $playersPoints[$playerId] += $points;
             if ($playerId > 0) {
-                $this->game->bga->playerScore->inc($playerId, $points, null);
+                $this->game->bga->playerScore->inc($playerId, $points);
                 $this->game->DbQuery("UPDATE player SET player_score_locations = $points WHERE player_id = $playerId");
             } else {
                 $this->game->incOpponentScore($points);
@@ -89,7 +89,7 @@ class ShowScore extends GameState {
 
             $playersPoints[$playerId] += $points;
             if ($playerId > 0) {
-                $this->game->bga->playerScore->inc($playerId, $points, null);
+                $this->game->bga->playerScore->inc($playerId, $points);
                 $this->game->DbQuery("UPDATE player SET player_score_coalition = $points WHERE player_id = $playerId");
             } else {
                 $this->game->incOpponentScore($points);
@@ -113,7 +113,7 @@ class ShowScore extends GameState {
 
         $playersPoints[$pearlMaster] += 5;
         if ($pearlMaster > 0) {
-            $this->game->bga->playerScore->inc($pearlMaster, 5, null);
+            $this->game->bga->playerScore->inc($pearlMaster, 5);
         } else if ($pearlMaster === 0) {
             $this->game->incOpponentScore(5);
             $this->setOpponentScoreCoalition(5);

@@ -24,7 +24,6 @@ define('ST_USE_REPLAY', 61);
 define('ST_SHOW_SCORE', 80);
 
 define('ST_END_GAME', 99);
-define('END_SCORE', 100);
 
 /*
  * Powers

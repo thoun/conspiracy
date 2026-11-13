@@ -258,11 +258,6 @@ export class Game implements ConspiracyGame {
                 break;
 
             case 'showScore':
-                const playersIds = Object.keys(this.gamedatas.players) as any[];
-                if (playersIds.length == 1) {
-                    playersIds.push(0);
-                }
-                playersIds.forEach(playerId => this.bga.playerPanels.getScoreCounter(Number(playerId)).setValue(0));
                 this.onEnteringShowScore();
                 break;
         }
@@ -519,7 +514,7 @@ export class Game implements ConspiracyGame {
 
         if (solo) {
             this.bga.playerPanels.addAutomataPlayerPanel(0, _("Legendary opponent"), {
-                score: gamedatas.opponent.score,
+                score: gamedatas.hiddenScore ? null : gamedatas.opponent.score,
                 iconClass: 'opponent-avatar',
             });
             this.bga.playerPanels.getElement(0).insertAdjacentHTML('beforeend', `<div id="sololord-img" class="sololord sololord${gamedatas.opponent.lord}"></div>`);
@@ -741,6 +736,9 @@ export class Game implements ConspiracyGame {
     private setScore(playerId: number | string, column: number, score: number) { // column 1 for lord ... 5 for pearl master
         const cell = (document.getElementById(`score${playerId}`).getElementsByTagName('td')[column] as HTMLTableDataCellElement);
         cell.innerHTML = `${score}`;
+        if (Number(playerId) === 0 && column < 5) {
+            this.bga.playerPanels.getScoreCounter(0).incValue(score);
+        }
         cell.classList.add('highlight');
     }
 
@@ -807,22 +805,16 @@ export class Game implements ConspiracyGame {
 
     private setNewScore(args: NotifNewScoreArgs) {
         if (this.gamedatas.hiddenScore) {
-            setTimeout(() => {
-                const playersIds = Object.keys(this.gamedatas.players) as any[];
-                if (playersIds.length == 1) {
-                    playersIds.push(0);
-                }
-                playersIds.forEach(playerId => document.getElementById(`player_score_${playerId}`).innerHTML = '-')
-            }, 100);
-        } else {
-            const score = args.newScore;
-            (args.playerId ? this.gamedatas.players[args.playerId] : this.gamedatas.opponent as any).newScore = score;
-            if (!isNaN(score.total)) {
-                this.bga.playerPanels.getScoreCounter(Number(args.playerId))?.toValue(score.total);
-            }
-
-            this.setNewScoreTooltip(args.playerId);
+            return;
         }
+
+        const score = args.newScore;
+        (args.playerId ? this.gamedatas.players[args.playerId] : this.gamedatas.opponent as any).newScore = score;
+        if (Number(args.playerId) === 0 && !isNaN(score.total)) {
+            this.bga.playerPanels.getScoreCounter(0)?.toValue(score.total);
+        }
+
+        this.setNewScoreTooltip(args.playerId);
     }
 
     private setRemainingLords(remainingLords: number) {
@@ -960,13 +952,13 @@ export class Game implements ConspiracyGame {
         this.placePearlMasterToken(playerId);
 
         if (!this.gamedatas.hiddenScore) {
-            this.bga.playerPanels.getScoreCounter(Number(playerId)).incValue(5);
+            if (Number(playerId) === 0) this.bga.playerPanels.getScoreCounter(0).incValue(5);
             (playerId == 0 ? this.gamedatas.opponent : this.gamedatas.players[playerId] as any).newScore.pearlMaster = 5;
             this.setNewScoreTooltip(playerId);
 
             const previousPlayerId = notif.args.previousPlayerId;
             if (previousPlayerId >= (Object.keys(this.gamedatas.players).length > 1 ? 1 : 0)) {
-                this.bga.playerPanels.getScoreCounter(Number(previousPlayerId))?.incValue(-5);
+                if (Number(previousPlayerId) === 0) this.bga.playerPanels.getScoreCounter(0)?.incValue(-5);
                 (previousPlayerId == 0 ? this.gamedatas.opponent : this.gamedatas.players[previousPlayerId] as any).newScore.pearlMaster = 0;
                 this.setNewScoreTooltip(previousPlayerId);
             }
@@ -988,21 +980,18 @@ export class Game implements ConspiracyGame {
     notif_scoreLords(notif: Notif<NotifScorePointArgs>) {
         log('notif_scoreLords', notif.args);
         this.setScore(notif.args.playerId, 1, notif.args.points);
-        this.bga.playerPanels.getScoreCounter(Number(notif.args.playerId)).incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightTopLords();
     }
 
     notif_scoreLocations(notif: Notif<NotifScorePointArgs>) {
         log('notif_scoreLocations', notif.args);
         this.setScore(notif.args.playerId, 2, notif.args.points);
-        this.bga.playerPanels.getScoreCounter(Number(notif.args.playerId)).incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightLocations();
     }
 
     notif_scoreCoalition(notif: Notif<NotifScoreCoalitionArgs>) {
         log('notif_scoreCoalition', notif.args);
         this.setScore(notif.args.playerId, 3, notif.args.points);
-        this.bga.playerPanels.getScoreCounter(Number(notif.args.playerId)).incValue(notif.args.points);
         this.playersTables[notif.args.playerId].highlightCoalition(notif.args.coalition);
     }
 
@@ -1015,9 +1004,6 @@ export class Game implements ConspiracyGame {
         playersIds.forEach(playerId => {
             const isPearlMaster = notif.args.playerId == Number(playerId);
             this.setScore(playerId, 4, isPearlMaster ? 5 : 0);
-            if (isPearlMaster) {
-                this.bga.playerPanels.getScoreCounter(Number(notif.args.playerId)).incValue(5);
-            }
         });
 
         document.getElementById('pearlMasterToken').classList.add('highlight');
