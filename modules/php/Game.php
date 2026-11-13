@@ -144,7 +144,7 @@ class Game extends Table {
         $this->bga->playerStats->init('lords_points', 0);
         $this->bga->playerStats->init('locations_points', 0);
         $this->bga->playerStats->init('coalition_size', 0);
-        $this->bga->playerStats->init('pearl_master', false);
+        $this->bga->playerStats->init('pearl_master', 0);
         $this->bga->playerStats->init('total_points', 0);
 
         // setup the initial game situation here

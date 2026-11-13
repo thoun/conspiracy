@@ -126,7 +126,7 @@ class ShowScore extends GameState {
 
         foreach ($players as $playerId => $playerDb) { // dont set stat to solo player
             $this->game->bga->playerStats->set('pearls', intval($playerDb['pearls']), $playerId);
-            $this->game->bga->playerStats->set('pearl_master', $playerId == $pearlMaster, $playerId);
+            $this->game->bga->playerStats->set('pearl_master', $playerId == $pearlMaster ? 1 : 0, $playerId);
         }
 
         // total
